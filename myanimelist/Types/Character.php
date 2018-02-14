@@ -6,7 +6,7 @@
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.8.2
+ * @version    		0.8.3
  */
 
 namespace myanimelist\Types;
@@ -19,22 +19,6 @@ class Character
 	 * Set type
 	 */
 	public static $type = 'character';
-
-	/**
-	 * If true, names becomes the first-last order instead of the last-first order
-	 */
-	public static $reverseName = TRUE;
-
-	/**
-	 * Take object parameter and send request
-	 *
-	 * @param  string $id Enter page id on MAL
-	 * @return void
-	 */
-	public function __construct( $id )
-	{
-		$this->request( $id );
-	}
 
 	/**
 	 * Get character name
@@ -173,6 +157,7 @@ class Character
 	/**
 	 * Get recent anime list
 	 *
+	 * @param  int   		$limit   	How many rows do you want to fetch?
 	 * @return void | array (in output)
 	 */
 	public function _recentanime( $limit=10 )
@@ -207,6 +192,7 @@ class Character
 	/**
 	 * Get recent manga list
 	 *
+	 * @param  int   		$limit   	How many rows do you want to fetch?
 	 * @return void | array (in output)
 	 */
 	public function _recentmanga( $limit=10 )
@@ -241,6 +227,8 @@ class Character
 	/**
 	 * Get voice actors
 	 *
+	 * @param  int   		$limit   	How many rows do you want to fetch?
+	 * @param  int   		$lang   	What will be the language of the voices?
 	 * @return void | array (in output)
 	 */
 	public function _voiceactors( $limit=10, $lang='japanese' )
@@ -272,7 +260,7 @@ class Character
 	}
 
 	/**
-	 * Get link to the request page
+	 * Get link of the request page
 	 *
 	 * @return void | string (in output)
 	 */

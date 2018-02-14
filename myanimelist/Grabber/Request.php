@@ -6,7 +6,7 @@
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.8.2
+ * @version    		0.8.3
  */
 
 namespace myanimelist\Grabber;
@@ -24,6 +24,11 @@ trait Request
 	public static $decodeContent = TRUE;
 
 	/**
+	 * If true, names becomes the first-last order instead of the last-first order
+	 */
+	public static $reverseName = TRUE;
+
+	/**
 	 * Request url
 	 */
 	protected static $requestUrl = NULL;
@@ -32,6 +37,11 @@ trait Request
 	 * Website url
 	 */
 	public static $url = 'https://myanimelist.net/';
+
+	/**
+	 * Varriable for output
+	 */
+	public static $data = array();
 
 	/**
 	 * Pages
@@ -78,7 +88,7 @@ trait Request
     }
 
 	/**
-	 * It passes here before the data is returned
+	 * Changes you want to apply before values are displayed
 	 *
 	 * @return string
 	 */
@@ -99,5 +109,16 @@ trait Request
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Take object parameter and send request
+	 *
+	 * @param  string   	$id Enter page id on MAL
+	 * @return void
+	 */
+	public function __construct( $id )
+	{
+		$this->request( $id );
 	}
 }

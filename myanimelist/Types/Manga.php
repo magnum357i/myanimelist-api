@@ -6,7 +6,7 @@
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.8.2
+ * @version    		0.8.3
  */
 
 namespace myanimelist\Types;
@@ -19,22 +19,6 @@ class Manga
 	 * Set type
 	 */
 	public static $type = 'manga';
-
-	/**
-	 * If true, names becomes the first-last order instead of the last-first order
-	 */
-	public static $reverseName = TRUE;
-
-	/**
-	 * Take object parameter and send request
-	 *
-	 * @param  string $id Enter page id on MAL
-	 * @return void
-	 */
-	public function __construct( $id )
-	{
-		$this->request($id);
-	}
 
 	/**
 	 * Get title
@@ -676,7 +660,7 @@ class Manga
 	/**
 	 * Get character
 	 *
-	 * @param  int $limit How many rows do you want to fetch?
+	 * @param  int   		$limit   	How many rows do you want to fetch?
 	 * @return void | array (in output)
 	 */
 	public function _characters( $limit=10 )
@@ -710,8 +694,8 @@ class Manga
 	/**
 	 * Get related ( probably all )
 	 *
-	 * @param  string 	$type  		Which related you take?
-	 * @param  int    	$limit 		How many rows do you want to fetch?
+	 * @param  string 		$type  		Which related you take?
+	 * @param  int   		$limit   	How many rows do you want to fetch?
 	 * @return void | array (in output)
 	 */
 	public function _related( $type, $limit=10 )
@@ -883,7 +867,7 @@ class Manga
 	}
 
 	/**
-	 * Get link to the request page
+	 * Get link of the request page
 	 *
 	 * @return void | string (in output)
 	 */

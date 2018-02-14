@@ -2,7 +2,7 @@
 
 include( 'autoload.php' );
 
-$mal = new myanimelist\Types\Anime( 40 );
+$mal = new myanimelist\Types\Anime( 20 );
 
 $mal->_titleoriginal();
 $mal->_titleenglish();

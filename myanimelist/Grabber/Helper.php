@@ -6,7 +6,7 @@
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.8.2
+ * @version    		0.8.3
  */
 
 namespace myanimelist\Grabber;
@@ -14,13 +14,10 @@ namespace myanimelist\Grabber;
 trait Helper
 {
 	/**
-	 * Varriable for output
-	 */
-	public static $data = array();
-
-	/**
-	 * Fill data array
+	 * Assign a value to static::data
 	 *
+	 * @param  string   	$key   		key of array of $data
+	 * @param  string   	$value   	value of array of $data
 	 * @return void | bool
 	 */
 	private static function setValue( $key, $value )
@@ -38,7 +35,7 @@ trait Helper
 	}
 
 	/**
-	 * Fill data array
+	 * Return assigned values
 	 *
 	 * @return array
 	 */
@@ -50,7 +47,9 @@ trait Helper
 	/**
 	 * Match string from raw html
 	 *
-	 * @return	string
+	 * @param   string   	$match   		Regex code for match ( except the start and end character )
+	 * @param   string   	$allow_tags   	Which tags should not be deleted?
+	 * @return	string | bool (FALSE)
 	 */
     protected static function match( $match, $allow_tags=NULL )
     {
@@ -82,6 +81,7 @@ trait Helper
 	/**
 	 * K (number/1000) Converter
 	 *
+	 * @param   string   	$allow_tags   	Number to convert
 	 * @return	bool
 	 */
     protected static function formatK( $number )
@@ -99,7 +99,8 @@ trait Helper
 	/**
 	 * Clean desc
 	 *
-	 * @return	bool
+	 * @param   string   	$desc   	Description to clean
+	 * @return	string
 	 */
     protected static function descCleaner( $desc )
    	{
@@ -159,6 +160,8 @@ trait Helper
 	/**
 	 * Validate
 	 *
+	 * @param   array   	$options   	Options to validate mods
+	 * @param   string   	$data   	String to check
 	 * @return	bool
 	 */
     protected static function validate( $options, $data )
@@ -176,8 +179,12 @@ trait Helper
     }
 
 	/**
-	 * Replace string simply
+	 * Change string simply
 	 *
+	 * @param   string   	$match   	Old value in regex format
+	 * @param   string   	$replace   	New value
+	 * @param   string   	$str   		A text
+	 * @param   string   	$flags   	Regex flags
 	 * @return	string
 	 */
     protected static function replace( $match, $replace, $str, $flags='' )
@@ -186,8 +193,10 @@ trait Helper
     }
 
 	/**
-	 * Splits string and returns it as array
+	 * Separates the text from a character and returns it as array
 	 *
+	 * @param   string   	$value   	A text
+	 * @param   string   	$exp   		Seperate character
 	 * @return	array
 	 */
     protected static function listValue( $value, $exp )
@@ -214,17 +223,19 @@ trait Helper
     }
 
 	/**
+	 * Names becomes the first-last order instead of the last-first order
 	 *
-	 *
+	 * @param   string   	$name   	A person name with a comma
+	 * @param   string   	$mode   	Reverse mode
 	 * @return	array
 	 */
     protected static function reverseName( $name, $mode=1 )
     {
     	switch ( $mode )
     	{
-    		case "1": return static::replace( '(.+),\s*(.+)',            '$2 $1',    $name ); break;
-    		case "2": return static::replace( '(.+),\s*(.+)\s*(\(.+\))', '$2 $1 $3', $name ); break;
-    		case "3": return static::replace( '(.+)(\s*"[^"]+"\s*)(.+)', '$3$2$1',   $name ); break;
+    		case '1': return static::replace( '(.+),\s*(.+)',            '$2 $1',    $name ); break;
+    		case '2': return static::replace( '(.+),\s*(.+)\s*(\(.+\))', '$2 $1 $3', $name ); break;
+    		case '3': return static::replace( '(.+)(\s*"[^"]+"\s*)(.+)', '$3$2$1',   $name ); break;
     	}
 
     	return $name;
@@ -233,6 +244,13 @@ trait Helper
 	/**
 	 * Get data as table
 	 *
+	 * @param   string   	$table_query   	A regex code to match a table
+	 * @param   string   	$row_query   	A regex code to match a row in the table
+	 * @param   array   	$query_list   	A regex code to match a value in the row
+	 * @param   array   	$key_list   	A key to assign the value in the row
+	 * @param   string   	$limit 		  	How many records will return?
+	 * @param   bool 	  	$last 		  	Reverse sorting?
+	 * @param   string 	  	$sort_query 	Is it especially ordered by value?
 	 * @return	array
 	 */
     protected static function matchTable( $table_query='', $row_query='', $query_list=array(), $key_list=array(), $limit=0, $last=FALSE, $sort_query='' )
@@ -261,12 +279,12 @@ trait Helper
 			$value = strip_tags( $value );
 			$value = trim( $value );
 
-			if ( preg_match('/link/', $key, $no ) )
+			if ( preg_match( '/link/', $key, $no ) )
 			{
 				$value = static::$url . $value;
 				$value = static::lastChanges( $value );
 			}
-			else if ( static::$reverseName == TRUE && preg_match('/name/', $key, $no ) )
+			else if ( static::$reverseName == TRUE && preg_match( '/name/', $key, $no ) )
 			{
 				$value = static::reverseName( $value );
 				$value = static::lastChanges( $value );

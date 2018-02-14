@@ -2,7 +2,7 @@
 
 include( 'autoload.php' );
 
-$mal = new myanimelist\Types\Anime( 80 );
+$mal = new myanimelist\Types\People( 80 );
 
 $mal->_name();
 $mal->_poster();

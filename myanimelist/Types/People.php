@@ -1,12 +1,12 @@
 <?php
 
 /**
- * MyAnimeList Character Api
+ * MyAnimeList People Api
  *
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.8.2
+ * @version    		0.8.3
  */
 
 namespace myanimelist\Types;
@@ -19,22 +19,6 @@ class People
 	 * Set type
 	 */
 	public static $type = 'people';
-
-	/**
-	 * If true, names becomes the first-last order instead of the last-first order
-	 */
-	public static $reverseName = TRUE;
-
-	/**
-	 * Take object parameter and send request
-	 *
-	 * @param  string $id Enter page id on MAL
-	 * @return void
-	 */
-	public function __construct( $id )
-	{
-		$this->request( $id );
-	}
 
 	/**
 	 * Get name
@@ -140,6 +124,7 @@ class People
 	/**
 	 * Get recent voice actiong roles
 	 *
+	 * @param  int   		$limit   	How many rows do you want to fetch?
 	 * @return void | string (in output)
 	 */
 	public function _recentvoice( $limit=10 )
@@ -177,6 +162,7 @@ class People
 	/**
 	 * Get recent works
 	 *
+	 * @param  int   		$limit   	How many rows do you want to fetch?
 	 * @return void | string (in output)
 	 */
 	public function _recentwork( $limit=10 )
@@ -210,7 +196,7 @@ class People
 	}
 
 	/**
-	 * Get link to the request page
+	 * Get link of the request page
 	 *
 	 * @return void | string (in output)
 	 */
