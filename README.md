@@ -1,5 +1,5 @@
 # myanimelist-api
-This site is an api developed to get information from anime, manga, character and people pages of MyAnimelist.
+This is an api developed to get information from anime, manga, character and people pages of MyAnimelist.
 
 ### Required
 * Curl
@@ -8,7 +8,7 @@ This site is an api developed to get information from anime, manga, character an
 ### Usage (Anime)
 
 ```php
-$mal = new myanimelist\Types\Anime( 40 );
+$mal = new myanimelist\Types\Anime( 20 );
 
 $mal->_titleoriginal();
 $mal->_titleenglish();
