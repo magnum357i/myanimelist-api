@@ -3,10 +3,10 @@
 /**
  * MyAnimeList Anime API
  *
+ * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.9.0
  */
 
 namespace myanimelist\Types;
@@ -27,7 +27,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Call title functions
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function title() {
 
@@ -39,7 +39,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get broadcast values
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function broadcast() {
 
@@ -56,7 +56,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get firstepisode values
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function firstepisode() {
 
@@ -73,7 +73,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get lastepisode values
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function lastepisode() {
 
@@ -90,7 +90,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get duration values
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function duration() {
 
@@ -107,7 +107,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get premiered values
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function premiered() {
 
@@ -124,7 +124,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Call related functions
 	 *
-	 * @return this class
+	 * @return 		this class
 	 */
 	public function related() {
 
@@ -136,7 +136,8 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Set limit
 	 *
-	 * @return this class
+	 * @param 		int 			Limit number
+	 * @return 		this class
 	 */
 	public function setLimit( $int ) {
 
@@ -148,7 +149,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Page is correct?
 	 *
-	 * @return bool
+	 * @return 		bool
 	 */
 	public function isSuccess() {
 
@@ -158,7 +159,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get title
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _titleoriginal() {
 
@@ -166,9 +167,9 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span itemprop="name">(.*?)</span>' );
+		$data = $this->request()->match( '<span itemprop="name">(.*?)</span>' );
 
-		if ( $data != FALSE ) $data = static::replace( '\s*\(.+\)', '', $data, 'si' );
+		if ( $data != FALSE ) $data = $this->text()->replace( '\s*\(.+\)', '', $data, 'si' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -176,7 +177,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get title for english
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _titleenglish() {
 
@@ -184,7 +185,7 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">english:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">english:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -192,7 +193,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get title for japanese
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _titlejapanese()
 	{
@@ -200,7 +201,7 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">japanese:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">japanese:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -208,7 +209,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get title for sysnonmys
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _titlesysnonmys() {
 
@@ -216,7 +217,7 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">synonyms:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">synonyms:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -224,17 +225,29 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get poster
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _poster() {
 
 		$key = 'poster';
 
+		if ( !isset( static::$data[ 'saveposter' ] ) ) static::setValue( 'saveposter', 'no' );
+
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '(https://myanimelist.cdn-dena.com/images/anime/[0-9]+/[0-9]+\.jpg)' );
+		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/anime/[0-9]+/[0-9]+\.jpg)' );
 
-		if ( $data == FALSE ) $data = static::match( '(https://cdn.myanimelist.net/images/anime/[0-9]+/[0-9]+\.jpg)' );
+		if ( $data == FALSE ) $data = $this->request()->match( '(https://cdn.myanimelist.net/images/anime/[0-9]+/[0-9]+\.jpg)' );
+
+		if ( $data == FALSE ) return FALSE;
+
+		if ( $this->config()->cache == TRUE AND static::$data[ 'saveposter' ] == 'no' ) {
+
+			$newPoster = $this->cache()->savePoster( $data );
+			$data      = $newPoster;
+
+			static::setValue( 'saveposter', 'yes' );
+		}
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -242,7 +255,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get description
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _description() {
 
@@ -250,11 +263,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span itemprop="description">(.*?)</span>', '<br>' );
+		$data = $this->request()->match( '<span itemprop="description">(.*?)</span>', '<br>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::descCleaner( $data );
+		$data = $this->text()->descCleaner( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -262,16 +275,16 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get category
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _category() {
 		$key = 'category';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">type:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">type:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 50 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 50 ), $data ) ) return FALSE;
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -279,7 +292,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get rating
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _rating() {
 
@@ -287,11 +300,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">rating:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">rating:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( static::validate( array( 'mode' => 'regex', 'regex_code' => 'none', 'regex_flags' => 'si' ), $data ) ) return FALSE;
+		if ( $this->text()->validate( array( 'mode' => 'regex', 'regex_code' => 'none', 'regex_flags' => 'si' ), $data ) ) return FALSE;
 
 		$data = str_replace( array( '- Teens 13 or older', '(violence &amp; profanity)', '- Mild Nudity', ' ' ), '', $data );
 		$data = trim( $data );
@@ -302,7 +315,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get vote
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _vote() {
 
@@ -310,11 +323,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( 'scored by <span itemprop="ratingCount">(.*?)</span> users' );
+		$data = $this->request()->match( 'scored by <span itemprop="ratingCount">(.*?)</span> users' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::formatK( $data );
+		$data = $this->text()->formatK( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -322,7 +335,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get score
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _point() {
 
@@ -330,15 +343,15 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">score:</span>(.*?)<sup>' );
+		$data = $this->request()->match( '<span class="dark_text">score:</span>(.*?)<sup>' );
 
-		if ( $data == FALSE ) $data = static::match( '<span itemprop="ratingValue">(.*?)</span>' );
+		if ( $data == FALSE ) $data = $this->request()->match( '<span itemprop="ratingValue">(.*?)</span>' );
 
 		if ( $data == FALSE ) return FALSE;
 
 		$data = str_replace( ',', '.', $data );
 
-		if ( !static::validate( array( 'mode' => 'regex', 'regex_code' => '^\d\.\d\d$' ), $data ) ) return FALSE;
+		if ( !$this->text()->validate( array( 'mode' => 'regex', 'regex_code' => '^\d\.\d\d$' ), $data ) ) return FALSE;
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -346,7 +359,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get rank
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _rank() {
 
@@ -354,13 +367,13 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">ranked:</span>(.*?)<sup>' );
+		$data = $this->request()->match( '<span class="dark_text">ranked:</span>(.*?)<sup>' );
 
 		if ( $data == FALSE ) return FALSE;
 
 		$data = str_replace( '#', '', $data );
 
-		if ( !static::validate( array( 'mode' => 'number' ), $data ) )
+		if ( !$this->text()->validate( array( 'mode' => 'number' ), $data ) )
 		{
 			return FALSE;
 		}
@@ -375,7 +388,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get genres
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _genres() {
 
@@ -383,17 +396,17 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">genres:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">genres:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		return static::setValue( $key, $this->listValue( $data, ',' ) );
+		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
 	}
 
 	/**
 	 * Get source
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _source() {
 
@@ -401,11 +414,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">source:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">source:</span>(.*?)</div>' );
 
-		if ( static::validate( array( 'mode' => 'regex', 'regex_code' => 'unknown', 'regex_flags' => 'si' ), $data ) ) return FALSE;
+		if ( $this->text()->validate( array( 'mode' => 'regex', 'regex_code' => 'unknown', 'regex_flags' => 'si' ), $data ) ) return FALSE;
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 50 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 50 ), $data ) ) return FALSE;
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -413,7 +426,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get date of first episode
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _firstepisode() {
 
@@ -421,9 +434,9 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">aired:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">aired:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
 
 		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d\d?),\s*(\d\d\d\d)/', $data, $out );
 
@@ -444,7 +457,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get month of first episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _firstepisodemonth() {
 
@@ -454,7 +467,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get day of first episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _firstepisodeday() {
 
@@ -464,7 +477,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get year of first episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _firstepisodeyear() {
 
@@ -474,7 +487,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get date of last episode
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _lastepisode() {
 
@@ -482,9 +495,9 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">aired:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">aired:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
 
 		preg_match( '/\w+\s*\d+,\s*\d+\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d\d?),\s*(\d\d\d\d)/', $data, $out );
 
@@ -505,7 +518,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get month of last episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _lastepisodemonth() {
 
@@ -515,7 +528,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get day of last episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _lastepisodeday() {
 
@@ -525,7 +538,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get year of last episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _lastepisodeyear() {
 
@@ -535,7 +548,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get episode
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _episode() {
 
@@ -543,13 +556,13 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">episodes:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">episodes:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 50 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 50 ), $data ) ) return FALSE;
 
-		$data = static::replace( '[^0-9]+', '', $data );
+		$data = $this->text()->replace( '[^0-9]+', '', $data );
 
-		if ( !static::validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
+		if ( !$this->text()->validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -557,7 +570,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get studios
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _studios() {
 
@@ -565,19 +578,19 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">studios:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">studios:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( static::validate( array( 'mode' => 'regex', 'regex_code' => 'none found', 'regex_flags' => 'si' ), $data ) ) return FALSE;
+		if ( $this->text()->validate( array( 'mode' => 'regex', 'regex_code' => 'none found', 'regex_flags' => 'si' ), $data ) ) return FALSE;
 
-		return static::setValue( $key, $this->listValue( $data, ',' ) );
+		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
 	}
 
 	/**
 	 * Get duration
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _duration() {
 
@@ -585,11 +598,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">duration:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">duration:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
 
-		$data = static::replace( '\s+per ep\.', '', $data );
+		$data = $this->text()->replace( '\s+per ep\.', '', $data );
 
 		preg_match( '/(\d+) hr\. (\d+) min\./', $data, $out );
 
@@ -615,7 +628,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get hour of duration
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _durationhour() {
 
@@ -625,7 +638,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get minute of duration
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _durationmin() {
 
@@ -635,7 +648,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get premiered
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _premiered() {
 
@@ -643,9 +656,9 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">premiered:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">premiered:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) {
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) {
 
 			return FALSE;
 		}
@@ -668,7 +681,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get season of premiered
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _premieredseason() {
 
@@ -678,7 +691,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get year of premiered
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _premieredyear() {
 
@@ -688,7 +701,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get producers
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _producers() {
 
@@ -696,17 +709,17 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">producers:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">producers:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		return static::setValue( $key, $this->listValue( $data, ',' ) );
+		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
 	}
 
 	/**
 	 * Get popularity
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _popularity() {
 
@@ -714,13 +727,13 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">popularity:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">popularity:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
 		$data = str_replace( '#', '', $data );
 
-		if ( !static::validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
+		if ( !$this->text()->validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
 
 		$data = '#' . $data;
 
@@ -730,7 +743,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get members
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _members() {
 
@@ -738,11 +751,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">members:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">members:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::formatK( $data );
+		$data = $this->text()->formatK( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -750,7 +763,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get favorites
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _favorites() {
 
@@ -758,11 +771,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">favorites:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">favorites:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::formatK( $data );
+		$data = $this->text()->formatK( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -770,7 +783,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get status
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _status() {
 
@@ -778,7 +791,7 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">status:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">status:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -786,7 +799,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get broadcast
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _broadcast() {
 
@@ -794,9 +807,9 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">broadcast:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">broadcast:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR static::validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
 
 		preg_match( '/(\w+) at (\d+):(\d+) \(\w+\)/', $data, $out );
 
@@ -817,7 +830,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get broadcast day
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _broadcastday() {
 
@@ -827,7 +840,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get broadcast hour
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _broadcasthour() {
 
@@ -837,7 +850,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get broadcast minute
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _broadcastminute() {
 
@@ -847,7 +860,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get year
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _year() {
 
@@ -855,7 +868,7 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<span class="dark_text">aired:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">aired:</span>(.*?)</div>' );
 
 		preg_match( '/(\d{4})/', $data, $out );
 
@@ -865,13 +878,16 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get voice
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _voice() {
 
 		$key = 'voice';
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'</div>characters & voice actors</h2>(.*?)<a name="staff">',
 		'<tr>(.*?)</tr>',
 		array(
@@ -897,7 +913,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get staff
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _staff() {
 
@@ -905,7 +921,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'</div>.*?staff[^<]*?</h2>(.*?)<h2>',
 		'<table.*?>(.*?)</table>',
 		array(
@@ -927,7 +946,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get adaptation
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedadaptation() {
 
@@ -935,7 +954,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>adaptation:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -955,7 +977,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get sequel
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedsequel() {
 
@@ -963,7 +985,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>sequel:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -983,7 +1008,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get prequel
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedprequel() {
 
@@ -991,7 +1016,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>prequel:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -1011,7 +1039,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get parentstory
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedparentstory() {
 
@@ -1019,7 +1047,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>parent story:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -1039,7 +1070,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get sidestory
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedsidestory() {
 
@@ -1047,7 +1078,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>side story:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -1067,7 +1101,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get other
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedother() {
 
@@ -1075,7 +1109,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>other:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -1095,7 +1132,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get spinoff
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedspinoff() {
 
@@ -1103,7 +1140,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>spin\-off:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -1123,7 +1163,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get alternativeversion
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	protected function _relatedalternativeversion() {
 
@@ -1131,7 +1171,10 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'<td.*?>alternative version:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		array(
@@ -1151,7 +1194,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get link of the request page
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _link() {
 
@@ -1165,7 +1208,7 @@ class Anime extends \myanimelist\Helper\Builder
 	/**
 	 * Get trailer
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _trailer() {
 
@@ -1173,11 +1216,11 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '<div class="video-promotion">.*?<a[^>]+href="(.*?)"[^>]+>' );
+		$data = $this->request()->match( '<div class="video-promotion">.*?<a[^>]+href="(.*?)"[^>]+>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::replace( '\?.+',   '',         $data );
+		$data = $this->text()->replace( '\?.+',   '',         $data );
 		$data = str_replace(     'embed/', 'watch?v=', $data );
 
 		return static::setValue( 'trailer', $this->lastChanges( $data ) );

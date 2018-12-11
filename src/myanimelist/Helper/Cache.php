@@ -3,10 +3,10 @@
 /**
  * Simple Cache Class
  *
+ * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.9.0
  */
 
 namespace myanimelist\Helper;
@@ -69,7 +69,9 @@ class Cache {
 	/**
 	 * Set parameters
 	 *
-	 * @return 	void
+	 * @param 		int 			$id 				MAL id
+	 * @param 		string 			$type 				MAL type
+	 * @return 		void
 	 */
 	public function __construct( $id, $type ) {
 
@@ -86,7 +88,7 @@ class Cache {
 	/**
 	 * If cache file exists
 	 *
-	 * @return bool
+	 * @return 		bool
 	 */
 	public function check() {
 
@@ -99,7 +101,7 @@ class Cache {
 	/**
 	 * Get data from cache file
 	 *
-	 * @return array
+	 * @return 		array
 	 */
 	public function get() {
 
@@ -130,7 +132,7 @@ class Cache {
 	/**
 	 * Write cache file
 	 *
-	 * @return void
+	 * @return 		void
 	 */
 	public function set() {
 
@@ -158,8 +160,9 @@ class Cache {
 	/**
 	 * Converts slashes to a different direction
 	 *
-	 * @param 	$direction 	Bending direction
-	 * @return 	string
+	 * @param 		$path 				Path
+	 * @param 		$direction 			Bending direction
+	 * @return 		string
 	 */
 	protected function fixSeperator( $path, $direction='left' ) {
 
@@ -172,8 +175,8 @@ class Cache {
 	/**
 	 * Save poster
 	 *
-	 * @param 	$url 	External url of a image
-	 * @return 	string
+	 * @param 		$url 			External url of a image
+	 * @return 		string
 	 */
 	public function savePoster( $url ) {
 

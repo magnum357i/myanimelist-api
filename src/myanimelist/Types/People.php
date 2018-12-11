@@ -3,10 +3,10 @@
 /**
  * MyAnimeList People API
  *
+ * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.9.0
  */
 
 namespace myanimelist\Types;
@@ -26,7 +26,8 @@ class People extends \myanimelist\Helper\Builder {
 	/**
 	 * Set limit
 	 *
-	 * @return this class
+	 * @param 		int 			Limit number
+	 * @return 		this class
 	 */
 	public function setLimit( $int ) {
 
@@ -38,7 +39,7 @@ class People extends \myanimelist\Helper\Builder {
 	/**
 	 * Page is correct?
 	 *
-	 * @return bool
+	 * @return 		bool
 	 */
 	public function isSuccess() {
 
@@ -48,7 +49,7 @@ class People extends \myanimelist\Helper\Builder {
 	/**
 	 * Get name
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _name() {
 
@@ -56,19 +57,19 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->match('</div><h1.*?>(.*?)</h1></div><div id="content" ?>');
+		$data = $this->request()->match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->reverseName == TRUE ) $data = static::reverseName( $data );
+		if ( $this->config()->reverseName == TRUE ) $data = $this->text()->reverseName( $data );
 
-		return static::setValue( $key, static::lastChanges( $data ) );
+		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
 
 	/**
 	 * Get poster
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _poster() {
 
@@ -78,9 +79,9 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::match( '(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)' );
+		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)' );
 
-		if ( $data == FALSE ) $data = static::match( '(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)' );
+		if ( $data == FALSE ) $data = $this->request()->match( '(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -98,7 +99,7 @@ class People extends \myanimelist\Helper\Builder {
 	/**
 	 * Get description
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _description() {
 
@@ -106,20 +107,20 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->match( '<span class="dark_text">more:</span></div><div[^>]+">(.*?)</div>.*?</td>', '<br>', 'si' );
+		$data = $this->request()->match( '<span class="dark_text">more:</span></div><div[^>]+">(.*?)</div>.*?</td>', '<br>', 'si' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::replace( '[^\n]+:[^\n]+', '', $data, 'si' );
-		$data = static::descCleaner( $data );
+		$data = $this->text()->replace( '[^\n]+:[^\n]+', '', $data, 'si' );
+		$data = $this->text()->descCleaner( $data );
 
-		return static::setValue( $key, static::lastChanges( $data ) );
+		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
 
 	/**
 	 * Get category
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _category() {
 
@@ -129,13 +130,13 @@ class People extends \myanimelist\Helper\Builder {
 
 		$data = 'people';
 
-		return static::setValue( $key, static::lastChanges( $data ) );
+		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
 
 	/**
 	 * Get favorites
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _favorites() {
 
@@ -143,27 +144,30 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->match( '<span class="dark_text">member favorites:</span>(.*?)</div>' );
+		$data = $this->request()->match( '<span class="dark_text">member favorites:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = static::formatK( $data );
+		$data = $this->text()->formatK( $data );
 
-		return static::setValue( $key, static::lastChanges( $data ) );
+		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
 
 	/**
 	 * Get recent voice actiong roles
 	 *
-	 * @return string
+	 * @return 		string
 	 */
-	protected function _recentvoice( $limit=10 ) {
+	protected function _recentvoice() {
 
 		$key = 'recentvoice';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'voice acting roles</div><table.*?>(.+?)</table>',
 		'<tr>(.*?)</tr>',
         array(
@@ -189,16 +193,18 @@ class People extends \myanimelist\Helper\Builder {
 	/**
 	 * Get recent works
 	 *
-	 * @param  int   		$limit   	How many rows do you want to fetch?
-	 * @return string
+	 * @return 		string
 	 */
-	protected function _recentwork( $limit=10 ) {
+	protected function _recentwork() {
 
 		$key = 'recentwork';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = static::matchTable(
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
 		'anime staff positions</div><table.*?>(.+?)</table>',
 		'<tr>(.*?)</tr>',
         array(
@@ -222,7 +228,7 @@ class People extends \myanimelist\Helper\Builder {
 	/**
 	 * Get link of the request page
 	 *
-	 * @return string
+	 * @return 		string
 	 */
 	protected function _link() {
 

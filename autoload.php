@@ -1,5 +1,6 @@
 <?php
 
+require_once( __DIR__ . '/src/myanimelist/Helper/Text.php' );
 require_once( __DIR__ . '/src/myanimelist/Helper/Builder.php' );
 require_once( __DIR__ . '/src/myanimelist/Helper/Cache.php' );
 require_once( __DIR__ . '/src/myanimelist/Helper/Config.php' );
