@@ -1,19 +1,17 @@
 <?php
 
 /**
- * MyAnimeList Character Api
+ * MyAnimeList Character API
  *
  * @author     		Magnum357 [https://github.com/magnum357i/]
  * @copyright  		2018
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    		0.8.3
+ * @version    		0.9.0
  */
 
 namespace myanimelist\Types;
 
-class Character
-{
-	use \myanimelist\Grabber\Helper, \myanimelist\Grabber\Request;
+class Character extends \myanimelist\Helper\Builder {
 
 	/**
 	 * Set type
@@ -21,30 +19,60 @@ class Character
 	public static $type = 'character';
 
 	/**
+	 * Prefix to call function
+	 */
+	public static $prefix = '';
+
+	/**
+	 * Call title functions
+	 *
+	 * @return this class
+	 */
+	public function title() {
+
+		static::$prefix = 'title';
+
+		return $this;
+	}
+
+	/**
+	 * Set limit
+	 *
+	 * @return this class
+	 */
+	public function setLimit( $int ) {
+
+		static::$limit = $int;
+
+		return $this;
+	}
+
+	/**
+	 * Page is correct?
+	 *
+	 * @return bool
+	 */
+	public function isSuccess() {
+
+		return ( empty( $this->_titleself() ) ) ? FALSE : TRUE;
+	}
+
+	/**
 	 * Get character name
 	 *
-	 * @return void | string (in output)
+	 * @return string
 	 */
-	public function _charactername()
-	{
+	protected function _titleself() {
+
 		$key = 'charactername';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
 
-		if ( $data == FALSE )
-		{
-			return FALSE;
-		}
+		if ( $data == FALSE ) return FALSE;
 
-		if ( static::$reverseName == TRUE )
-		{
-			$data = static::reverseName( $data, 3 );
-		}
+		if ( $this->config->reverseName == TRUE ) $data = static::reverseName( $data, 3 );
 
 		$data = static::replace( '\s*".+"\s*', ' ', $data );
 
@@ -54,28 +82,35 @@ class Character
 	/**
 	 * Get character name
 	 *
-	 * @return void | string (in output)
+	 * @return string
 	 */
-	public function _nickname()
-	{
+	protected function _titlenickname() {
+
 		$key = 'nickname';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->match( '</div><h1.*?>.*?"(.*?)".*?</h1></div><div id="content" ?>' );
 
-		if ( $data == FALSE )
-		{
-			return FALSE;
-		}
+		if ( $data == FALSE ) return FALSE;
 
-		if ( static::$reverseName == TRUE )
-		{
-			$data = static::reverseName( $data );
-		}
+		if ( $this->config()->reverseName == TRUE ) $data = static::reverseName( $data );
+
+		return static::setValue( $key, static::lastChanges( $data ) );
+	}
+
+	/**
+	 * Get category
+	 *
+	 * @return string
+	 */
+	protected function _category() {
+
+		$key = 'category';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		$data = 'character';
 
 		return static::setValue( $key, static::lastChanges( $data ) );
 	}
@@ -83,42 +118,35 @@ class Character
 	/**
 	 * Get poster
 	 *
-	 * @return void | string (in output)
+	 * @return string
 	 */
-	public function _poster()
-	{
+	protected function _poster() {
+
 		$key = 'poster';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->match( '(https://myanimelist.cdn-dena.com/images/characters/[0-9]+/[0-9]+\.jpg)' );
+		$data = static::match( '(https://myanimelist.cdn-dena.com/images/characters/[0-9]+/[0-9]+\.jpg)' );
 
-		return static::setValue( $key, static::lastChanges( $data ) );
+		if ( $data == FALSE ) $data = static::match( '(https://cdn.myanimelist.net/images/characters/[0-9]+/[0-9]+\.jpg)' );
+
+		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
 
 	/**
 	 * Get description
 	 *
-	 * @return void | string (in output)
+	 * @return string
 	 */
-	public function _description()
-	{
+	protected function _description() {
+
 		$key = 'description';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?<div.*?>.*?</div>(.*?)<div[^>]*>voice actors</div>', "<br><span>" );
 
-		if ( $data == FALSE )
-		{
-			return FALSE;
-		}
+		if ( $data == FALSE ) return FALSE;
 
 		$data = static::replace( 'Bounty:\s*<div class="spoiler">.*?<\/span>', '', $data, 'si' );
 		$data = static::replace( '[^\n]+:[^\n]+', '', $data, 'si' );
@@ -131,23 +159,17 @@ class Character
 	/**
 	 * Get favorites
 	 *
-	 * @return void | string (in output)
+	 * @return string
 	 */
-	public function _favorites()
-	{
+	protected function _favorites() {
+
 		$key = 'favorites';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->match( 'member favorites:\s*([\d,]+)' );
 
-		if ( $data == FALSE )
-		{
-			return FALSE;
-		}
+		if ( $data == FALSE ) return FALSE;
 
 		$data = static::formatK( $data );
 
@@ -157,17 +179,13 @@ class Character
 	/**
 	 * Get recent anime list
 	 *
-	 * @param  int   		$limit   	How many rows do you want to fetch?
-	 * @return void | array (in output)
+	 * @return array
 	 */
-	public function _recentanime( $limit=10 )
-	{
+	protected function _recentanime() {
+
 		$key = 'recentanime';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = static::matchTable(
 		'<div class="normal_header">animeography</div>.*?<table.*?(.*?)</table>',
@@ -182,7 +200,7 @@ class Character
 		'title',
 		'role'
         ),
-        $limit,
+        static::$limit,
         TRUE
 		);
 
@@ -192,17 +210,13 @@ class Character
 	/**
 	 * Get recent manga list
 	 *
-	 * @param  int   		$limit   	How many rows do you want to fetch?
-	 * @return void | array (in output)
+	 * @return array
 	 */
-	public function _recentmanga( $limit=10 )
-	{
+	protected function _recentmanga() {
+
 		$key = 'recentmanga';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = static::matchTable(
 		'<div class="normal_header">mangaography</div>.*?<table.*?(.*?)</table>',
@@ -217,7 +231,7 @@ class Character
 		'title',
 		'role'
         ),
-        $limit,
+        static::$limit,
         TRUE
 		);
 
@@ -227,18 +241,14 @@ class Character
 	/**
 	 * Get voice actors
 	 *
-	 * @param  int   		$limit   	How many rows do you want to fetch?
-	 * @param  int   		$lang   	What will be the language of the voices?
-	 * @return void | array (in output)
+	 * @return array
 	 */
-	public function _voiceactors( $limit=10, $lang='japanese' )
-	{
-		$key = 'voiceactors';
+	protected function _voiceactors() {
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		$key  = 'voiceactors';
+		$lang = 'japanese';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = static::matchTable(
 		'voice actors</div>(.+</table>.*<br>)',
@@ -253,7 +263,7 @@ class Character
 		'people_name',
 		'people_lang'
         ),
-        $limit
+        static::$limit
 		);
 
 		return static::setValue( $key, $data );
@@ -262,17 +272,14 @@ class Character
 	/**
 	 * Get link of the request page
 	 *
-	 * @return void | string (in output)
+	 * @return string
 	 */
-	public function _link()
-	{
+	protected function _link() {
+
 		$key = 'link';
 
-		if ( isset( static::$data[ $key ] ) )
-		{
-			return FALSE;
-		}
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		return static::setValue( $key, static::lastChanges( static::$requestUrl ) );
+		return static::setValue( 'link', $this->lastChanges( $this->request()::$requestData[ 'url' ] ) );
 	}
 }

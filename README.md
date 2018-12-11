@@ -2,64 +2,60 @@
 This is an api developed to get information from anime, manga, character and people pages of MyAnimelist.
 
 ### Required
-* Curl
-* PHP 5.4 or higher
+* CURL
+* PHP 7
 
-### Usage (Anime)
+### Anime Variables
 
 ```php
-$mal = new myanimelist\Types\Anime( 20 );
-
-$mal->_titleoriginal();
-$mal->_titleenglish();
-$mal->_titlejapanese();
-$mal->_titlesysnonmys();
-$mal->_poster();
-$mal->_description();
-$mal->_type();
-$mal->_status();
-$mal->_broadcast();
-$mal->_members();
-$mal->_popularity();
-$mal->_favorites();
-$mal->_rating();
-$mal->_rank();
-$mal->_vote();
-$mal->_point();
-$mal->_genres();
-$mal->_source();
-$mal->_firstepisode();
-$mal->_lastepisode();
-$mal->_episode();
-$mal->_studios();
-$mal->_duration();
-$mal->_premiered();
-$mal->_year();
-$mal->_voice( 3 );
-$mal->_staff( 3 );
-$mal->_related( 'adaptation',         10 );
-$mal->_related( 'prequel',            10 );
-$mal->_related( 'sequel',             10 );
-$mal->_related( 'parentstory',        10 );
-$mal->_related( 'sidestory',          10 );
-$mal->_related( 'spinoff',            10 );
-$mal->_related( 'alternativeversion', 10 );
-$mal->_related( 'other',              10 );
-$mal->_related( 'sequel',             10 );
-$mal->_link();
-$mal->_trailer();
-
-$data = $mal->output();
-
-if ( count( $data ) <= 3 )
-{
-	die( 'There is a problem retrieving data.' );
-}
-
-var_dump( $data );
+$mal->title()->original;
+$mal->title()->english;
+$mal->title()->japanese;
+$mal->title()->sysnonmys;
+$mal->poster;
+$mal->description;
+$mal->category;
+$mal->status;
+$mal->broadcast()->day;
+$mal->broadcast()->hour;
+$mal->broadcast()->minute;
+$mal->members;
+$mal->popularity;
+$mal->favorites;
+$mal->rating;
+$mal->rank;
+$mal->vote;
+$mal->point;
+$mal->genres;
+$mal->source;
+$mal->firstepisode()->month;
+$mal->firstepisode()->day;
+$mal->firstepisode()->year;
+$mal->lastepisode()->month;
+$mal->lastepisode()->day;
+$mal->lastepisode()->year;
+$mal->episode;
+$mal->studios;
+$mal->duration;
+$mal->premiered()->season;
+$mal->premiered()->year;
+$mal->year;
+$mal->voice;
+$mal->staff;
+$mal->related()->adaptation;
+$mal->related()->prequel;
+$mal->related()->sequel;
+$mal->related()->parentstory;
+$mal->related()->sidestory;
+$mal->related()->spinoff;
+$mal->related()->alternativeversion;
+$mal->related()->other;
+$mal->related()->sequel;
+$mal->link;
+$mal->trailer;
 ```
 
-###### Result
+###### Content of JSON File
 ```json
 
 Array
@@ -272,55 +268,53 @@ Now, Naruto is a hyperactive and knuckle-headed ninja still living in Konohagaku
 )
 ```
 
-### Usage (Manga)
+### Manga Variables
 
 ```php
-$mal = new myanimelist\Types\Manga( 2 );
-
-$mal->_titleoriginal();
-$mal->_titleenglish();
-$mal->_titlejapanese();
-$mal->_poster();
-$mal->_description();
-$mal->_type();
-$mal->_rank();
-$mal->_vote();
-$mal->_point();
-$mal->_genres();
-$mal->_popularity();
-$mal->_members();
-$mal->_favorites();
-$mal->_status();
-$mal->_published();
-$mal->_authors();
-$mal->_volume();
-$mal->_chapter();
-$mal->_serialization();
-$mal->_firstchapter();
-$mal->_lastchapter();
-$mal->_year();
-$mal->_characters( 7 );
-$mal->_related( 'adaptation',         5 );
-$mal->_related( 'sequel',             5 );
-$mal->_related( 'prequel',            5 );
-$mal->_related( 'parentstory',        5 );
-$mal->_related( 'sidestory',          5 );
-$mal->_related( 'other',              5 );
-$mal->_related( 'spinoff',            5 );
-$mal->_related( 'alternativeversion', 5 );
-$mal->_link();
-
-$data = $mal->output();
-
-if ( count( $data ) <= 3 )
-{
-	die( 'There is a problem retrieving data.' );
-}
-
-var_dump( $data );
+$mal->title()->original;
+$mal->title()->english;
+$mal->title()->japanese;
+$mal->poster;
+$mal->description;
+$mal->type;
+$mal->rank;
+$mal->vote;
+$mal->point;
+$mal->genres;
+$mal->popularity;
+$mal->members;
+$mal->favorites;
+$mal->status;
+$mal->published()->first()->month;
+$mal->published()->first()->day;
+$mal->published()->first()->year;
+$mal->published()->last()->month;
+$mal->published()->last()->day;
+$mal->published()->last()->year;
+$mal->authors;
+$mal->volume;
+$mal->chapter;
+$mal->serialization;
+$mal->chapterdate()->first()->month;
+$mal->chapterdate()->first()->day;
+$mal->chapterdate()->first()->year;
+$mal->chapterdate()->last()->month;
+$mal->chapterdate()->last()->day;
+$mal->chapterdate()->last()->year;
+$mal->year;
+$mal->characters;
+$mal->related()->adaptation;
+$mal->related()->sequel;
+$mal->related()->prequel;
+$mal->related()->parentstory;
+$mal->related()->sidestory;
+$mal->related()->other;
+$mal->related()->spinoff;
+$mal->related()->alternativeversion;
+$mal->link;
 ```
 
-###### Result
+###### Content of JSON File
 ```json
 Array
 (
@@ -488,31 +482,20 @@ Setting out on a dreadful quest riddled with misfortune, Guts, armed with a mass
 )
 ```
 
-### Usage (Character)
+### Character Variables
 
 ```php
-$mal = new myanimelist\Types\Character( 40 );
-
-$mal->_charactername();
-$mal->_nickname();
-$mal->_poster();
-$mal->_description();
-$mal->_favorites();
-$mal->_recentanime( 5 );
-$mal->_recentmanga( 5 );
-$mal->_voiceactors( 1 );
-
-$data = $mal->output();
-
-if ( count( $data ) <= 3 )
-{
-	die( 'There is a problem retrieving data.' );
-}
-
-var_dump( $data );
+$mal->title()->self;
+$mal->title()->nickname;
+$mal->poster;
+$mal->description;
+$mal->favorites;
+$mal->recentanime;
+$mal->recentmanga;
+$mal->voiceactors;
 ```
 
-###### Result
+###### Content of JSON File
 ```json
 Array
 (
@@ -625,30 +608,19 @@ Before the start of the series, Dragon left Luffy in Garp&amp;#039;s care. Drago
 )
 ```
 
-### Usage (People)
+### People Variables
 
 ```php
-$mal = new myanimelist\Types\People( 80 );
-
-$mal->_name();
-$mal->_poster();
-$mal->_description();
-$mal->_favorites();
-$mal->_recentvoice( 5 );
-$mal->_recentwork( 5 );
-$mal->_link();
-
-$data = $mal->output();
-
-if ( count( $data ) <= 3 )
-{
-	die( 'There is a problem retrieving data.' );
-}
-
-var_dump( $data );
+$mal->name;
+$mal->poster;
+$mal->description;
+$mal->favorites;
+$mal->recentvoice;
+$mal->recentwork;
+$mal->link;
 ```
 
-###### Result
+###### Content of JSON File
 ```json
 Array
 (
