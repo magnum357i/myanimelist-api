@@ -155,9 +155,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentanime</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 10 );
-
-	if ( $mal->recentanime !== FALSE ) {
+	if ( $mal->setLimit( 10 )->recentanime !== FALSE ) {
 
 		echo '<ul>';
 
@@ -179,9 +177,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentmanga</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 10 );
-
-	if ( $mal->recentmanga !== FALSE ) {
+	if ( $mal->setLimit( 10 )->recentmanga !== FALSE ) {
 
 		echo '<ul>';
 
@@ -203,9 +199,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">voiceactors</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 10 );
-
-	if ( $mal->voiceactors !== FALSE ) {
+	if ( $mal->setLimit( 10 )->voiceactors !== FALSE ) {
 
 		echo '<ul>';
 

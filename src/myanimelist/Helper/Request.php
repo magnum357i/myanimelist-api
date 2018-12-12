@@ -173,9 +173,9 @@ class Request {
 			return $value;
 		};
 
-		$i      = 0;
-		$result = array();
-		$count  = count( $rows[1] );
+		$i       = 0;
+		$result  = array();
+		$count   = count( $rows[1] );
 
 		while( $i < $count ) {
 
@@ -204,7 +204,7 @@ class Request {
 
 							if ( !empty( $sort_value[1] ) ) {
 
-								$result[ $i ]['sort'] = $sort_value[1];
+								$result[ $i ][ 'sort' ] = $sort_value[1];
 							}
 						}
 					}

@@ -140,9 +140,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentwork</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 10 );
-
-	if ( $mal->recentwork !== FALSE ) {
+	if ( $mal->setLimit( 10 )->recentwork !== FALSE ) {
 
 		echo '<ul>';
 
@@ -164,9 +162,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentvoice</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 10 );
-
-	if ( $mal->recentvoice !== FALSE ) {
+	if ( $mal->setLimit( 10 )->recentvoice !== FALSE ) {
 
 		echo '<ul>';
 

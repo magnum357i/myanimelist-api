@@ -206,7 +206,7 @@ if ( $mal->isSuccess() ) {
 
 		foreach ( $mal->genres as $genre ) {
 
-			echo "<li>{$genre}</li>";
+			echo "<li><a href=\"{$genre[ 'link' ]}\" target=\"_blank\">{$genre[ 'name' ]}</a></li>";
 		}
 
 		echo '</ul>';
@@ -426,97 +426,14 @@ if ( $mal->isSuccess() ) {
 
 	if ( $mal->serialization !== FALSE ) {
 
-		echo $mal->serialization;
-	}
-	else {
+		echo '<ul>';
 
-		echo '<span class="text-danger">Not found.</span>';
-	}
+		foreach ( $mal->serialization as $s ) {
 
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">chapterdate()->first()->month</span></td>';
-	echo '<td class="align-middle">';
+			echo "<li><a href=\"{$s[ 'link' ]}\" target=\"_blank\">{$s[ 'name' ]}</a></li>";
+		}
 
-	if ( $mal->chapterdate()->first()->month !== FALSE ) {
-
-		echo $mal->chapterdate()->first()->month;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">chapterdate()->first()->day</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->chapterdate()->first()->day !== FALSE ) {
-
-		echo $mal->chapterdate()->first()->day;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">chapterdate()->first()->year</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->chapterdate()->first()->year !== FALSE ) {
-
-		echo $mal->chapterdate()->first()->year;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">chapterdate()->last()->month</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->chapterdate()->last()->month !== FALSE ) {
-
-		echo $mal->chapterdate()->last()->month;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">chapterdate()->last()->day</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->chapterdate()->last()->day !== FALSE ) {
-
-		echo $mal->chapterdate()->last()->day;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">chapterdate()->last()->year</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->chapterdate()->last()->year !== FALSE ) {
-
-		echo $mal->chapterdate()->last()->year;
+		echo '</ul>';
 	}
 	else {
 
@@ -544,9 +461,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">characters</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 10 );
-
-	if ( $mal->characters !== FALSE ) {
+	if ( $mal->setLimit( 5 )->characters !== FALSE ) {
 
 		echo '<ul>';
 
@@ -568,9 +483,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->adaptation</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->adaptation !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->adaptation !== FALSE ) {
 
 		echo '<ul>';
 
@@ -592,9 +505,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->sequel</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->sequel !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->sequel !== FALSE ) {
 
 		echo '<ul>';
 
@@ -616,9 +527,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->prequel</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->prequel !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->prequel !== FALSE ) {
 
 		echo '<ul>';
 
@@ -640,9 +549,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->parentstory</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->parentstory !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->parentstory !== FALSE ) {
 
 		echo '<ul>';
 
@@ -664,9 +571,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->sidestory</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->sidestory !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->sidestory !== FALSE ) {
 
 		echo '<ul>';
 
@@ -688,9 +593,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->other</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->other !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->other !== FALSE ) {
 
 		echo '<ul>';
 
@@ -712,9 +615,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->spinoff</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->spinoff !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->spinoff !== FALSE ) {
 
 		echo '<ul>';
 
@@ -736,9 +637,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->alternativeversion</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->alternativeversion !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->alternativeversion !== FALSE ) {
 
 		echo '<ul>';
 

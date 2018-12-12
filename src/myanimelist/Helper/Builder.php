@@ -16,7 +16,7 @@ class Builder {
 	/**
 	 * Software Version
 	 */
-	public static $version = '0.9.2';
+	const VERSION = '0.9.3';
 
 	/**
 	 * MAL Id
@@ -99,7 +99,8 @@ class Builder {
 	 */
 	public function __construct( $id ) {
 
-		static::$id = $id;
+		static::$id   = $id;
+		static::$data = array();
 	}
 
 	/**

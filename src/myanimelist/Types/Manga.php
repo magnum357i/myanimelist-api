@@ -53,24 +53,6 @@ class Manga extends \myanimelist\Helper\Builder {
 	}
 
 	/**
-	 * Get chapterdate values
-	 *
-	 * @return this class
-	 */
-	public function chapterdate() {
-
-		if ( !isset( static::$data[ 'firstchapter' ] ) OR !isset( static::$data[ 'lastchapter' ] ) ) {
-
-			$this->_firstchapter();
-			$this->_lastchapter();
-		}
-
-		static::$prefix = 'chapterdate';
-
-		return $this;
-	}
-
-	/**
 	 * Call related functions
 	 *
 	 * @return this class
@@ -83,13 +65,13 @@ class Manga extends \myanimelist\Helper\Builder {
 	}
 
 	/**
-	 * Get first of published values
+	 * Get first of date values
 	 *
 	 * @return this class
 	 */
 	public function first() {
 
-		if ( in_array( static::$prefix, array( 'published', 'chapterdate' ) ) ) {
+		if ( in_array( static::$prefix, array( 'published' ) ) ) {
 
 			static::$prefix = static::$prefix . 'first';
 		}
@@ -98,13 +80,13 @@ class Manga extends \myanimelist\Helper\Builder {
 	}
 
 	/**
-	 * Get last of published values
+	 * Get last of date values
 	 *
 	 * @return this class
 	 */
 	public function last() {
 
-		if ( in_array( static::$prefix, array( 'published', 'chapterdate' ) ) ) {
+		if ( in_array( static::$prefix, array( 'published' ) ) ) {
 
 			static::$prefix = static::$prefix . 'last';
 		}
@@ -331,11 +313,24 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->request()->match( '<span class="dark_text">genres:</span>(.*?)</div>' );
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">genres:</span>(.*?)</div>',
+		'(<a href=[^>]+>.*?</a>)',
+		array(
+		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+"[^>]+>(.*?)</a>'
+		),
+		array(
+		'link',
+		'name'
+		),
+		static::$limit
+		);
 
-		if ( $data == FALSE ) return FALSE;
-
-		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
+		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -494,11 +489,24 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->request()->match( '<span class="dark_text">serialization:</span>(.*?)</div>' );
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">serialization:</span>(.*?)</div>',
+		'(<a href=[^>]+>.*?</a>)',
+		array(
+		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+"[^>]+>(.*?)</a>'
+		),
+		array(
+		'link',
+		'name'
+		),
+		static::$limit
+		);
 
-		if ( $this->text()->validate( array( 'mode' => 'regex', 'regex_code' => 'none', 'regex_flags' => 'si' ), $data ) ) return FALSE;
-
-		return static::setValue( $key, $this->lastChanges( $data ) );
+		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -625,154 +633,6 @@ class Manga extends \myanimelist\Helper\Builder {
 	}
 
 	/**
-	 * Get date of first episode
-	 *
-	 * @return 		array
-	 */
-	protected function _firstchapter() {
-
-		$key = 'firstchapter';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		$data = $this->request()->match( '<span class="dark_text">published:</span>(.*?)</div>' );
-
-		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
-
-		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d\d?),\s*(\d\d\d\d)/', $data, $out );
-
-		if ( !empty( $out ) ) {
-
-			$data = array(
-				'month' => $this->lastChanges( $out[1] ),
-				'day'   => $this->lastChanges( $out[2] ),
-				'year'  => $this->lastChanges( $out[3] )
-			);
-
-			return static::setValue( $key, $data );
-		}
-
-		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d\d\d\d)/', $data, $out );
-
-		if ( !empty( $out ) ) {
-
-			$data = array(
-				'month' => $this->lastChanges( $out[1] ),
-				'day'   => 1,
-				'year'  => $this->lastChanges( $out[2] )
-			);
-
-			return static::setValue( $key, $data );
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Get month of first chapter
-	 *
-	 * @return 		string
-	 */
-	protected function _chapterdatefirstmonth() {
-
-		return ( isset( static::$data[ 'firstchapter' ][ 'month' ] ) ) ? static::$data[ 'firstchapter' ][ 'month' ] : FALSE;
-	}
-
-	/**
-	 * Get day of first chapter
-	 *
-	 * @return 		string
-	 */
-	protected function _chapterdatefirstday() {
-
-		return ( isset( static::$data[ 'firstchapter' ][ 'day' ] ) ) ? static::$data[ 'firstchapter' ][ 'day' ] : FALSE;
-	}
-
-	/**
-	 * Get year of first chapter
-	 *
-	 * @return 		string
-	 */
-	protected function _chapterdatefirstyear() {
-
-		return ( isset( static::$data[ 'firstchapter' ][ 'year' ] ) ) ? static::$data[ 'firstchapter' ][ 'year' ] : FALSE;
-	}
-
-	/**
-	 * Get date of last episode
-	 *
-	 * @return 		array
-	 */
-	protected function _lastchapter() {
-
-		$key = 'lastchapter';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		$data = $this->request()->match( '<span class="dark_text">published:</span>(.*?)</div>' );
-
-		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
-
-		preg_match( '/\w+\s*\d+,\s*\d+\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d\d?),\s*(\d\d\d\d)/', $data, $out );
-
-		if ( !empty( $out ) ) {
-
-			$data = array(
-				'month' => $this->lastChanges( $out[1] ),
-				'day'   => $this->lastChanges( $out[2] ),
-				'year'  => $this->lastChanges( $out[3] )
-			);
-
-			return static::setValue( $key, $data );
-		}
-
-		preg_match( '/\w+\s*\d+\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d\d\d\d)/', $data, $out );
-
-		if ( !empty( $out ) ) {
-
-			$data = array(
-				'month' => $this->lastChanges( $out[1] ),
-				'day'   => 1,
-				'year'  => $this->lastChanges( $out[2] )
-			);
-
-			return static::setValue( $key, $data );
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Get month of last chapter
-	 *
-	 * @return 		string
-	 */
-	protected function _chapterdatelastmonth() {
-
-		return ( isset( static::$data[ 'lastchapter' ][ 'month' ] ) ) ? static::$data[ 'lastchapter' ][ 'month' ] : FALSE;
-	}
-
-	/**
-	 * Get day of last chapter
-	 *
-	 * @return 		string
-	 */
-	protected function _chapterdatelastday() {
-
-		return ( isset( static::$data[ 'lastchapter' ][ 'day' ] ) ) ? static::$data[ 'lastchapter' ][ 'day' ] : FALSE;
-	}
-
-	/**
-	 * Get year of last chapter
-	 *
-	 * @return 		string
-	 */
-	protected function _chapterdatelastyear() {
-
-		return ( isset( static::$data[ 'lastchapter' ][ 'year' ] ) ) ? static::$data[ 'lastchapter' ][ 'year' ] : FALSE;
-	}
-
-	/**
 	 * Get year
 	 *
 	 * @return 		string
@@ -832,6 +692,8 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$key = 'adaptation';
 
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
 		$this->config(),
@@ -860,6 +722,8 @@ class Manga extends \myanimelist\Helper\Builder {
 	protected function _relatedsequel() {
 
 		$key = 'sequel';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
@@ -890,6 +754,8 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$key = 'prequel';
 
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
 		$this->config(),
@@ -918,6 +784,8 @@ class Manga extends \myanimelist\Helper\Builder {
 	protected function _relatedparentstory() {
 
 		$key = 'parentstory';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
@@ -948,6 +816,8 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$key = 'sidestory';
 
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
 		$this->config(),
@@ -976,6 +846,8 @@ class Manga extends \myanimelist\Helper\Builder {
 	protected function _relatedother() {
 
 		$key = 'other';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
@@ -1006,6 +878,8 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$key = 'spinoff';
 
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
 		$this->config(),
@@ -1034,6 +908,8 @@ class Manga extends \myanimelist\Helper\Builder {
 	protected function _relatedalternativeversion() {
 
 		$key = 'alternativeversion';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),

@@ -54,35 +54,48 @@ class Anime extends \myanimelist\Helper\Builder
 	}
 
 	/**
-	 * Get firstepisode values
+	 * Get aired values
 	 *
 	 * @return 		this class
 	 */
-	public function firstepisode() {
+	public function aired() {
 
-		if ( !isset( static::$data[ 'firstepisode' ] ) ) {
+		if ( !isset( static::$data[ 'aired' ] ) ) {
 
-			$this->_firstepisode();
+			$this->_aired();
 		}
 
-		static::$prefix = 'firstepisode';
+		static::$prefix = 'aired';
 
 		return $this;
 	}
 
 	/**
-	 * Get lastepisode values
+	 * Get first of date values
 	 *
-	 * @return 		this class
+	 * @return this class
 	 */
-	public function lastepisode() {
+	public function first() {
 
-		if ( !isset( static::$data[ 'lastepisode' ] ) ) {
+		if ( in_array( static::$prefix, array( 'aired' ) ) ) {
 
-			$this->_lastepisode();
+			static::$prefix = static::$prefix . 'first';
 		}
 
-		static::$prefix = 'lastepisode';
+		return $this;
+	}
+
+	/**
+	 * Get last of date values
+	 *
+	 * @return this class
+	 */
+	public function last() {
+
+		if ( in_array( static::$prefix, array( 'aired' ) ) ) {
+
+			static::$prefix = static::$prefix . 'last';
+		}
 
 		return $this;
 	}
@@ -306,10 +319,72 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( $this->text()->validate( array( 'mode' => 'regex', 'regex_code' => 'none', 'regex_flags' => 'si' ), $data ) ) return FALSE;
 
-		$data = str_replace( array( '- Teens 13 or older', '(violence &amp; profanity)', '- Mild Nudity', ' ' ), '', $data );
+		$data = str_replace( array( '- Teens 13 or older', '(violence & profanity)', '- Mild Nudity', ' ' ), '', $data );
 		$data = trim( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
+	}
+
+	/**
+	 * Get licensors
+	 *
+	 * @return 		string
+	 */
+	protected function _licensors() {
+
+		$key = 'licensors';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">licensors:</span>(.*?)</div>',
+		'(<a href=[^>]+>.*?</a>)',
+		array(
+		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+"[^>]+>(.*?)</a>'
+		),
+		array(
+		'link',
+		'name'
+		),
+		static::$limit
+		);
+
+		return static::setValue( $key, $data );
+	}
+
+	/**
+	 * Get producers
+	 *
+	 * @return 		string
+	 */
+	protected function _producers() {
+
+		$key = 'producers';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">producers:</span>(.*?)</div>',
+		'(<a href=[^>]+>.*?</a>)',
+		array(
+		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+"[^>]+>(.*?)</a>'
+		),
+		array(
+		'link',
+		'name'
+		),
+		static::$limit
+		);
+
+		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -396,11 +471,24 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->request()->match( '<span class="dark_text">genres:</span>(.*?)</div>' );
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">genres:</span>(.*?)</div>',
+		'(<a href=[^>]+>.*?</a>)',
+		array(
+		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+"[^>]+>(.*?)</a>'
+		),
+		array(
+		'link',
+		'name'
+		),
+		static::$limit
+		);
 
-		if ( $data == FALSE ) return FALSE;
-
-		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
+		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -424,125 +512,126 @@ class Anime extends \myanimelist\Helper\Builder
 	}
 
 	/**
-	 * Get date of first episode
+	 * Get aired
 	 *
 	 * @return 		array
 	 */
-	protected function _firstepisode() {
-
-		$key = 'firstepisode';
+	protected function _aired()
+	{
+		$key = 'aired';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->request()->match( '<span class="dark_text">aired:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
+		if ( $data == FALSE ) return FALSE;
 
-		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d\d?),\s*(\d\d\d\d)/', $data, $out );
+		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)/', $data, $out );
 
-		if ( !empty( $out ) ) {
-
+		if ( !empty( $out ) )
+		{
 			$data = array(
-				'month' => $this->lastChanges( $out[1] ),
-				'day'   => $this->lastChanges( $out[2] ),
-				'year'  => $this->lastChanges( $out[3] )
+				'first_month' => static::lastChanges( $out[1] ),
+				'first_day'   => static::lastChanges( $out[2] ),
+				'first_year'  => static::lastChanges( $out[3] ),
+				'last_month'  => static::lastChanges( $out[4] ),
+				'last_day'    => static::lastChanges( $out[5] ),
+				'last_year'   => static::lastChanges( $out[6] )
 			);
 
-			return static::setValue( $key, $data );
+			return static::setValue( $key, $this->lastChanges( $data ) );
+		}
+
+		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)\s*to\s*\?/', $data, $out );
+
+		if ( !empty( $out ) )
+		{
+			$data = array(
+				'first_month' => static::lastChanges( $out[1] ),
+				'first_day'   => static::lastChanges( $out[2] ),
+				'first_year'  => static::lastChanges( $out[3] ),
+				'last_month'  => 'no',
+				'last_day'    => 'no',
+				'last_year'   => 'no'
+			);
+
+			return static::setValue( $key, $this->lastChanges( $data ) );
+		}
+
+		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)/', $data, $out );
+
+		if ( !empty( $out ) )
+		{
+			$data = array(
+				'first_month' => static::lastChanges( $out[1] ),
+				'first_day'   => static::lastChanges( $out[2] ),
+				'first_year'  => static::lastChanges( $out[3] )
+			);
+
+			return static::setValue( $key, $this->lastChanges( $data ) );
 		}
 
 		return FALSE;
 	}
 
 	/**
-	 * Get month of first episode
+	 * Get first month of aired
 	 *
 	 * @return 		string
 	 */
-	protected function _firstepisodemonth() {
+	protected function _airedfirstmonth() {
 
-		return ( isset( static::$data[ 'firstepisode' ][ 'month' ] ) ) ? static::$data[ 'firstepisode' ][ 'month' ] : FALSE;
+		return ( isset( static::$data[ 'aired' ][ 'first_month' ] ) ) ? static::$data[ 'aired' ][ 'first_month' ] : FALSE;
 	}
 
 	/**
-	 * Get day of first episode
+	 * Get first day of aired
 	 *
 	 * @return 		string
 	 */
-	protected function _firstepisodeday() {
+	protected function _airedfirstday() {
 
-		return ( isset( static::$data[ 'firstepisode' ][ 'day' ] ) ) ? static::$data[ 'firstepisode' ][ 'day' ] : FALSE;
+		return ( isset( static::$data[ 'aired' ][ 'first_day' ] ) ) ? static::$data[ 'aired' ][ 'first_day' ] : FALSE;
 	}
 
 	/**
-	 * Get year of first episode
+	 * Get first year of aired
 	 *
 	 * @return 		string
 	 */
-	protected function _firstepisodeyear() {
+	protected function _airedfirstyear() {
 
-		return ( isset( static::$data[ 'firstepisode' ][ 'year' ] ) ) ? static::$data[ 'firstepisode' ][ 'year' ] : FALSE;
+		return ( isset( static::$data[ 'aired' ][ 'first_year' ] ) ) ? static::$data[ 'aired' ][ 'first_year' ] : FALSE;
 	}
 
 	/**
-	 * Get date of last episode
-	 *
-	 * @return 		array
-	 */
-	protected function _lastepisode() {
-
-		$key = 'lastepisode';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		$data = $this->request()->match( '<span class="dark_text">aired:</span>(.*?)</div>' );
-
-		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
-
-		preg_match( '/\w+\s*\d+,\s*\d+\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d\d?),\s*(\d\d\d\d)/', $data, $out );
-
-		if ( !empty( $out ) ) {
-
-			$data = array(
-				'month' => $this->lastChanges( $out[1] ),
-				'day'   => $this->lastChanges( $out[2] ),
-				'year'  => $this->lastChanges( $out[3] )
-			);
-
-			return static::setValue( $key, $data );
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Get month of last episode
+	 * Get last month of aired
 	 *
 	 * @return 		string
 	 */
-	protected function _lastepisodemonth() {
+	protected function _airedlastmonth() {
 
-		return ( isset( static::$data[ 'lastepisode' ][ 'month' ] ) ) ? static::$data[ 'lastepisode' ][ 'month' ] : FALSE;
+		return ( isset( static::$data[ 'aired' ][ 'last_month' ] ) ) ? static::$data[ 'aired' ][ 'last_month' ] : FALSE;
 	}
 
 	/**
-	 * Get day of last episode
+	 * Get last day of aired
 	 *
 	 * @return 		string
 	 */
-	protected function _lastepisodeday() {
+	protected function _airedlastday() {
 
-		return ( isset( static::$data[ 'firstepisode' ][ 'day' ] ) ) ? static::$data[ 'firstepisode' ][ 'day' ] : FALSE;
+		return ( isset( static::$data[ 'aired' ][ 'last_day' ] ) ) ? static::$data[ 'aired' ][ 'last_day' ] : FALSE;
 	}
 
 	/**
-	 * Get year of last episode
+	 * Get last year of aired
 	 *
 	 * @return 		string
 	 */
-	protected function _lastepisodeyear() {
+	protected function _airedlastyear() {
 
-		return ( isset( static::$data[ 'firstepisode' ][ 'year' ] ) ) ? static::$data[ 'firstepisode' ][ 'year' ] : FALSE;
+		return ( isset( static::$data[ 'aired' ][ 'last_year' ] ) ) ? static::$data[ 'aired' ][ 'last_year' ] : FALSE;
 	}
 
 	/**
@@ -578,13 +667,24 @@ class Anime extends \myanimelist\Helper\Builder
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		$data = $this->request()->match( '<span class="dark_text">studios:</span>(.*?)</div>' );
+		$data = $this->request()->matchTable(
+		array( $this, 'lastChanges' ),
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">studios:</span>(.*?)</div>',
+		'(<a href=[^>]+>.*?</a>)',
+		array(
+		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+"[^>]+>(.*?)</a>'
+		),
+		array(
+		'link',
+		'name'
+		),
+		static::$limit
+		);
 
-		if ( $data == FALSE ) return FALSE;
-
-		if ( $this->text()->validate( array( 'mode' => 'regex', 'regex_code' => 'none found', 'regex_flags' => 'si' ), $data ) ) return FALSE;
-
-		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
+		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -696,24 +796,6 @@ class Anime extends \myanimelist\Helper\Builder
 	protected function _premieredyear() {
 
 		return ( isset( static::$data[ 'premiered' ][ 'year' ] ) ) ? static::$data[ 'premiered' ][ 'year' ] : FALSE;
-	}
-
-	/**
-	 * Get producers
-	 *
-	 * @return 		array
-	 */
-	protected function _producers() {
-
-		$key = 'producers';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		$data = $this->request()->match( '<span class="dark_text">producers:</span>(.*?)</div>' );
-
-		if ( $data == FALSE ) return FALSE;
-
-		return static::setValue( $key, $this->text()->listValue( $data, ',', array( $this, 'lastChanges' ) ) );
 	}
 
 	/**
@@ -883,6 +965,8 @@ class Anime extends \myanimelist\Helper\Builder
 	protected function _voice() {
 
 		$key = 'voice';
+
+		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),

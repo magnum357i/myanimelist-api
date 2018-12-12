@@ -182,51 +182,56 @@ if ( $mal->isSuccess() ) {
 
 	echo '</td>';
 	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">broadcast()->day</span></td>';
-	echo '<td class="align-middle">';
 
-	if ( $mal->broadcast()->day !== FALSE ) {
+	if ( $mal->category == 'TV' ) {
 
-		echo $mal->broadcast()->day;
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">broadcast()->day</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->broadcast()->day !== FALSE ) {
+
+			echo $mal->broadcast()->day;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">broadcast()->hour</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->broadcast()->hour !== FALSE ) {
+
+			echo $mal->broadcast()->hour;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">broadcast()->minute</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->broadcast()->minute !== FALSE ) {
+
+			echo $mal->broadcast()->minute;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
 	}
-	else {
 
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">broadcast()->hour</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->broadcast()->hour !== FALSE ) {
-
-		echo $mal->broadcast()->hour;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">broadcast()->minute</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->broadcast()->minute !== FALSE ) {
-
-		echo $mal->broadcast()->minute;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">members</span></td>';
 	echo '<td class="align-middle">';
@@ -342,7 +347,7 @@ if ( $mal->isSuccess() ) {
 
 		foreach ( $mal->genres as $genre ) {
 
-			echo "<li>{$genre}</li>";
+			echo "<li><a href=\"{$genre[ 'link' ]}\" target=\"_blank\">{$genre[ 'name' ]}</a></li>";
 		}
 
 		echo '</ul>';
@@ -370,12 +375,12 @@ if ( $mal->isSuccess() ) {
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">firstepisode()->month</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">aired()->first()->month</span></td>';
 	echo '<td class="align-middle">';
 
-	if ( $mal->firstepisode()->month !== FALSE ) {
+	if ( $mal->aired()->first()->month !== FALSE ) {
 
-		echo $mal->firstepisode()->month;
+		echo $mal->aired()->first()->month;
 	}
 	else {
 
@@ -385,12 +390,12 @@ if ( $mal->isSuccess() ) {
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">firstepisode()->day</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">aired()->first()->day</span></td>';
 	echo '<td class="align-middle">';
 
-	if ( $mal->firstepisode()->day !== FALSE ) {
+	if ( $mal->aired()->first()->day !== FALSE ) {
 
-		echo $mal->firstepisode()->day;
+		echo $mal->aired()->first()->day;
 	}
 	else {
 
@@ -400,12 +405,12 @@ if ( $mal->isSuccess() ) {
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">firstepisode()->year</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">aired()->first()->year</span></td>';
 	echo '<td class="align-middle">';
 
-	if ( $mal->firstepisode()->year !== FALSE ) {
+	if ( $mal->aired()->first()->year !== FALSE ) {
 
-		echo $mal->firstepisode()->year;
+		echo $mal->aired()->first()->year;
 	}
 	else {
 
@@ -414,51 +419,56 @@ if ( $mal->isSuccess() ) {
 
 	echo '</td>';
 	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">lastepisode()->month</span></td>';
-	echo '<td class="align-middle">';
 
-	if ( $mal->lastepisode()->month !== FALSE ) {
+	if ( $mal->category != 'Movie' ) {
 
-		echo $mal->lastepisode()->month;
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">aired()->last()->month</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->aired()->last()->month !== FALSE ) {
+
+			echo $mal->aired()->last()->month;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">aired()->last()->day</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->aired()->last()->day !== FALSE ) {
+
+			echo $mal->aired()->last()->day;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">aired()->last()->year</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->aired()->last()->year !== FALSE ) {
+
+			echo $mal->aired()->last()->year;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
 	}
-	else {
 
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">firstepisode()->day</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->firstepisode()->day !== FALSE ) {
-
-		echo $mal->firstepisode()->day;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">firstepisode()->year</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->firstepisode()->year !== FALSE ) {
-
-		echo $mal->firstepisode()->year;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">episode</span></td>';
 	echo '<td class="align-middle">';
@@ -484,7 +494,51 @@ if ( $mal->isSuccess() ) {
 
 		foreach ( $mal->studios as $studio ) {
 
-			echo "<li>{$studio}</li>";
+			echo "<li><a href=\"{$studio[ 'link' ]}\" target=\"_blank\">{$studio[ 'name' ]}</a></li>";
+		}
+
+		echo '</ul>';
+	}
+	else {
+
+		echo '<span class="text-danger">Not found.</span>';
+	}
+
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">producers</span></td>';
+	echo '<td class="align-middle">';
+
+	if ( $mal->producers !== FALSE ) {
+
+		echo '<ul>';
+
+		foreach ( $mal->producers as $producer ) {
+
+			echo "<li><a href=\"{$producer[ 'link' ]}\" target=\"_blank\">{$producer[ 'name' ]}</a></li>";
+		}
+
+		echo '</ul>';
+	}
+	else {
+
+		echo '<span class="text-danger">Not found.</span>';
+	}
+
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">licensors</span></td>';
+	echo '<td class="align-middle">';
+
+	if ( $mal->licensors !== FALSE ) {
+
+		echo '<ul>';
+
+		foreach ( $mal->licensors as $licensor ) {
+
+			echo "<li><a href=\"{$licensor[ 'link' ]}\" target=\"_blank\">{$licensor[ 'name' ]}</a></li>";
 		}
 
 		echo '</ul>';
@@ -526,36 +580,44 @@ if ( $mal->isSuccess() ) {
 
 	echo '</td>';
 	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">premiered()->season</span></td>';
-	echo '<td class="align-middle">';
 
-	if ( $mal->premiered()->season !== FALSE ) {
+	if ( $mal->category == 'TV' ) {
 
-		echo $mal->premiered()->season;
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">premiered()->season</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->premiered()->season !== FALSE ) {
+
+			echo $mal->premiered()->season;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
+
+		// Premiered works on TV only
+
+		echo '<tr>';
+		echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">premiered()->year</span></td>';
+		echo '<td class="align-middle">';
+
+		if ( $mal->premiered()->year !== FALSE ) {
+
+			echo $mal->premiered()->year;
+		}
+		else {
+
+			echo '<span class="text-danger">Not found.</span>';
+		}
+
+		echo '</td>';
+		echo '</tr>';
 	}
-	else {
 
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
-	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">premiered()->year</span></td>';
-	echo '<td class="align-middle">';
-
-	if ( $mal->premiered()->year !== FALSE ) {
-
-		echo $mal->premiered()->year;
-	}
-	else {
-
-		echo '<span class="text-danger">Not found.</span>';
-	}
-
-	echo '</td>';
-	echo '</tr>';
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">year</span></td>';
 	echo '<td class="align-middle">';
@@ -575,15 +637,28 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">voice</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 5 );
-
-	if ( $mal->voice !== FALSE ) {
+	if ( $mal->setLimit( 5 )->voice !== FALSE ) {
 
 		echo '<ul>';
 
 		foreach ( $mal->voice as $v ) {
 
-			echo "<li><a href=\"{$v[ 'people_link' ]}\" target=\"_blank\">{$v[ 'people_name' ]}</a> / <a href=\"{$v[ 'character_link' ]}\" target=\"_blank\">{$v[ 'character_name' ]}</a> ({$v[ 'people_lang' ]})</li>";
+			echo "<li>";
+
+			if ( isset( $v[ 'character_link' ] ) ) {
+
+				echo "<a href=\"{$v[ 'character_link' ]}\" target=\"_blank\">{$v[ 'character_name' ]}</a>";
+			}
+
+			// If people info has, sometimes this is not on MAL
+
+			if ( isset( $v[ 'people_link' ] ) ) {
+
+				echo " / <a href=\"{$v[ 'people_link' ]}\" target=\"_blank\">{$v[ 'people_name' ]}</a>";
+				echo " ({$v[ 'people_lang' ]})";
+			}
+
+			echo "</li>";
 		}
 
 		echo '</ul>';
@@ -599,9 +674,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">staff</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 3 );
-
-	if ( $mal->staff !== FALSE ) {
+	if ( $mal->setLimit( 3 )->staff !== FALSE ) {
 
 		echo '<ul>';
 
@@ -635,9 +708,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->adaptation</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->adaptation !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->adaptation !== FALSE ) {
 
 		echo '<ul>';
 
@@ -659,9 +730,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->prequel</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->prequel !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->prequel !== FALSE ) {
 
 		echo '<ul>';
 
@@ -683,9 +752,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->sequel</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->sequel !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->sequel !== FALSE ) {
 
 		echo '<ul>';
 
@@ -707,9 +774,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->parentstory</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->parentstory !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->parentstory !== FALSE ) {
 
 		echo '<ul>';
 
@@ -731,9 +796,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->sidestory</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->sidestory !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->sidestory !== FALSE ) {
 
 		echo '<ul>';
 
@@ -755,9 +818,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->spinoff</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->spinoff !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->spinoff !== FALSE ) {
 
 		echo '<ul>';
 
@@ -779,9 +840,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->alternativeversion</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->alternativeversion !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->alternativeversion !== FALSE ) {
 
 		echo '<ul>';
 
@@ -803,9 +862,7 @@ if ( $mal->isSuccess() ) {
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->other</span></td>';
 	echo '<td class="align-middle">';
 
-	$mal->setLimit( 2 );
-
-	if ( $mal->related()->other !== FALSE ) {
+	if ( $mal->setLimit( 2 )->related()->other !== FALSE ) {
 
 		echo '<ul>';
 
@@ -829,7 +886,7 @@ if ( $mal->isSuccess() ) {
 
 	if ( $mal->trailer !== FALSE ) {
 
-		echo $mal->trailer;
+		echo "<a href=\"{$mal->trailer}\" target=\"_blank\">{$mal->trailer}</a>";
 	}
 	else {
 
