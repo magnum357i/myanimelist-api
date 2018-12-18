@@ -145,7 +145,7 @@ class Text {
 			$removelastbr_count++;
 		}
 
-		return ( !$this->validate( array( 'mode' => 'count', 'max_len' => 20 ), $desc ) OR $this->validate( array( 'mode' => 'regex', 'regex_code' => 'no biography written', 'regex_flags' => 'si' ), $desc ) ) ? FALSE : $desc;
+		return ( !$this->validate( array( 'mode' => 'count', 'max_len' => 20 ), $desc ) ) ? FALSE : $desc;
 	}
 
 	/**

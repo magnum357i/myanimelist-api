@@ -5,68 +5,84 @@ This is an api developed to get information from anime, manga, character and peo
 * CURL
 * PHP 7
 
-### Anime Variables
+### Anime
 
+###### Example
 ```php
-$mal->title()->original;
-$mal->title()->english;
-$mal->title()->japanese;
-$mal->title()->sysnonmys;
-$mal->poster;
-$mal->description;
-$mal->category;
-$mal->status;
-$mal->broadcast()->day;
-$mal->broadcast()->hour;
-$mal->broadcast()->minute;
-$mal->members;
-$mal->popularity;
-$mal->favorites;
-$mal->rating;
-$mal->rank;
-$mal->vote;
-$mal->point;
-$mal->genres;
-$mal->source;
-$mal->aired()->first()->month;
-$mal->aired()->first()->day;
-$mal->aired()->first()->year;
-$mal->aired()->last()->month;
-$mal->aired()->last()->day;
-$mal->aired()->last()->year;
-$mal->episode;
-$mal->studios;
-$mal->duration;
-$mal->producers;
-$mal->licensors;
-$mal->premiered()->season;
-$mal->premiered()->year;
-$mal->year;
-$mal->voice;
-$mal->staff;
-$mal->related()->adaptation;
-$mal->related()->prequel;
-$mal->related()->sequel;
-$mal->related()->parentstory;
-$mal->related()->sidestory;
-$mal->related()->spinoff;
-$mal->related()->alternativeversion;
-$mal->related()->other;
-$mal->related()->sequel;
-$mal->link;
-$mal->trailer;
+$mal = new myanimelist\Types\Anime( 20 );
+
+$mal->get();
+
+if ( $mal->isSuccess() ) {
+
+   echo $mal->title()->original;
+   echo $mal->title()->english;
+   echo $mal->title()->japanese;
+   echo $mal->title()->sysnonmys;
+   echo $mal->poster;
+   echo $mal->description;
+   echo $mal->category;
+   echo $mal->status;
+   echo $mal->broadcast()->day;
+   echo $mal->broadcast()->hour;
+   echo $mal->broadcast()->minute;
+   echo $mal->statistic()->rank;
+   echo $mal->statistic()->member;
+   echo $mal->statistic()->memberraw;
+   echo $mal->statistic()->popularity;
+   echo $mal->statistic()->favorite;
+   echo $mal->statistic()->favoriteraw;
+   echo $mal->rating;
+   echo $mal->score()->vote;
+   echo $mal->score()->voteraw;
+   echo $mal->score()->point;
+   echo $mal->genres;
+   echo $mal->source;
+   echo $mal->aired()->first()->month;
+   echo $mal->aired()->first()->day;
+   echo $mal->aired()->first()->year;
+   echo $mal->aired()->last()->month;
+   echo $mal->aired()->last()->day;
+   echo $mal->aired()->last()->year;
+   echo $mal->episode;
+   echo $mal->studios;
+   echo $mal->duration()->minute;
+   echo $mal->duration()->hour;
+   echo $mal->producers;
+   echo $mal->licensors;
+   echo $mal->premiered()->season;
+   echo $mal->premiered()->year;
+   echo $mal->year;
+   echo $mal->voice;
+   echo $mal->staff;
+   echo $mal->related()->adaptation;
+   echo $mal->related()->prequel;
+   echo $mal->related()->sequel;
+   echo $mal->related()->parentstory;
+   echo $mal->related()->sidestory;
+   echo $mal->related()->spinoff;
+   echo $mal->related()->alternativeversion;
+   echo $mal->related()->other;
+   echo $mal->related()->sequel;
+   echo $mal->link;
+   echo $mal->trailer;
+}
+else {
+
+   echo 'No data.';
+}
 ```
 
 ###### Content of JSON File
+
 ```json
 {  
-   "time":1544575629,
+   "time":1545090961,
    "data":{  
       "titleoriginal":"Naruto",
       "titleenglish":"Naruto",
       "titlejapanese":"\u30ca\u30eb\u30c8",
       "titlesysnonmys":"NARUTO",
-      "saveposter":"yes",
       "poster":"\/test\/demos\/upload\/cache\/cover\/anime\/20.jpg",
       "description":"Moments prior to Naruto Uzumaki&#039;s birth, a huge demon known as the Kyuubi, the Nine-Tailed Fox, attacked Konohagakure, the Hidden Leaf Village, and wreaked havoc. In order to put an end to the Kyuubi&#039;s rampage, the leader of the village, the Fourth Hokage, sacrificed his life and sealed the monstrous beast inside the newborn Naruto.<br \/>\r\n<br \/>\r\nNow, Naruto is a hyperactive and knuckle-headed ninja still living in Konohagakure. Shunned because of the Kyuubi inside him, Naruto struggles to find his place in the village, while his burning desire to become the Hokage of Konohagakure leads him not only to some great new friends, but also some deadly foes.",
       "category":"TV",
@@ -76,13 +92,22 @@ $mal->trailer;
          "hour":"19",
          "minute":"30"
       },
-      "members":"1065K",
+      "rank":"#714",
+      "member":{  
+         "simple":"1068K",
+         "full":"1067620"
+      },
       "popularity":"#10",
-      "favorites":"38K",
+      "favorite":{  
+         "simple":"38K",
+         "full":"38464"
+      },
       "rating":"PG-13",
-      "rank":"#713",
-      "vote":"700K",
-      "point":"7.89",
+      "vote":{  
+         "simple":"702K",
+         "full":"702014"
+      },
+      "point":"7.8",
       "genres":[  
          {  
             "link":"https:\/\/myanimelist.net\/anime\/genre\/1\/Action",
@@ -244,60 +269,78 @@ $mal->trailer;
 }
 ```
 
-### Manga Variables
+### Manga
+
+###### Example
 
 ```php
-$mal->title()->original;
-$mal->title()->english;
-$mal->title()->japanese;
-$mal->poster;
-$mal->description;
-$mal->type;
-$mal->rank;
-$mal->vote;
-$mal->point;
-$mal->genres;
-$mal->popularity;
-$mal->members;
-$mal->favorites;
-$mal->status;
-$mal->published()->first()->month;
-$mal->published()->first()->day;
-$mal->published()->first()->year;
-$mal->published()->last()->month;
-$mal->published()->last()->day;
-$mal->published()->last()->year;
-$mal->authors;
-$mal->volume;
-$mal->chapter;
-$mal->serialization;
-$mal->year;
-$mal->characters;
-$mal->related()->adaptation;
-$mal->related()->sequel;
-$mal->related()->prequel;
-$mal->related()->parentstory;
-$mal->related()->sidestory;
-$mal->related()->other;
-$mal->related()->spinoff;
-$mal->related()->alternativeversion;
-$mal->link;
+$mal = new myanimelist\Types\Manga( 2 );
+
+$mal->get();
+
+if ( $mal->isSuccess() ) {
+
+   echo $mal->title()->original;
+   echo $mal->title()->english;
+   echo $mal->title()->japanese;
+   echo $mal->poster;
+   echo $mal->description;
+   echo $mal->type;
+   echo $mal->score()->vote;
+   echo $mal->score()->voteraw;
+   echo $mal->score()->point;
+   echo $mal->genres;
+   echo $mal->statistic()->rank;
+   echo $mal->statistic()->popularity;
+   echo $mal->statistic()->member;
+   echo $mal->statistic()->memberraw;
+   echo $mal->statistic()->favorite;
+   echo $mal->statistic()->favoriteraw;
+   echo $mal->status;
+   echo $mal->published()->first()->month;
+   echo $mal->published()->first()->day;
+   echo $mal->published()->first()->year;
+   echo $mal->published()->last()->month;
+   echo $mal->published()->last()->day;
+   echo $mal->published()->last()->year;
+   echo $mal->authors;
+   echo $mal->volume;
+   echo $mal->chapter;
+   echo $mal->serialization;
+   echo $mal->year;
+   echo $mal->characters;
+   echo $mal->related()->adaptation;
+   echo $mal->related()->sequel;
+   echo $mal->related()->prequel;
+   echo $mal->related()->parentstory;
+   echo $mal->related()->sidestory;
+   echo $mal->related()->other;
+   echo $mal->related()->spinoff;
+   echo $mal->related()->alternativeversion;
+   echo $mal->link;
+}
+else {
+
+   echo 'No data.';
+}
 ```
 
 ###### Content of JSON File
+
 ```json
 {  
-   "time":1544576443,
+   "time":1545092025,
    "data":{  
       "titleoriginal":"Berserk",
       "titleenglish":"Berserk",
       "titlejapanese":"\u30d9\u30eb\u30bb\u30eb\u30af",
-      "saveposter":"yes",
       "poster":"\/test\/demos\/upload\/cache\/cover\/manga\/2.jpg",
       "description":"Guts, a former mercenary now known as the \"Black Swordsman,\" is out for revenge. After a tumultuous childhood, he finally finds someone he respects and believes he can trust, only to have everything fall apart when this person takes away everything important to Guts for the purpose of fulfilling his own desires. Now marked for death, Guts becomes condemned to a fate in which he is relentlessly pursued by demonic beings.<br \/>\r\n<br \/>\r\nSetting out on a dreadful quest riddled with misfortune, Guts, armed with a massive sword and monstrous strength, will let nothing stop him, not even death itself, until he is finally able to take the head of the one who stripped him\u2014and his loved one\u2014of their humanity.",
       "category":"Manga",
-      "rank":"#1",
-      "vote":"100K",
+      "vote":{  
+         "simple":"100K",
+         "full":"100127"
+      },
       "point":"9.3",
       "genres":[  
          {  
@@ -341,9 +384,16 @@ $mal->link;
             "name":"Seinen"
          }
       ],
-      "members":"213K",
+      "rank":"#1",
+      "member":{  
+         "simple":"213K",
+         "full":"213499"
+      },
       "popularity":"#6",
-      "favorites":46,
+      "favorite":{  
+         "simple":"46K",
+         "full":"46239"
+      },
       "status":"Publishing",
       "published":{  
          "first_month":"Aug",
@@ -415,31 +465,47 @@ $mal->link;
 }
 ```
 
-### Character Variables
+### Character
+
+###### Example
 
 ```php
-$mal->title()->self;
-$mal->title()->nickname;
-$mal->poster;
-$mal->description;
-$mal->favorites;
-$mal->recentanime;
-$mal->recentmanga;
-$mal->voiceactors;
+$mal = new myanimelist\Types\Character( 40 );
+
+$mal->get();
+
+if ( $mal->isSuccess() ) {
+
+   echo $mal->title()->self;
+   echo $mal->title()->nickname;
+   echo $mal->poster;
+   echo $mal->description;
+   echo $mal->statistic()->favorite;
+   echo $mal->statistic()->favoriteraw;
+   echo $mal->recentanime;
+   echo $mal->recentmanga;
+   echo $mal->voiceactors;
+}
+else {
+
+   echo 'No data.';
+}
 ```
 
 ###### Content of JSON File
 ```json
 {  
-   "time":1544576349,
+   "time":1545092569,
    "data":{  
       "charactername":"Monkey D. Luffy ",
       "nickname":"Lucy Mugiwara, Straw Hat",
-      "saveposter":"yes",
       "poster":"\/test\/demos\/upload\/cache\/cover\/character\/40.jpg",
       "description":"Luffy is the captain of the Straw Hat Pirates and is best friends with all of them and values them over all else. At first glance, Luffy does not appear to be very intelligent, often seeing things in a childish manner and can easily be amazed by the simplest things. However, because he views the world in a straightforward and simple manner, he is occasionally the only person who can see past the events and see what should be done.<br \/>\r\n<br \/>\r\nLuffy seems to have an unstoppable appetite, a characteristic that is common to the Japanese archetype of the (at times simple-minded) young male hero\/adventurer with a heart of gold; perhaps the hunger more so in Luffy&#039;s case due to having an elastic stomach. Luffy is also another one of the several characters given the middle initial \"D.\"<br \/>\r\n<br \/>\r\nAlthough Luffy is fairly lightheaded and a funny character, he has an unstoppable sense of determination, optimism, and commitment and will do anything to stand up for his friends and comrades. Along with that, he has great courage to back it up as well as unbelievable strength. Ever since consuming the devil fruit he was shown to be not worried about his inability to swim, much like his brother. Much of these traits are common among D&#039;s. His only display of true fear is towards his grandfather, to the point that he is intimidated at the mere mention of him.<br \/>\r\n<br \/>\r\nLuffy never kills any of his enemies, no matter how cold-hearted they are; instead, he frequently sends the villain flying, knocking them out or beating them to a point that they are almost near death, which results in some of the villains searching for revenge, such as Buggy the Clown and Alvida. Oda explains that it&#039;s not a question of morality so much as a matter of punishing the villains for their crimes - he feels that killing the villains lets them off too lightly, whereas he considers letting them live to see their dreams be ruined a far more fitting punishment.<br \/>\r\n<br \/>\r\nLuffy&#039;s dream is to find the One Piece and become Pirate King. He knows that to achieve his goal, he will have to defeat many strong opponents, including the World Government and his childhood hero Shanks.<br \/>\r\n<br \/>\r\n\n<br \/>\r\nBefore the start of the series, Dragon left Luffy in Garp&#039;s care. Dragon first appears after a lightning bolt suddenly destroys the gallows where Luffy was to be executed by Buggy the Clown and then saves Luffy from being captured by Captain Smoker. When he saved Luffy from Smoker, a mighty gust of eerie wind swept through Loguetown. It is undetermined whether or not he was the cause of the gust of wind or the lightning; however, the story leads to believe there is more to him than it seems. Recently, he has taken over an island in the South Blue and is about to head to the North Blue when he commented, after noticing Luffy&#039;s newest bounty, given to him after invading Enies Lobby, that father and son will meet sometime soon.<\/span>",
       "category":"character",
-      "favorites":"55K",
+      "favorite":{  
+         "simple":"55K",
+         "full":"54583"
+      },
       "recentanime":[  
          {  
             "link":"https:\/\/myanimelist.net\/anime\/37902",
@@ -561,28 +627,44 @@ $mal->voiceactors;
 }
 ```
 
-### People Variables
+### People
+
+###### Example
 
 ```php
-$mal->name;
-$mal->poster;
-$mal->description;
-$mal->favorites;
-$mal->recentvoice;
-$mal->recentwork;
-$mal->link;
+$mal = new myanimelist\Types\Manga( 80 );
+
+$mal->get();
+
+if ( $mal->isSuccess() ) {
+
+   echo $mal->name;
+   echo $mal->poster;
+   echo $mal->description;
+   echo $mal->statistic()->favorite;
+   echo $mal->statistic()->favoriteraw;
+   echo $mal->recentvoice;
+   echo $mal->recentwork;
+   echo $mal->link;
+}
+else {
+
+   echo 'No data.';
+}
 ```
 
 ###### Content of JSON File
 ```json
 {  
-   "time":1544576505,
+   "time":1545092628,
    "data":{  
       "name":"Aya Hisakawa",
-      "saveposter":"yes",
       "poster":"\/test\/demos\/upload\/cache\/cover\/people\/80.jpg",
       "category":"people",
-      "favorites":"445",
+      "favorite":{  
+         "simple":"445",
+         "full":"445"
+      },
       "recentwork":[  
          {  
             "link":"https:\/\/myanimelist.net\/anime\/2937",
@@ -651,14 +733,14 @@ $mal->link;
          {  
             "anime_link":"https:\/\/myanimelist.net\/anime\/36946",
             "anime_title":"Dragon Ball Super Movie: Broly",
-            "character_link":"https:\/\/myanimelist.net\/character\/2733",
-            "character_name":"Bra"
+            "character_link":"https:\/\/myanimelist.net\/character\/678",
+            "character_name":"Bulma"
          },
          {  
             "anime_link":"https:\/\/myanimelist.net\/anime\/36946",
             "anime_title":"Dragon Ball Super Movie: Broly",
-            "character_link":"https:\/\/myanimelist.net\/character\/678",
-            "character_name":"Bulma"
+            "character_link":"https:\/\/myanimelist.net\/character\/2733",
+            "character_name":"Bra"
          },
          {  
             "anime_link":"https:\/\/myanimelist.net\/anime\/36902",

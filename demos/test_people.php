@@ -1,35 +1,7 @@
 <html>
 <head>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-	<style>
-		body .table, body div {
-			width: 80%;
-			margin: 40px auto;
-		}
-
-		.table td:nth-child(1) {
-			white-space: nowrap;
-		}
-
-		ul {
-			list-style-type: none;
-			margin: 0;
-			padding: 0;
-			display: inline;
-		}
-
-		li {
-			display: inline;
-		}
-
-		li:after {
-			content: ', ';
-		}
-
-		li:last-child:after {
-			content: '';
-		}
-	</style>
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -49,15 +21,14 @@ $mal->cache()->expiredByDay = 2;
 $mal->cache()->root         = __DIR__;
 $mal->cache()->dir          = 'upload';
 
-// Request or get data from cache
-
 $mal->get();
 
 if ( $mal->isSuccess() ) {
 
+	echo '<h3>Usage</h3>';
 	echo '<table class="table table-striped table-sm table-bordered">';
 	echo '<thead>';
-	echo '<th scope="col" class="align-middle">Usage</th>';
+	echo '<th scope="col" class="align-middle">Variable</th>';
 	echo '<th scope="col" class="align-middle">Value</th>';
 	echo '</thead>';
 	echo '<tbody>';
@@ -122,12 +93,27 @@ if ( $mal->isSuccess() ) {
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">favorites</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">statistic()->favorite</span></td>';
 	echo '<td class="align-middle">';
 
-	if ( $mal->favorites !== FALSE ) {
+	if ( $mal->statistic()->favorite !== FALSE ) {
 
-		echo $mal->favorites;
+		echo $mal->statistic()->favorite;
+	}
+	else {
+
+		echo '<span class="text-danger">Not found.</span>';
+	}
+
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">statistic()->favoriteraw</span></td>';
+	echo '<td class="align-middle">';
+
+	if ( $mal->statistic()->favoriteraw !== FALSE ) {
+
+		echo $mal->statistic()->favoriteraw;
 	}
 	else {
 
@@ -198,6 +184,17 @@ if ( $mal->isSuccess() ) {
 	echo '</tbody>';
 	echo '</table>';
 
+	if ( $mal->config()->cache == TRUE ) {
+
+		echo '<h3>JSON Content</h3>';
+		echo '<div class="p-3 bg-dark text-white">';
+		echo '<small>';
+		echo $mal;
+		echo '</small>';
+		echo '</div>';
+	}
+
+	echo '<h3>Time</h3>';
 	echo '<div class="alert alert-primary" role="alert">';
 	echo 'Elapsed time: <b>' . $mal->elapsedTime() . '</b>';
 	echo '</div>';

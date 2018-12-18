@@ -16,7 +16,7 @@ class Builder {
 	/**
 	 * Software Version
 	 */
-	const VERSION = '0.9.3';
+	const VERSION = '0.9.5';
 
 	/**
 	 * MAL Id
@@ -92,6 +92,16 @@ class Builder {
 	}
 
 	/**
+	 * Page is correct?
+	 *
+	 * @return 		bool
+	 */
+	public function isSuccess() {
+
+		return $this->request()->isSuccess() OR !empty( static::$data );
+	}
+
+	/**
 	 * Take object parameter and send request
 	 *
 	 * @param 		int 			$id 				MAL id
@@ -154,11 +164,32 @@ class Builder {
 	/**
 	 * Magic Method: Tostring
 	 *
-	 * @return 		void
+	 * @return 		string
 	 */
 	public function __tostring() {
 
 		return json_encode( static::$data );
+	}
+
+	/**
+	 * Magic Method: Call
+	 *
+	 * @return 		void
+	 */
+	public function __call( $method, $args ) {
+
+		if (
+			in_array( $method, static::$allowed_methods )
+			OR
+			isset( static::$allowed_methods[ $method ] )
+			OR
+			isset( static::$allowed_methods[ static::$prefix ] ) AND in_array( $method, static::$allowed_methods[ static::$prefix ] )
+		) {
+
+			static::$prefix = static::$prefix . $method;
+		}
+
+		return $this;
 	}
 
 	/**

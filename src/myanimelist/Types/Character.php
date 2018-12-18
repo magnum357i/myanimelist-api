@@ -24,16 +24,12 @@ class Character extends \myanimelist\Helper\Builder {
 	public static $prefix = '';
 
 	/**
-	 * Call title functions
-	 *
-	 * @return 		this class
+	 * Alloed functions for prefix
 	 */
-	public function title() {
-
-		static::$prefix = 'title';
-
-		return $this;
-	}
+	public static $allowed_methods = array(
+		'title',
+		'statistic'
+	);
 
 	/**
 	 * Set limit
@@ -49,16 +45,6 @@ class Character extends \myanimelist\Helper\Builder {
 	}
 
 	/**
-	 * Page is correct?
-	 *
-	 * @return 		bool
-	 */
-	public function isSuccess() {
-
-		return ( empty( $this->_titleself() ) ) ? FALSE : TRUE;
-	}
-
-	/**
 	 * Get character name
 	 *
 	 * @return 		string
@@ -68,6 +54,8 @@ class Character extends \myanimelist\Helper\Builder {
 		$key = 'charactername';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
 
@@ -91,6 +79,8 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
+		if ( !$this->request()->isSent() ) return FALSE;
+
 		$data = $this->request()->match( '</div><h1.*?>.*?"(.*?)".*?</h1></div><div id="content" ?>' );
 
 		if ( $data == FALSE ) return FALSE;
@@ -111,6 +101,8 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
+		if ( !$this->request()->isSent() ) return FALSE;
+
 		$data = 'character';
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
@@ -125,9 +117,9 @@ class Character extends \myanimelist\Helper\Builder {
 
 		$key = 'poster';
 
-		if ( !isset( static::$data[ 'saveposter' ] ) ) static::setValue( 'saveposter', 'no' );
-
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/characters/[0-9]+/[0-9]+\.jpg)' );
 
@@ -135,12 +127,10 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->cache == TRUE AND static::$data[ 'saveposter' ] == 'no' ) {
+		if ( $this->config()->cache == TRUE ) {
 
 			$newPoster = $this->cache()->savePoster( $data );
 			$data      = $newPoster;
-
-			static::setValue( 'saveposter', 'yes' );
 		}
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
@@ -157,6 +147,8 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
+		if ( !$this->request()->isSent() ) return FALSE;
+
 		$data = $this->request()->match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?<div.*?>.*?</div>(.*?)<div[^>]*>voice actors</div>', "<br><span>" );
 
 		if ( $data == FALSE ) return FALSE;
@@ -172,21 +164,51 @@ class Character extends \myanimelist\Helper\Builder {
 	/**
 	 * Get favorites
 	 *
-	 * @return 		string
+	 * @return 		array
 	 */
-	protected function _favorites() {
+	protected function _favorite() {
 
-		$key = 'favorites';
+		$key = 'favorite';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->match( 'member favorites:\s*([\d,]+)' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = $this->text()->formatK( $data );
+		$data = $this->text()->replace( '[^0-9]+', '', $data );
+		$data = array(
+			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
+			'full'   => $this->lastChanges( $data )
+		);
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
+	}
+
+	/**
+	 * Get number with K of favorite
+	 *
+	 * @return 		string
+	 */
+	protected function _statisticfavorite() {
+
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+
+		return ( isset( static::$data[ 'favorite' ][ 'simple' ] ) ) ? static::$data[ 'favorite' ][ 'simple' ] : FALSE;
+	}
+
+	/**
+	 * Get number without K of favorite
+	 *
+	 * @return 		string
+	 */
+	protected function _statisticfavoriteraw() {
+
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+
+		return ( isset( static::$data[ 'favorite' ][ 'full' ] ) ) ? static::$data[ 'favorite' ][ 'full' ] : FALSE;
 	}
 
 	/**
@@ -199,6 +221,8 @@ class Character extends \myanimelist\Helper\Builder {
 		$key = 'recentanime';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
@@ -233,6 +257,8 @@ class Character extends \myanimelist\Helper\Builder {
 		$key = 'recentmanga';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
@@ -269,6 +295,8 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
+		if ( !$this->request()->isSent() ) return FALSE;
+
 		$data = $this->request()->matchTable(
 		array( $this, 'lastChanges' ),
 		$this->config(),
@@ -301,6 +329,8 @@ class Character extends \myanimelist\Helper\Builder {
 		$key = 'link';
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
+
+		if ( !$this->request()->isSent() ) return FALSE;
 
 		return static::setValue( 'link', $this->lastChanges( $this->request()::$requestData[ 'url' ] ) );
 	}

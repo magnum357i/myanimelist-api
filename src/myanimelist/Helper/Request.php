@@ -30,7 +30,7 @@ class Request {
 	/**
 	 * Pages
 	 */
-	public const PAGES = array(
+	const PAGES = array(
 		'anime'     => 'anime/',
 		'manga'     => 'manga/',
 		'character' => 'character/',
@@ -41,6 +41,36 @@ class Request {
 	 * Here will load the raw html
 	 */
 	public static $content = '';
+
+	/**
+	 * Status of send
+	 */
+	protected $sent = FALSE;
+
+	/**
+	 * Is the request sent
+	 *
+	 * @return 		bool
+	 */
+	public function isSent() {
+
+		return $this->sent;
+	}
+
+	/**
+	 * Status of send
+	 */
+	protected $success = FALSE;
+
+	/**
+	 * Is the request successfully?
+	 *
+	 * @return 		bool
+	 */
+	public function isSuccess() {
+
+		return $this->success;
+	}
 
 	/**
 	 * Load the raw html to static::$content
@@ -66,6 +96,13 @@ class Request {
 
 			static::$content = curl_exec( $cSession );
 			static::$content = html_entity_decode( static::$content );
+
+			if ( curl_getinfo( $cSession, CURLINFO_HTTP_CODE ) == 200 ) {
+
+				$this->success = TRUE;
+			}
+
+			$this->sent = TRUE;
 
 			curl_close( $cSession );
 		}
