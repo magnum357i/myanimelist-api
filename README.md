@@ -1,18 +1,23 @@
 # myanimelist-api
-This is an api developed to get information from anime, manga, character and people pages of MyAnimelist.
+This is an api developed to get information from pages of anime, manga, character and people on MyAnimelist. It works by scanning the html code of the page requested, so this library crashes when it changes.
 
-### Required
+# Required
 * CURL
 * PHP 7
+
+# How to use?
 
 ### Anime
 
 ###### Example
 ```php
+// Create object
 $mal = new myanimelist\Types\Anime( 20 );
 
+// Send request
 $mal->get();
 
+// Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
    echo $mal->title()->original;
@@ -274,10 +279,13 @@ else {
 ###### Example
 
 ```php
+// Create object
 $mal = new myanimelist\Types\Manga( 2 );
 
+// Send request
 $mal->get();
 
+// Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
    echo $mal->title()->original;
@@ -470,10 +478,13 @@ else {
 ###### Example
 
 ```php
+// Create object
 $mal = new myanimelist\Types\Character( 40 );
 
+// Send request
 $mal->get();
 
+// Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
    echo $mal->title()->self;
@@ -632,10 +643,13 @@ else {
 ###### Example
 
 ```php
+// Create object
 $mal = new myanimelist\Types\Manga( 80 );
 
+// Send request
 $mal->get();
 
+// Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
    echo $mal->name;
@@ -782,4 +796,91 @@ else {
       "link":"https:\/\/myanimelist.net\/people\/80"
    }
 }
+```
+
+# Configuration
+
+### Reverse Names
+
+If true, the name order is reversed firstname-lastname instead of lastname-firstname.
+
+```php
+// Create object
+$mal = new myanimelist\Types\Manga( 1 );
+
+// Conf
+$mal->config()->reverseName = TRUE;
+
+// Send request
+$mal->get();
+
+// Test
+echo $mal->authors;
+
+// Output
+// reverse name option is true: Naoki Urasawa
+// reverse name option is false: Urasawa, Naoki
+```
+
+### Enable Cache
+
+If true, the cache system enabled.
+
+```php
+// Create object
+$mal = new myanimelist\Types\Anime( 1 );
+
+// Conf
+$mal->config()->cache = TRUE;
+
+$mal->cache()->expiredByDay       = 5; // default is 2
+$mal->cache()->root               = __DIR__; // the path of the file of cache class
+$mal->cache()->dir                = 'upload'; // default is upload
+$mal->cache()->file[ 'name' ]     = 'myjson_id1'; // default is id to request
+$mal->cache()->file[ 'ext' ]      = 'json'; // default is json
+$mal->cache()->image[ 'name' ]    = 'myimage_id1'; // default is id to request
+$mal->cache()->image[ 'ext' ]     = 'jpg'; // default is jpg
+$mal->cache()->folders[ 'main' ]  = 'myanimelist'; // default is cache - folder where folders of json and image will be saved
+$mal->cache()->folders[ 'file' ]  = 'files'; // default is json - folder where json files will be saved
+$mal->cache()->folders[ 'image' ] = 'images'; // default is cover folder where images will be saved
+
+## Folder Hierarchy: [myanimelist] / [files], [images]
+## Just change the root and the dir.
+
+// Send request
+$mal->get();
+
+// Test
+echo $mal->title()->english;
+echo $mal->poster;
+
+// Note
+// Backs up the values you use.
+// So, based on the above values, this will be create a file named myjson_id1.json
+// and inside of the file writes the english title of the anime.
+// Also a poster named myimage_id1.jpg is saved.
+// After all, it will return false even if you call another value until the cache expires.
+// Please don't forget this.
+```
+
+### cURL Settings
+
+```php
+// Create object
+$mal = new myanimelist\Types\People( 1 );
+
+// Conf
+$mal->config()->curl[ 'returnTransfer' ] = TRUE; // default is true
+$mal->config()->curl[ 'header' ]         = FALSE; // default is false
+$mal->config()->curl[ 'userAgent' ]      = 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0'; // default is 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36'
+$mal->config()->curl[ 'followLocation' ] = TRUE; // default is false
+$mal->config()->curl[ 'connectTimeout' ] = 30; // default is 15
+$mal->config()->curl[ 'timeout' ]        = 150; // default is 60
+$mal->config()->curl[ 'ssl_verifyHost' ] = TRUE; // default is false
+$mal->config()->curl[ 'ssl_verifypeer' ] = TRUE; // default is false
+
+## Default settings are recommended.
+
+// Send request
+$mal->get();
 ```
