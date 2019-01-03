@@ -47,7 +47,7 @@ class Text {
 			return FALSE;
 		}
 
-		$result = array();
+		$result = [];
 		$splits = explode( $exp, $value );
 
 		foreach( $splits as $split ) {
@@ -73,7 +73,7 @@ class Text {
 
 		$number = $this->replace( '[^0-9]+', '', $number );
 
-		if ( !$this->validate( array( 'mode' => 'number' ), $number ) ) {
+		if ( !$this->validate( [ 'mode' => 'number' ], $number ) ) {
 
 			return FALSE;
 		}
@@ -109,7 +109,7 @@ class Text {
 
 		while ( $removelastbr_count < $removelastbr_maxcount ) {
 
-			if ( $this->validate( array( 'mode' => 'regex', 'regex_code' => $removelastbr_pattern ), $desc ) ) {
+			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $removelastbr_pattern ], $desc ) ) {
 
 				$desc = $this->replace( $removelastbr_pattern, '', $desc, 'si' );
 			}
@@ -133,7 +133,7 @@ class Text {
 
 		while ( $removelastbr_count < $removelastbr_maxcount ) {
 
-			if ( $this->validate( array( 'mode' => 'regex', 'regex_code' => $removelastbr_pattern ), $desc ) ) {
+			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $removelastbr_pattern ], $desc ) ) {
 
 				$desc = $this->replace( $removelastbr_pattern, '', $desc, 'si' );
 			}
@@ -145,7 +145,7 @@ class Text {
 			$removelastbr_count++;
 		}
 
-		return ( !$this->validate( array( 'mode' => 'count', 'max_len' => 20 ), $desc ) ) ? FALSE : $desc;
+		return ( !$this->validate( [ 'mode' => 'count', 'max_len' => 20 ], $desc ) ) ? FALSE : $desc;
 	}
 
 	/**

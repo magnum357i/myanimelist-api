@@ -31,7 +31,7 @@ class Config {
 	/**
 	 * Curl Options
 	 */
-	public $curl = array(
+	public $curl = [
 		'returnTransfer' => TRUE,
 		'header'         => FALSE,
 		'userAgent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
@@ -40,5 +40,5 @@ class Config {
 		'timeout'        => 60,
 		'ssl_verifyHost' => FALSE,
 		'ssl_verifypeer' => FALSE
-	);
+	];
 }

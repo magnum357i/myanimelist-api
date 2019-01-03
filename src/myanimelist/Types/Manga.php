@@ -19,38 +19,21 @@ class Manga extends \myanimelist\Helper\Builder {
 	public static $type = 'manga';
 
 	/**
-	 * Prefix to call function
+	 * Methods to allow for prefix
 	 */
-	public static $prefix = '';
-
-	/**
-	 * Alloed functions for prefix
-	 */
-	public static $allowed_methods = array(
+	public static $methodsToAllow = [
 		'title',
 		'score',
 		'statistic',
 		'related',
-		'published' => array( 'first', 'last' )
-	);
-
-	/**
-	 * Set limit
-	 *
-	 * @param 		int 			Limit number
-	 * @return 		this class
-	 */
-	public function setLimit( $int ) {
-
-		static::$limit = $int;
-
-		return $this;
-	}
+		'published' => [ 'first', 'last' ]
+	];
 
 	/**
 	 * Get title
 	 *
 	 * @return 		string
+	 * @usage 		title()->original
 	 */
 	protected function _titleoriginal() {
 
@@ -69,6 +52,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get title for english
 	 *
 	 * @return 		string
+	 * @usage 		title()->english
 	 */
 	protected function _titleenglish() {
 
@@ -87,6 +71,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get title for japanese
 	 *
 	 * @return 		string
+	 * @usage 		title()->japanese
 	 */
 	protected function _titlejapanese() {
 
@@ -105,6 +90,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get poster
 	 *
 	 * @return 		string
+	 * @usage 		poster
 	 */
 	protected function _poster() {
 
@@ -133,6 +119,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get description
 	 *
 	 * @return 		string
+	 * @usage 		description
 	 */
 	protected function _description() {
 
@@ -155,6 +142,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get category
 	 *
 	 * @return 		string
+	 * @usage 		category
 	 */
 	protected function _category() {
 
@@ -173,8 +161,9 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get vote
 	 *
 	 * @return 		array
+	 * @usage 		none
 	 */
-	protected function _vote() {
+	protected function vote() {
 
 		$key = 'vote';
 
@@ -187,10 +176,10 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
-		$data = array(
+		$data = [
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
-		);
+		];
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -199,10 +188,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get number with K of vote
 	 *
 	 * @return 		string
+	 * @usage 		score()->vote
 	 */
 	protected function _scorevote() {
 
-		if ( !isset( static::$data[ 'vote' ] ) ) $this->_vote();
+		if ( !isset( static::$data[ 'vote' ] ) ) $this->vote();
 
 		return ( isset( static::$data[ 'vote' ][ 'simple' ] ) ) ? static::$data[ 'vote' ][ 'simple' ] : FALSE;
 	}
@@ -211,10 +201,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get number without K of vote
 	 *
 	 * @return 		string
+	 * @usage 		score()->voteraw
 	 */
 	protected function _scorevoteraw() {
 
-		if ( !isset( static::$data[ 'vote' ] ) ) $this->_vote();
+		if ( !isset( static::$data[ 'vote' ] ) ) $this->vote();
 
 		return ( isset( static::$data[ 'vote' ][ 'full' ] ) ) ? static::$data[ 'vote' ][ 'full' ] : FALSE;
 	}
@@ -223,6 +214,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get point
 	 *
 	 * @return 		string
+	 * @usage 		score()->point
 	 */
 	protected function _scorepoint() {
 
@@ -247,6 +239,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get rank
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->rank
 	 */
 	protected function _statisticrank() {
 
@@ -260,7 +253,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = str_replace( '#', '', $data );
 
-		if ( !$this->text()->validate( array( 'mode' => 'number' ), $data ) )
+		if ( !$this->text()->validate( [ 'mode' => 'number' ], $data ) )
 		{
 			return FALSE;
 		}
@@ -276,6 +269,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get genres
 	 *
 	 * @return 		array
+	 * @usage 		genres
 	 */
 	protected function _genres() {
 
@@ -286,19 +280,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<span class="dark_text">genres:</span>(.*?)</div>',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="/([^"]+)"[^>]+>.*?</a>',
 		'<a href="[^"]+"[^>]+>(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'name'
-		),
+		],
 		static::$limit
 		);
 
@@ -309,6 +303,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get popularity
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->popularity
 	 */
 	protected function _statisticpopularity() {
 
@@ -322,7 +317,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = str_replace( '#', '', $data );
 
-		if ( !$this->text()->validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
+		if ( !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
 
 		$data = "#{$data}";
 
@@ -333,8 +328,9 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get member
 	 *
 	 * @return 		array
+	 * @usage 		none
 	 */
-	protected function _member() {
+	protected function member() {
 
 		$key = 'member';
 
@@ -347,10 +343,10 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
-		$data = array(
+		$data = [
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
-		);
+		];
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -359,10 +355,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get number with K of member
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->member
 	 */
 	protected function _statisticmember() {
 
-		if ( !isset( static::$data[ 'member' ] ) ) $this->_member();
+		if ( !isset( static::$data[ 'member' ] ) ) $this->member();
 
 		return ( isset( static::$data[ 'member' ][ 'simple' ] ) ) ? static::$data[ 'member' ][ 'simple' ] : FALSE;
 	}
@@ -371,10 +368,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get number without K of member
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->memberraw
 	 */
 	protected function _statisticmemberraw() {
 
-		if ( !isset( static::$data[ 'member' ] ) ) $this->_member();
+		if ( !isset( static::$data[ 'member' ] ) ) $this->member();
 
 		return ( isset( static::$data[ 'member' ][ 'full' ] ) ) ? static::$data[ 'member' ][ 'full' ] : FALSE;
 	}
@@ -383,8 +381,9 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get favorite
 	 *
 	 * @return 		array
+	 * @usage 		none
 	 */
-	protected function _favorite() {
+	protected function favorite() {
 
 		$key = 'favorite';
 
@@ -397,10 +396,10 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
-		$data = array(
+		$data = [
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
-		);
+		];
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -409,10 +408,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get number with K of favorite
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->favorite
 	 */
 	protected function _statisticfavorite() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
 
 		return ( isset( static::$data[ 'favorite' ][ 'simple' ] ) ) ? static::$data[ 'favorite' ][ 'simple' ] : FALSE;
 	}
@@ -421,10 +421,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get number without K of favorite
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->favoriteraw
 	 */
 	protected function _statisticfavoriteraw() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
 
 		return ( isset( static::$data[ 'favorite' ][ 'full' ] ) ) ? static::$data[ 'favorite' ][ 'full' ] : FALSE;
 	}
@@ -433,6 +434,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get status
 	 *
 	 * @return 		string
+	 * @usage 		status
 	 */
 	protected function _status() {
 
@@ -451,6 +453,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get authors
 	 *
 	 * @return 		array
+	 * @usage 		authors
 	 */
 	protected function _authors() {
 
@@ -464,7 +467,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = $this->text()->listValue( $data, '),', array( $this, 'lastChanges' ) );
+		$data = $this->text()->listValue( $data, '),', [ $this, 'lastChanges' ] );
 
 		foreach ( $data as &$value )
 		{
@@ -480,6 +483,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get volume
 	 *
 	 * @return 		string
+	 * @usage 		volume
 	 */
 	protected function _volume() {
 
@@ -491,7 +495,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->request()->match('<span class="dark_text">volumes:</span>(.*?)</div>');
 
-		if ( $data == FALSE OR !$this->text()->validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
+		if ( $data == FALSE OR !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -500,6 +504,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get chapter
 	 *
 	 * @return 		string
+	 * @usage 		chapter
 	 */
 	protected function _chapter() {
 
@@ -511,7 +516,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->request()->match( '<span class="dark_text">chapters:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR !$this->text()->validate( array( 'mode' => 'number' ), $data ) ) return FALSE;
+		if ( $data == FALSE OR !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -520,6 +525,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get serialization
 	 *
 	 * @return 		string
+	 * @usage 		serialization
 	 */
 	protected function _serialization() {
 
@@ -530,19 +536,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<span class="dark_text">serialization:</span>(.*?)</div>',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="/([^"]+)"[^>]+>.*?</a>',
 		'<a href="[^"]+"[^>]+>(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'name'
-		),
+		],
 		static::$limit
 		);
 
@@ -553,8 +559,9 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get published date
 	 *
 	 * @return 		string
+	 * @usage 		none
 	 */
-	protected function _published() {
+	protected function published() {
 
 		$key = 'published';
 
@@ -564,20 +571,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->request()->match( '<span class="dark_text">published:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR $this->text()->validate( array( 'mode' => 'count', 'max_len' => 100 ), $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( [ 'mode' => 'count', 'max_len' => 100 ], $data ) ) return FALSE;
 
 		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)/', $data, $out );
 
 		if ( !empty( $out ) ) {
 
-			$data = array(
+			$data = [
 				'first_month' => $this->lastChanges( $out[1] ),
 				'first_day'   => $this->lastChanges( $out[2] ),
 				'first_year'  => $this->lastChanges( $out[3] ),
 				'last_month'  => $this->lastChanges( $out[4] ),
 				'last_day'    => $this->lastChanges( $out[5] ),
 				'last_year'   => $this->lastChanges( $out[6] )
-			);
+			];
 
 			return static::setValue( $key, $data );
 		}
@@ -586,14 +593,14 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( !empty( $out ) ) {
 
-			$data = array(
+			$data = [
 				'first_month' => $this->lastChanges( $out[1] ),
 				'first_day'   => $this->lastChanges( $out[2] ),
 				'first_year'  => $this->lastChanges( $out[3] ),
 				'last_month'  => 'no',
 				'last_day'    => 'no',
 				'last_year'   => 'no'
-			);
+			];
 
 			return static::setValue( $key, $data );
 		}
@@ -602,11 +609,11 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( !empty( $out ) ) {
 
-			$data = array(
+			$data = [
 				'first_month' => $this->lastChanges( $out[1] ),
 				'first_day'   => $this->lastChanges( $out[2] ),
 				'first_year'  => $this->lastChanges( $out[3] )
-			);
+			];
 
 			return static::setValue( $key, $data );
 		}
@@ -618,10 +625,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get first month of published date
 	 *
 	 * @return 		string
+	 * @usage 		published()->first()->month
 	 */
 	protected function _publishedfirstmonth() {
 
-		if ( !isset( static::$data[ 'published' ] ) ) $this->_published();
+		if ( !isset( static::$data[ 'published' ] ) ) $this->published();
 
 		return ( isset( static::$data[ 'published' ][ 'first_month' ] ) ) ? static::$data[ 'published' ][ 'first_month' ] : FALSE;
 	}
@@ -630,22 +638,37 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get first day of published date
 	 *
 	 * @return 		string
+	 * @usage 		published()->first()->day
 	 */
 	protected function _publishedfirstday() {
 
-		if ( !isset( static::$data[ 'published' ] ) ) $this->_published();
+		if ( !isset( static::$data[ 'published' ] ) ) $this->published();
 
 		return ( isset( static::$data[ 'published' ][ 'first_day' ] ) ) ? static::$data[ 'published' ][ 'first_day' ] : FALSE;
+	}
+
+	/**
+	 * Get first year of published date
+	 *
+	 * @return 		string
+	 * @usage 		published()->first()->year
+	 */
+	protected function _publishedfirstyear() {
+
+		if ( !isset( static::$data[ 'published' ] ) ) $this->published();
+
+		return ( isset( static::$data[ 'published' ][ 'first_year' ] ) ) ? static::$data[ 'published' ][ 'first_year' ] : FALSE;
 	}
 
 	/**
 	 * Get last month of published date
 	 *
 	 * @return 		string
+	 * @usage 		published()->last()->month
 	 */
 	protected function _publishedlastmonth() {
 
-		if ( !isset( static::$data[ 'published' ] ) ) $this->_published();
+		if ( !isset( static::$data[ 'published' ] ) ) $this->published();
 
 		return ( isset( static::$data[ 'published' ][ 'last_month' ] ) ) ? static::$data[ 'published' ][ 'last_month' ] : FALSE;
 	}
@@ -654,10 +677,11 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get last day of published date
 	 *
 	 * @return 		string
+	 * @usage 		published()->last()->day
 	 */
 	protected function _publishedlastday() {
 
-		if ( !isset( static::$data[ 'published' ] ) ) $this->_published();
+		if ( !isset( static::$data[ 'published' ] ) ) $this->published();
 
 		return ( isset( static::$data[ 'published' ][ 'last_day' ] ) ) ? static::$data[ 'published' ][ 'last_day' ] : FALSE;
 	}
@@ -666,30 +690,20 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get last year of published date
 	 *
 	 * @return 		string
+	 * @usage 		published()->last()->year
 	 */
 	protected function _publishedlastyear() {
 
-		if ( !isset( static::$data[ 'published' ] ) ) $this->_published();
+		if ( !isset( static::$data[ 'published' ] ) ) $this->published();
 
 		return ( isset( static::$data[ 'published' ][ 'last_year' ] ) ) ? static::$data[ 'published' ][ 'last_year' ] : FALSE;
-	}
-
-	/**
-	 * Get first year of published date
-	 *
-	 * @return 		string
-	 */
-	protected function _publishedfirstyear() {
-
-		if ( !isset( static::$data[ 'published' ] ) ) $this->_published();
-
-		return ( isset( static::$data[ 'published' ][ 'first_year' ] ) ) ? static::$data[ 'published' ][ 'first_year' ] : FALSE;
 	}
 
 	/**
 	 * Get year
 	 *
 	 * @return 		string
+	 * @usage 		year
 	 */
 	protected function _year() {
 
@@ -714,6 +728,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get character
 	 *
 	 * @return 		array
+	 * @usage 		characters
 	 */
 	protected function _characters() {
 
@@ -724,21 +739,21 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'</div>characters</h2><div.*?">(.+?</table>)</div></div>',
 		'<table[^>]*>(.*?)</table>',
-		array(
+		[
 		'<a href="[^"]+/(character/[0-9]+)/[^"]+">[^<]+</a>',
 		'<a href="[^"]+/character/[0-9]+/[^"]+">([^<]+)</a>',
 		'<small>([^<]+)</small>'
-		),
-		array(
+		],
+		[
 		'character_link',
 		'character_name',
 		'character_role'
-		),
+		],
 		static::$limit
 		);
 
@@ -749,6 +764,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get adaptation
 	 *
 	 * @return 		array
+	 * @usage 		related()->adaptation
 	 */
 	protected function _relatedadaptation() {
 
@@ -759,19 +775,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>adaptation:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -782,6 +798,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get sequel
 	 *
 	 * @return 		array
+	 * @usage 		related()->sequel
 	 */
 	protected function _relatedsequel() {
 
@@ -792,19 +809,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>sequel:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -815,6 +832,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get prequel
 	 *
 	 * @return 		array
+	 * @usage 		related()->prequel
 	 */
 	protected function _relatedprequel() {
 
@@ -825,19 +843,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>prequel:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -848,6 +866,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get parentstory
 	 *
 	 * @return 		array
+	 * @usage 		related()->parentstory
 	 */
 	protected function _relatedparentstory() {
 
@@ -858,19 +877,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>parent story:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -881,6 +900,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get sidestory
 	 *
 	 * @return 		array
+	 * @usage 		related()->sidestory
 	 */
 	protected function _relatedsidestory() {
 
@@ -891,19 +911,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>side story:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -914,6 +934,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get other
 	 *
 	 * @return 		array
+	 * @usage 		related()->other
 	 */
 	protected function _relatedother() {
 
@@ -924,19 +945,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>other:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -947,6 +968,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get spinoff
 	 *
 	 * @return 		array
+	 * @usage 		related()->spinoff
 	 */
 	protected function _relatedspinoff() {
 
@@ -957,19 +979,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>spin\-off:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -980,6 +1002,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get alternativeversion
 	 *
 	 * @return 		array
+	 * @usage 		related()->alternativeversion
 	 */
 	protected function _relatedalternativeversion() {
 
@@ -990,19 +1013,19 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>alternative version:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
-		array(
+		[
 		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
-		),
-		array(
+		],
+		[
 		'link',
 		'title'
-		),
+		],
 		static::$limit
 		);
 
@@ -1013,6 +1036,7 @@ class Manga extends \myanimelist\Helper\Builder {
 	 * Get link of the request page
 	 *
 	 * @return 		string
+	 * @usage 		link
 	 */
 	protected function _link() {
 
@@ -1022,6 +1046,6 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		return static::setValue( 'link', $this->lastChanges( $this->request()::$requestData[ 'url' ] ) );
+		return static::setValue( 'link', $this->lastChanges( $this->request()::$url ) );
 	}
 }

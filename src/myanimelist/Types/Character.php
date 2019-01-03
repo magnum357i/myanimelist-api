@@ -19,35 +19,18 @@ class Character extends \myanimelist\Helper\Builder {
 	public static $type = 'character';
 
 	/**
-	 * Prefix to call function
+	 * Methods to allow for prefix
 	 */
-	public static $prefix = '';
-
-	/**
-	 * Alloed functions for prefix
-	 */
-	public static $allowed_methods = array(
+	public static $methodsToAllow = [
 		'title',
 		'statistic'
-	);
-
-	/**
-	 * Set limit
-	 *
-	 * @param 		int 			Limit number
-	 * @return 		this class
-	 */
-	public function setLimit( $int ) {
-
-		static::$limit = $int;
-
-		return $this;
-	}
+	];
 
 	/**
 	 * Get character name
 	 *
 	 * @return 		string
+	 * @usage 		title()->self
 	 */
 	protected function _titleself() {
 
@@ -72,6 +55,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get character name
 	 *
 	 * @return 		string
+	 * @usage 		title()->nickname
 	 */
 	protected function _titlenickname() {
 
@@ -94,6 +78,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get category
 	 *
 	 * @return 		string
+	 * @usage 		category
 	 */
 	protected function _category() {
 
@@ -112,6 +97,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get poster
 	 *
 	 * @return 		string
+	 * @usage 		poster
 	 */
 	protected function _poster() {
 
@@ -140,6 +126,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get description
 	 *
 	 * @return 		string
+	 * @usage 		description
 	 */
 	protected function _description() {
 
@@ -165,8 +152,9 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get favorites
 	 *
 	 * @return 		array
+	 * @usage 		none
 	 */
-	protected function _favorite() {
+	protected function favorite() {
 
 		$key = 'favorite';
 
@@ -179,10 +167,10 @@ class Character extends \myanimelist\Helper\Builder {
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
-		$data = array(
+		$data = [
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
-		);
+		];
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -191,10 +179,11 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get number with K of favorite
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->favorite
 	 */
 	protected function _statisticfavorite() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
 
 		return ( isset( static::$data[ 'favorite' ][ 'simple' ] ) ) ? static::$data[ 'favorite' ][ 'simple' ] : FALSE;
 	}
@@ -203,10 +192,11 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get number without K of favorite
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->favoriteraw
 	 */
 	protected function _statisticfavoriteraw() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
 
 		return ( isset( static::$data[ 'favorite' ][ 'full' ] ) ) ? static::$data[ 'favorite' ][ 'full' ] : FALSE;
 	}
@@ -215,6 +205,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get recent anime list
 	 *
 	 * @return 		array
+	 * @usage 		recentanime
 	 */
 	protected function _recentanime() {
 
@@ -225,21 +216,21 @@ class Character extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<div class="normal_header">animeography</div>.*?<table.*?(.*?)</table>',
 		'<tr>(.*?)</tr>',
-        array(
+        [
 		'<a href="[^"]+/(anime/[0-9]+)/[^"]+">[^<]+</a>',
 		'<a href="[^"]+/anime/[0-9]+/[^"]+">([^<]+)</a>',
 		'<small>([^<]+)</small>'
-        ),
-        array(
+        ],
+        [
 		'link',
 		'title',
 		'role'
-        ),
+        ],
         static::$limit,
         TRUE
 		);
@@ -251,6 +242,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get recent manga list
 	 *
 	 * @return 		array
+	 * @usage 		recentmanga
 	 */
 	protected function _recentmanga() {
 
@@ -261,21 +253,21 @@ class Character extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<div class="normal_header">mangaography</div>.*?<table.*?(.*?)</table>',
 		'<tr>(.*?)</tr>',
-        array(
+        [
 		'<a href="[^"]+/(manga/[0-9]+)/[^"]+">[^<]+</a>',
 		'<a href="[^"]+/manga/[0-9]+/[^"]+">([^<]+)</a>',
 		'<small>([^<]+)</small>'
-        ),
-        array(
+        ],
+        [
 		'link',
 		'title',
 		'role'
-        ),
+        ],
         static::$limit,
         TRUE
 		);
@@ -287,6 +279,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get voice actors
 	 *
 	 * @return 		array
+	 * @usage 		voiceactors
 	 */
 	protected function _voiceactors() {
 
@@ -298,21 +291,21 @@ class Character extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'voice actors</div>(.+</table>.*<br>)',
 		'<tr>(.*?)</tr>',
-        array(
+        [
 		'<a href="[^"]+/(people/[0-9]+)/[^"]+">[^<]+</a>.*?<div[^>]+><small>' . $lang . '</small>',
 		'<a href="[^"]+/people/[0-9]+/[^"]+">([^<]+)</a>.*?<div[^>]+><small>' . $lang . '</small>',
 		'<a href="[^"]+/people/[0-9]+/[^"]+">[^<]+</a>.*?<div[^>]+><small>(' . $lang . ')</small>'
-        ),
-        array(
+        ],
+        [
 		'people_link',
 		'people_name',
 		'people_lang'
-        ),
+        ],
         static::$limit
 		);
 
@@ -323,6 +316,7 @@ class Character extends \myanimelist\Helper\Builder {
 	 * Get link of the request page
 	 *
 	 * @return 		string
+	 * @usage 		link
 	 */
 	protected function _link() {
 
@@ -332,6 +326,6 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		return static::setValue( 'link', $this->lastChanges( $this->request()::$requestData[ 'url' ] ) );
+		return static::setValue( 'link', $this->lastChanges( $this->request()::$url ) );
 	}
 }

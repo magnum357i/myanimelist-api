@@ -14,28 +14,14 @@ namespace myanimelist\Helper;
 class Request {
 
 	/**
-	 * Request data
+	 * Request url
 	 */
-	public static $requestData = array(
-		'url'  => '',
-		'type' => '',
-		'id'   => 0
-	);
+	public static $url = NULL;
 
 	/**
 	 * Website url
 	 */
 	const SITE = 'https://myanimelist.net/';
-
-	/**
-	 * Pages
-	 */
-	const PAGES = array(
-		'anime'     => 'anime/',
-		'manga'     => 'manga/',
-		'character' => 'character/',
-		'people'    => 'people/'
-	);
 
 	/**
 	 * Here will load the raw html
@@ -78,13 +64,13 @@ class Request {
 	 * @param 		array 			$curlOptions 		Curl options
 	 * @return 		void
 	 */
-	public function send( $curlOptions=array() ) {
+	public function send( $curlOptions=[] ) {
 
 		try {
 
 			$cSession = curl_init();
 
-			curl_setopt( $cSession, CURLOPT_URL,            static::$requestData[ 'url' ] );
+			curl_setopt( $cSession, CURLOPT_URL,            static::$url );
 			curl_setopt( $cSession, CURLOPT_RETURNTRANSFER, $curlOptions[ 'returnTransfer' ] );
 			curl_setopt( $cSession, CURLOPT_HEADER,         $curlOptions[ 'header' ] );
 			curl_setopt( $cSession, CURLOPT_USERAGENT,      $curlOptions[ 'userAgent' ] );
@@ -110,16 +96,14 @@ class Request {
 	}
 
 	/**
-	 * Take object parameter and send request
+	 * Create url to request
 	 *
-	 * @param 		int 			$id 				MAL id
-	 * @param 		string 			$type 				MAL type
+	 * @param 		string 			$u 				Url without the site name
 	 * @return 		void
 	 */
-	public function __construct( $id, $type ) {
+	public function createUrl( $u ) {
 
-		static::$requestData[ 'id' ]  = $id;
-		static::$requestData[ 'url' ] = static::SITE . static::PAGES[ $type ] . $id;
+		static::$url = static::SITE . $u;
 	}
 
 	/**
@@ -171,7 +155,7 @@ class Request {
 	 * @param 		string 			$sort_query 		Is it especially ordered by value?
 	 * @return 		array
 	 */
-	public function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $table_query='', $row_query='', $query_list=array(), $key_list=array(), $limit=0, $last=FALSE, $sort_query='' ) {
+	public function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $table_query='', $row_query='', $query_list=[], $key_list=[], $limit=0, $last=FALSE, $sort_query='' ) {
 
 		if ( empty( $query_list ) OR empty( $key_list ) ) return FALSE;
 
@@ -210,9 +194,9 @@ class Request {
 			return $value;
 		};
 
-		$i       = 0;
-		$result  = array();
-		$count   = count( $rows[1] );
+		$i      = 0;
+		$result = [];
+		$count  = count( $rows[1] );
 
 		while( $i < $count ) {
 
@@ -260,7 +244,7 @@ class Request {
 				return $a[ 'sort' ] - $b[ 'sort' ];
 			});
 
-			$temp_result = array();
+			$temp_result = [];
 
 			foreach ( $result as $i => $key ) {
 

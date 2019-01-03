@@ -16,7 +16,7 @@ class Builder {
 	/**
 	 * Software Version
 	 */
-	const VERSION = '0.9.5';
+	const VERSION = '0.9.6';
 
 	/**
 	 * MAL Id
@@ -24,22 +24,27 @@ class Builder {
 	public static $id;
 
 	/**
-	 * Set type
-	 */
-	public static $type = 'anime';
-
-	/**
 	 * Variable for output
 	 */
-	protected static $data = array();
+	protected static $data = [];
 
 	/**
 	 * Start and end of elapsed time
 	 */
-	protected $times = array(
+	protected $times = [
 		'start' => 0,
 		'end'   => 0
-	);
+	];
+
+	/**
+	 * base_url/?
+	 */
+	protected $urlPaths = [
+		'anime'     => 'anime/{id}',
+		'manga'     => 'manga/{id}',
+		'people'    => 'people/{id}',
+		'character' => 'character/{id}'
+	];
 
 	/**
 	 * Prefix to call function
@@ -47,9 +52,37 @@ class Builder {
 	protected static $prefix = '';
 
 	/**
+	 * Methods to allow for prefix
+	 */
+	public static $methodsToAllow = [];
+
+	/**
 	 * Limit for voice, staff, related etc.
 	 */
 	protected static $limit = 10;
+
+	/**
+	 * Set limit
+	 *
+	 * @param 		int 			Limit number
+	 * @return 		this class
+	 */
+	public function setLimit( $int ) {
+
+		static::$limit = ( $int > 2 OR $int < 100 ) ? $int : 10;
+
+		return $this;
+	}
+
+	/**
+	 * Create url to request
+	 *
+	 * @return 		void
+	 */
+	protected function createUrl() {
+
+		$this->request()->createUrl( str_replace( '{id}', static::$id, $this->urlPaths[ static::$type ] ) );
+	}
 
 	/**
 	 * Get data
@@ -58,13 +91,15 @@ class Builder {
 	 */
 	public function get() {
 
+		$this->createUrl();
+
 		$this->times[ 'start' ] = time();
 
 		if ( $this->config()->cache == TRUE AND $this->cache()->check() ) {
 
 			static::$data = $this->cache()->get();
 
-			if ( static::$data == FALSE ) static::$data = array();
+			if ( static::$data == FALSE ) static::$data = [];
 		}
 
 		if ( empty( static::$data ) ) {
@@ -102,7 +137,7 @@ class Builder {
 	}
 
 	/**
-	 * Take object parameter and send request
+	 * Take object parameter
 	 *
 	 * @param 		int 			$id 				MAL id
 	 * @return 		void
@@ -110,7 +145,7 @@ class Builder {
 	public function __construct( $id ) {
 
 		static::$id   = $id;
-		static::$data = array();
+		static::$data = [];
 	}
 
 	/**
@@ -122,8 +157,8 @@ class Builder {
 	public function __get( $key ) {
 
 		$prefix         = static::$prefix;
-		$dataKey        = "{$prefix}{$key}";
-		$functionName   = "_{$dataKey}";
+		$funcKey        = "{$prefix}{$key}";
+		$functionName   = "_{$funcKey}";
 		static::$prefix = '';
 
 		if ( method_exists( $this, $functionName ) ) {
@@ -179,11 +214,11 @@ class Builder {
 	public function __call( $method, $args ) {
 
 		if (
-			in_array( $method, static::$allowed_methods )
+			in_array( $method, static::$methodsToAllow )
 			OR
-			isset( static::$allowed_methods[ $method ] )
+			isset( static::$methodsToAllow[ $method ] )
 			OR
-			isset( static::$allowed_methods[ static::$prefix ] ) AND in_array( $method, static::$allowed_methods[ static::$prefix ] )
+			isset( static::$methodsToAllow[ static::$prefix ] ) AND in_array( $method, static::$methodsToAllow[ static::$prefix ] )
 		) {
 
 			static::$prefix = static::$prefix . $method;
@@ -246,7 +281,7 @@ class Builder {
 
 		if ( $this->request == NULL ) {
 
-			$this->request = new \myanimelist\Helper\Request( static::$id, static::$type );
+			$this->request = new \myanimelist\Helper\Request();
 		}
 
 		return $this->request;

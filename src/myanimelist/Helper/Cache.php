@@ -16,30 +16,30 @@ class Cache {
 	/**
 	 * File Items
 	 */
-	public $file = array(
+	public $file = [
 		'name'    => NULL,
 		'ext'     => 'json',
 		'content' => NULL
-	);
+	];
 
 	/**
 	 * Image Items
 	 */
-	public $image = array(
+	public $image = [
 		'name' => NULL,
 		'ext'  => 'jpg'
-	);
+	];
 
-	public $folders = array(
+	public $folders = [
 		'file'  => 'json',
 		'image' => 'cover',
 		'main'  => 'cache'
-	);
+	];
 
 	/**
 	 * Extra Options
 	 */
-	public $extra = array();
+	public $extra = [];
 
 	/**
 	 * Cache Expired Time By Day
@@ -77,12 +77,11 @@ class Cache {
 
 		$this->id   = $id;
 		$this->type = $type;
-		$this->root = __DIR__;
 
-		if ( $this->file[ 'name' ] == NULL ) $this->file[ 'name' ] = $id;
+		if ( $this->file[ 'name' ] == NULL )  $this->file[ 'name' ]  = $id;
 		if ( $this->image[ 'name' ] == NULL ) $this->image[ 'name' ] = $id;
-		if ( empty( $this->root ) ) $this->root = __DIR__;
-		if ( empty( $this->dir ) ) $this->dir = '../../..';
+		if ( empty( $this->root ) )           $this->root            = __DIR__;
+		if ( empty( $this->dir ) )            $this->dir             = '../../..';
 	}
 
 	/**
@@ -92,7 +91,7 @@ class Cache {
 	 */
 	public function check() {
 
-		$path = $this->fixSeperator( implode( '/', array( $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ) ) );
+		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
 		$f    = $this->fixSeperator( $path . '/' . $this->file[ 'name' ] . '.' . $this->file[ 'ext' ] );
 
 		return ( file_exists( $f ) ) ? TRUE : FALSE;
@@ -105,7 +104,7 @@ class Cache {
 	 */
 	public function get() {
 
-		$path = $this->fixSeperator( implode( '/', array( $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ) ) );
+		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
 		$f       = $this->fixSeperator( $path . '/' . $this->file[ 'name' ] . '.' . $this->file[ 'ext' ] );
 		$exp_day = ( $this->expiredByDay > 1 ) ? $this->expiredByDay : 1;
 
@@ -138,7 +137,7 @@ class Cache {
 
 		if ( empty( $this->file[ 'content' ] ) ) return FALSE;
 
-		$path = $this->fixSeperator( implode( '/', array( $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ) ) );
+		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
 
 		if ( !file_exists( $path ) ) {
 
@@ -149,7 +148,7 @@ class Cache {
 
 		try {
 
-			file_put_contents( $f, json_encode( array( 'time' => time(), 'data' => $this->file[ 'content' ] ) ) );
+			file_put_contents( $f, json_encode( [ 'time' => time(), 'data' => $this->file[ 'content' ] ] ) );
 		}
 		catch ( \Exception $e ) {
 
@@ -180,7 +179,7 @@ class Cache {
 	 */
 	public function savePoster( $url ) {
 
-		$path = $this->fixSeperator( implode( '/', array( $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ) ) );
+		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ] ) );
 		$f    = $this->fixSeperator( $path . '/' . $this->image[ 'name' ] . '.' . $this->image[ 'ext' ] );
 
 		if ( !file_exists( $path ) ) {

@@ -19,34 +19,17 @@ class People extends \myanimelist\Helper\Builder {
 	public static $type = 'people';
 
 	/**
-	 * Prefix to call function
+	 * Methods to allow for prefix
 	 */
-	public static $prefix = '';
-
-	/**
-	 * Alloed functions for prefix
-	 */
-	public static $allowed_methods = array(
+	public static $methodsToAllow = [
 		'statistic'
-	);
-
-	/**
-	 * Set limit
-	 *
-	 * @param 		int 			Limit number
-	 * @return 		this class
-	 */
-	public function setLimit( $int ) {
-
-		static::$limit = $int;
-
-		return $this;
-	}
+	];
 
 	/**
 	 * Get name
 	 *
 	 * @return 		string
+	 * @usage 		name
 	 */
 	protected function _name() {
 
@@ -69,6 +52,7 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get poster
 	 *
 	 * @return 		string
+	 * @usage 		poster
 	 */
 	protected function _poster() {
 
@@ -97,6 +81,7 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get description
 	 *
 	 * @return 		string
+	 * @usage 		description
 	 */
 	protected function _description() {
 
@@ -120,6 +105,7 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get category
 	 *
 	 * @return 		string
+	 * @usage 		category
 	 */
 	protected function _category() {
 
@@ -138,8 +124,9 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get favorite
 	 *
 	 * @return 		array
+	 * @usage 		favorite
 	 */
-	protected function _favorite() {
+	protected function favorite() {
 
 		$key = 'favorite';
 
@@ -152,10 +139,10 @@ class People extends \myanimelist\Helper\Builder {
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
-		$data = array(
+		$data = [
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
-		);
+		];
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -164,10 +151,11 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get number with K of favorite
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->favorite
 	 */
 	protected function _statisticfavorite() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
 
 		return ( isset( static::$data[ 'favorite' ][ 'simple' ] ) ) ? static::$data[ 'favorite' ][ 'simple' ] : FALSE;
 	}
@@ -176,10 +164,11 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get number without K of favorite
 	 *
 	 * @return 		string
+	 * @usage 		statistic()->favoriteraw
 	 */
 	protected function _statisticfavoriteraw() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->_favorite();
+		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
 
 		return ( isset( static::$data[ 'favorite' ][ 'full' ] ) ) ? static::$data[ 'favorite' ][ 'full' ] : FALSE;
 	}
@@ -188,6 +177,7 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get recent voice actiong roles
 	 *
 	 * @return 		string
+	 * @usage 		recentvoice
 	 */
 	protected function _recentvoice() {
 
@@ -198,23 +188,23 @@ class People extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'voice acting roles</div><table.*?>(.+?)</table>',
 		'<tr>(.*?)</tr>',
-        array(
+        [
 		'<a href="[^"]+/(anime/[0-9]+)/[^"]+">[^<]+</a>',
 		'<a href="[^"]+/anime/[0-9]+/[^"]+">([^<]+)</a>',
 		'<a href="[^"]+/(character/[0-9]+)/[^"]+">[^<]+</a>',
 		'<a href="[^"]+/character/[0-9]+/[^"]+">([^<]+)</a>'
-        ),
-        array(
+        ],
+        [
 		'anime_link',
 		'anime_title',
 		'character_link',
 		'character_name'
-        ),
+        ],
         static::$limit,
         TRUE,
         '<a href="[^"]+/anime/([0-9]+)/[^"]+">[^<]+</a>'
@@ -227,6 +217,7 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get recent works
 	 *
 	 * @return 		string
+	 * @usage 		recentwork
 	 */
 	protected function _recentwork() {
 
@@ -237,21 +228,21 @@ class People extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->matchTable(
-		array( $this, 'lastChanges' ),
+		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'anime staff positions</div><table.*?>(.+?)</table>',
 		'<tr>(.*?)</tr>',
-        array(
+        [
 		'<a href="[^"]+/(anime/[0-9]+)/[^"]+">[^<]+</a>',
 		'<a href="[^"]+/anime/[0-9]+/[^"]+">([^<]+)</a>',
 		'<small>([^<]+)</small>'
-        ),
-        array(
+        ],
+        [
 		'link',
 		'title',
 		'work'
-        ),
+        ],
         static::$limit,
         TRUE,
         '<a href="[^"]+/anime/([0-9]+)/[^"]+">[^<]+</a>'
@@ -264,6 +255,7 @@ class People extends \myanimelist\Helper\Builder {
 	 * Get link of the request page
 	 *
 	 * @return 		string
+	 * @usage 		link
 	 */
 	protected function _link() {
 
@@ -273,6 +265,6 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		return static::setValue( 'link', $this->lastChanges( $this->request()::$requestData[ 'url' ] ) );
+		return static::setValue( 'link', $this->lastChanges( $this->request()::$url ) );
 	}
 }
