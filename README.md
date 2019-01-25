@@ -9,6 +9,12 @@ This is an api developed to get information from pages of anime, manga, characte
 * CURL
 * PHP 7
 
+# How to Install?
+
+```bash
+$ composer require magnum357i/myanimelist-api
+```
+
 # How to use?
 
 ### Anime
