@@ -11,15 +11,20 @@
 
 namespace myanimelist\Helper;
 
-class Builder {
+use \myanimelist\Helper\Request;
+use \myanimelist\Helper\Cache;
+use \myanimelist\Helper\Config;
+use \myanimelist\Helper\Text;
+
+abstract class Builder {
 
 	/**
 	 * Software Version
 	 */
-	const VERSION = '0.9.6';
+	const VERSION = '0.9.7';
 
 	/**
-	 * MAL Id
+	 * MAL ID
 	 */
 	public static $id;
 
@@ -236,7 +241,7 @@ class Builder {
 
 		if ( $this->cache == NULL ) {
 
-			$this->cache = new \myanimelist\Helper\Cache( static::$id, static::$type );
+			$this->cache = new Cache( static::$id, static::$type );
 		}
 
 		return $this->cache;
@@ -251,7 +256,7 @@ class Builder {
 
 		if ( $this->config == NULL ) {
 
-			$this->config = new \myanimelist\Helper\Config();
+			$this->config = new Config();
 		}
 
 		return $this->config;
@@ -266,7 +271,7 @@ class Builder {
 
 		if ( $this->text == NULL ) {
 
-			$this->text = new \myanimelist\Helper\Text();
+			$this->text = new Text();
 		}
 
 		return $this->text;
@@ -281,7 +286,7 @@ class Builder {
 
 		if ( $this->request == NULL ) {
 
-			$this->request = new \myanimelist\Helper\Request();
+			$this->request = new Request();
 		}
 
 		return $this->request;

@@ -122,7 +122,7 @@ class Cache {
 
 		if ( $timeExpired > $timeData ) {
 
-			return FALSE;
+			return NULL;
 		}
 
 		return $jsonFile[ 'data' ];
@@ -135,7 +135,7 @@ class Cache {
 	 */
 	public function set() {
 
-		if ( empty( $this->file[ 'content' ] ) ) return FALSE;
+		if ( empty( $this->file[ 'content' ] ) ) return NULL;
 
 		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
 

@@ -124,9 +124,12 @@ class Anime extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/anime/[0-9]+/[0-9]+\.jpg)' );
+		$data = $this->request()->matchGroup( [
 
-		if ( $data == FALSE ) $data = $this->request()->match( '(https://cdn.myanimelist.net/images/anime/[0-9]+/[0-9]+\.jpg)' );
+				'(https://myanimelist.cdn-dena.com/images/anime/[0-9]+/[0-9]+\.jpg)',
+				'(https://cdn.myanimelist.net/images/anime/[0-9]+/[0-9]+\.jpg)'
+			]
+		);
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -297,6 +300,7 @@ class Anime extends \myanimelist\Helper\Builder {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = [
+
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
 		];
@@ -344,9 +348,12 @@ class Anime extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">score:</span>(.*?)<sup>' );
+		$data = $this->request()->matchGroup( [
 
-		if ( $data == FALSE ) $data = $this->request()->match( '<span itemprop="ratingValue">(.*?)</span>' );
+				'<span class="dark_text">score:</span>(.*?)<sup>',
+				'<span itemprop="ratingValue">(.*?)</span>'
+			]
+		);
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -406,6 +413,8 @@ class Anime extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->match( '<span class="dark_text">source:</span>(.*?)</div>' );
+
+		if ( $data == FALSE ) return FALSE;
 
 		if ( $this->text()->validate( [ 'mode' => 'regex', 'regex_code' => 'unknown', 'regex_flags' => 'si' ], $data ) ) return FALSE;
 
@@ -700,10 +709,7 @@ class Anime extends \myanimelist\Helper\Builder {
 
 		$data = $this->request()->match( '<span class="dark_text">premiered:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR $this->text()->validate( [ 'mode' => 'count', 'max_len' => 100 ], $data ) ) {
-
-			return FALSE;
-		}
+		if ( $data == FALSE OR $this->text()->validate( [ 'mode' => 'count', 'max_len' => 100 ], $data ) ) 	return FALSE;
 
 		preg_match( '/^(\w+) (\d+)$/', $data, $out );
 
@@ -1411,8 +1417,8 @@ class Anime extends \myanimelist\Helper\Builder {
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = $this->text()->replace( '\?.+',   '',         $data );
-		$data = str_replace(     'embed/', 'watch?v=', $data );
+		$data = $this->text()->replace( '\?.+', '', $data );
+		$data = str_replace( 'embed/', 'watch?v=', $data );
 
 		return static::setValue( 'trailer', $this->lastChanges( $data ) );
 	}

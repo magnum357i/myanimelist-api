@@ -109,30 +109,21 @@ class Request {
 	/**
 	 * Match string from raw html
 	 *
-	 * @param 		string 			$match  			Regex code for match ( except the start and end character )
-	 * @param 		bool 			$allow_tags 		Which tags should not be deleted?
+	 * @param 		string 			$template  			Regex code for match ( except the start and end character )
+	 * @param 		bool 			$allowTags 			Which tags should not be deleted?
 	 * @return 		string
 	 */
-	public function match( $match, $allow_tags=NULL ) {
+	public function match( $template, $allowTags=NULL ) {
 
-		preg_match( '@' . $match . '@si', static::$content, $result );
+		preg_match( '@' . $template . '@si', static::$content, $result );
 
-		if ( isset( $result[1] ) ) {
+		if ( isset( $result[ 1 ] ) ) {
 
-			$match =  $result[1];
+			$m = $result[ 1 ];
+			$m = ( $allowTags != NULL ) ? strip_tags( $m, $allowTags ) : strip_tags( $m );
+			$m = trim( $m );
 
-			if ( $allow_tags != NULL) {
-
-				$match = strip_tags( $result[1], $allow_tags );
-			}
-			else {
-
-				$match = strip_tags( $result[1] );
-			}
-
-			$match = trim( $match );
-
-			return  $match;
+			return  $m;
 		}
 		else {
 
@@ -141,31 +132,52 @@ class Request {
 	}
 
 	/**
+	 * Match strings from raw html
+	 *
+	 * @param 		string 			$templates  		Regex code for match ( except the start and end character )
+	 * @param 		bool 			$allowTags 			Which tags should not be deleted?
+	 * @return 		string
+	 */
+	public function matchGroup( $templates, $allowTags=NULL ) {
+
+		$result = FALSE;
+
+		foreach ( $templates as $template ) {
+
+			$result = $this->match( $template, $allowTags );
+
+			if ( $result != FALSE ) break;
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Get data as table
 	 *
 	 * @param 		callable 		$lastChanges 		Things before write
 	 * @param 		object 			$config 			Config object
 	 * @param 		object 			$text 				Text object
-	 * @param 		string 			$table_query 		A regex code to match a table
-	 * @param 		string 			$row_query 			A regex code to match a row in the table
-	 * @param 		array 			$query_list 		A regex code to match a value in the row
-	 * @param 		array 			$key_list 			A key to assign the value in the row
+	 * @param 		string 			$tableQuery 		A regex code to match a table
+	 * @param 		string 			$rowQuery 			A regex code to match a row in the table
+	 * @param 		array 			$queryList 			A regex code to match a value in the row
+	 * @param 		array 			$keyList 			A key to assign the value in the row
 	 * @param 		string 			$limit 				How many records will return?
 	 * @param 		bool 			$last 				Reverse sorting?
-	 * @param 		string 			$sort_query 		Is it especially ordered by value?
+	 * @param 		string 			$sortQuery 			Is it especially ordered by value?
 	 * @return 		array
 	 */
-	public function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $table_query='', $row_query='', $query_list=[], $key_list=[], $limit=0, $last=FALSE, $sort_query='' ) {
+	public function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $last=FALSE, $sortQuery='' ) {
 
-		if ( empty( $query_list ) OR empty( $key_list ) ) return FALSE;
+		if ( empty( $queryList ) OR empty( $keyList ) ) return FALSE;
 
-		preg_match( '@' . $table_query . '@si', static::$content, $table );
+		preg_match( '@' . $tableQuery . '@si', static::$content, $table );
 
-		if ( empty( $table[1] ) ) return FALSE;
+		if ( empty( $table[ 1 ] ) ) return FALSE;
 
-		preg_match_all( '@' . $row_query . '@si', $table[1], $rows );
+		preg_match_all( '@' . $rowQuery . '@si', $table[ 1 ], $rows );
 
-		if ( empty( $rows[1] ) ) return FALSE;
+		if ( empty( $rows[ 1 ] ) ) return FALSE;
 
 		$reflection = function( $lastChanges, $config, $text, $value, $key ) {
 
@@ -182,7 +194,7 @@ class Request {
 				$value = $text->reverseName( $value );
 				$value = call_user_func( $lastChanges, $value );
 			}
-			else if ( preg_match('/list/', $key, $no ) ) {
+			else if ( preg_match( '/list/', $key, $no ) ) {
 
 				$value = $text->listValue( $value, ',', $lastChanges );
 			}
@@ -196,48 +208,45 @@ class Request {
 
 		$i      = 0;
 		$result = [];
-		$count  = count( $rows[1] );
+		$count  = count( $rows[ 1 ] );
 
 		while( $i < $count ) {
 
-			if ( $sort_query == '' AND $limit > 0 AND $i >= $limit ) {
+			if ( $sortQuery == '' AND $limit > 0 AND $i >= $limit ) break;
 
-				break;
-			}
+			for ( $k = 0; $k < count( $queryList ); $k++ ) {
 
-			for ( $k = 0; $k < count( $query_list ); $k++ ) {
+				preg_match( '@' . $queryList[ $k ] . '@si', $rows[ 1 ][ ( $last == TRUE ) ? $count - $i - 1 : $i ], $row_value );
 
-				preg_match( '@' . $query_list[ $k ] . '@si', $rows[1][ ( $last == TRUE ) ? $count - $i - 1 : $i ], $row_value );
+				if ( !empty( $row_value[ 1 ] ) ) {
 
-				if ( !empty( $row_value[1] ) ) {
+					$row_value = $row_value[ 1 ];
 
-					$row_value = $row_value[1];
+					if ( $sortQuery == '' ) {
 
-					if ( $sort_query == '' ) {
-
-						$row_value = $reflection( $lastChanges, $config, $text, $row_value, $key_list[ $k ] );
+						$row_value = $reflection( $lastChanges, $config, $text, $row_value, $keyList[ $k ] );
 					}
 					else {
 
 						if ( !isset( $result[ $i ][ 'sort' ] ) ) {
 
-							preg_match( '@' . $sort_query . '@si', $rows[1][ ( $last == TRUE ) ? $count - $i - 1 : $i ], $sort_value );
+							preg_match( '@' . $sortQuery . '@si', $rows[ 1 ][ ( $last == TRUE ) ? $count - $i - 1 : $i ], $sort_value );
 
-							if ( !empty( $sort_value[1] ) ) {
+							if ( !empty( $sort_value[ 1 ] ) ) {
 
-								$result[ $i ][ 'sort' ] = $sort_value[1];
+								$result[ $i ][ 'sort' ] = $sort_value[ 1 ];
 							}
 						}
 					}
 
-					$result[ $i ][ $key_list[ $k ] ] = $row_value;
+					$result[ $i ][ $keyList[ $k ] ] = $row_value;
 				}
 			}
 
 			$i++;
 		}
 
-		if ( $sort_query != '' AND isset( $result[0][ 'sort' ] ) ) {
+		if ( $sortQuery != '' AND isset( $result[ 0 ][ 'sort' ] ) ) {
 
 			usort( $result, function( $a, $b ) {
 
@@ -250,11 +259,11 @@ class Request {
 
 				if ( $limit > 0 AND $i >= $limit ) break;
 
-				for ( $k = 0; $k < count( $query_list ); $k++ ) {
+				for ( $k = 0; $k < count( $queryList ); $k++ ) {
 
-					if ( isset( $result[ ( $last == TRUE ) ? $count - $i - 1 : $i ][ $key_list[ $k] ] ) ) {
+					if ( isset( $result[ ( $last == TRUE ) ? $count - $i - 1 : $i ][ $keyList[ $k] ] ) ) {
 
-						$temp_result[ $i ][ $key_list[ $k ] ] = $reflection( $lastChanges, $config, $text, $result[ ( $last == TRUE ) ? $count - $i - 1 : $i ][ $key_list[ $k ] ], $key_list[ $k ] );
+						$temp_result[ $i ][ $keyList[ $k ] ] = $reflection( $lastChanges, $config, $text, $result[ ( $last == TRUE ) ? $count - $i - 1 : $i ][ $keyList[ $k ] ], $keyList[ $k ] );
 					}
 				}
 			}
@@ -262,6 +271,6 @@ class Request {
 			$result = $temp_result;
 		}
 
-		return ( count( $result ) > 0) ? $result : FALSE;
+		return ( count( $result ) > 0 ) ? $result : FALSE;
 	}
 }

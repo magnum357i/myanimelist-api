@@ -62,9 +62,12 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)' );
+		$data = $this->request()->matchGroup( [
 
-		if ( $data == FALSE ) $data = $this->request()->match( '(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)' );
+				'(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)',
+				'(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)'
+			]
+		);
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -140,6 +143,7 @@ class People extends \myanimelist\Helper\Builder {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = [
+
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
 		];

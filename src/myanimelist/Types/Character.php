@@ -107,9 +107,12 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/characters/[0-9]+/[0-9]+\.jpg)' );
+		$data = $this->request()->matchGroup( [
 
-		if ( $data == FALSE ) $data = $this->request()->match( '(https://cdn.myanimelist.net/images/characters/[0-9]+/[0-9]+\.jpg)' );
+				'(https://myanimelist.cdn-dena.com/images/characters/[0-9]+/[0-9]+\.jpg)',
+				'(https://cdn.myanimelist.net/images/characters/[0-9]+/[0-9]+\.jpg)'
+			]
+		);
 
 		if ( $data == FALSE ) return FALSE;
 

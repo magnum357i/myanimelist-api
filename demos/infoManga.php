@@ -1,17 +1,8 @@
-<html>
-<head>
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-	<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
 <?php
 
 include( '../autoload.php' );
 
-if ( !isset( $_GET[ 'id' ] ) ) die( 'Please send id parameter in get method' );
-
-$mal = new myanimelist\Types\Manga( $_GET[ 'id' ] );
+$mal = new myanimelist\Types\Manga( $id );
 
 $mal->config()->reverseName         = TRUE;
 $mal->config()->cache               = TRUE;
@@ -706,10 +697,5 @@ if ( $mal->isSuccess() ) {
 }
 else {
 
-	die( 'There is a problem retrieving data.' );
+	echo 'There is a problem retrieving data.';
 }
-
-?>
-
-</body>
-</html>

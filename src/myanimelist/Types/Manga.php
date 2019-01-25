@@ -100,9 +100,12 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '(https://myanimelist.cdn-dena.com/images/manga/[0-9]+/[0-9]+\.jpg)' );
+		$data = $this->request()->matchGroup( [
 
-		if ( $data == FALSE ) $data = $this->request()->match( '(https://cdn.myanimelist.net/images/manga/[0-9]+/[0-9]+\.jpg)' );
+				'(https://myanimelist.cdn-dena.com/images/manga/[0-9]+/[0-9]+\.jpg)',
+				'(https://cdn.myanimelist.net/images/manga/[0-9]+/[0-9]+\.jpg)'
+			]
+		);
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -177,6 +180,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = [
+
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
 		];
@@ -224,9 +228,14 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">score:</span>(.*?)<sup>' );
+		$data = $this->request()->matchGroup( [
 
-		if ( $data == FALSE ) $data = $this->request()->match( '<span itemprop="ratingValue">(.*?)</span>' );
+				'<span class="dark_text">score:</span>(.*?)<sup>',
+				'<span itemprop="ratingValue">(.*?)</span>'
+			]
+		);
+
+		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = mb_substr( $data, 0, 2 );
@@ -250,6 +259,8 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->match( '<span class="dark_text">ranked:</span>(.*?)<sup>' );
+
+		if ( $data == FALSE ) return FALSE;
 
 		$data = str_replace( '#', '', $data );
 
@@ -315,6 +326,8 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->request()->match( '<span class="dark_text">popularity:</span>(.*?)</div>' );
 
+		if ( $data == FALSE ) return FALSE;
+
 		$data = str_replace( '#', '', $data );
 
 		if ( !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
@@ -344,6 +357,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = [
+
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
 		];
@@ -397,6 +411,7 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = [
+
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
 		];
@@ -714,6 +729,8 @@ class Manga extends \myanimelist\Helper\Builder {
 		if ( !$this->request()->isSent() ) return FALSE;
 
 		$data = $this->request()->match( '<span class="dark_text">published:</span>(.*?)</div>' );
+
+		if ( $data == FALSE ) return FALSE;
 
 		preg_match( '/(\d{4})/', $data, $out );
 
