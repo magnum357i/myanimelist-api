@@ -1,0 +1,14 @@
+{
+    "name": "magnum357i/myanimelist-api",
+    "description": "Api for MyAnimeList. It contains: anime, manga, character and people.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "myanimelist\\": "src/myanimelist"
+        }
+    },
+    "require": {
+        "php": ">=7.0",
+    }
+}
