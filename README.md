@@ -1,4 +1,6 @@
 ![](https://travis-ci.org/magnum357i/myanimelist-api.svg?branch=master)
+![](https://img.shields.io/github/last-commit/magnum357i/myanimelist-api.svg)
+![](https://img.shields.io/github/license/magnum357i/myanimelist-api.svg)
 
 # myanimelist-api
 This is an api developed to get information from pages of anime, manga, character and people on MyAnimelist. It works by scanning the html code of the page requested, so this library crashes when it changes.
