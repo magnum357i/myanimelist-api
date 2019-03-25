@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class TestManga extends TestCase {
+class testPageManga extends TestCase {
 
 	public function testGetMangaPage() {
 

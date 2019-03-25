@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class TestAnime extends TestCase {
+class testSearchManga extends TestCase {
 
 	public function testGetMangaSearch() {
 

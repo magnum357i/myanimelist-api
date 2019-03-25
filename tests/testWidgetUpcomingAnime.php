@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class TestAnime extends TestCase {
+class testWidgetUpcomingAnime extends TestCase {
 
 	public function testGetUpcomingAnime() {
 

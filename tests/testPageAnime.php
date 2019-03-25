@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class TestAnime extends TestCase {
+class testPageAnime extends TestCase {
 
 	public function testGetAnimePage() {
 

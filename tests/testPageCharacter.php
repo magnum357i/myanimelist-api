@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class TestCharacter extends TestCase {
+class testPageCharacter extends TestCase {
 
 	public function testGetCharacterPage() {
 
