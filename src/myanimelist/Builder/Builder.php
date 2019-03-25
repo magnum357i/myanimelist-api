@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Builder to do new type
+ * Builder Template
  *
  * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
@@ -9,7 +9,7 @@
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace myanimelist\Helper;
+namespace myanimelist\Builder;
 
 use \myanimelist\Helper\Request;
 use \myanimelist\Helper\Cache;
@@ -19,14 +19,25 @@ use \myanimelist\Helper\Text;
 abstract class Builder {
 
 	/**
-	 * Software Version
+	 * Software version
 	 */
-	const VERSION = '0.9.7';
+	const VERSION = '0.9.8';
 
 	/**
-	 * MAL ID
+	 * "single": Saves all values in a single file
+	 * "multi": Creates files by first keys
 	 */
-	public static $id;
+	protected $cacheMode = 'single';
+
+	/**
+	 * Are the values changed?
+	 */
+	protected $changed = FALSE;
+
+	/**
+	 * Does data come from the cache?
+	 */
+	protected $cached = FALSE;
 
 	/**
 	 * Variable for output
@@ -37,19 +48,25 @@ abstract class Builder {
 	 * Start and end of elapsed time
 	 */
 	protected $times = [
+
 		'start' => 0,
 		'end'   => 0
 	];
 
 	/**
+	 * Saving directories
+	 */
+	protected $folders = [
+
+		'main'  => NULL,
+		'file'  => NULL,
+		'image' => NULL
+	];
+
+	/**
 	 * base_url/?
 	 */
-	protected $urlPaths = [
-		'anime'     => 'anime/{id}',
-		'manga'     => 'manga/{id}',
-		'people'    => 'people/{id}',
-		'character' => 'character/{id}'
-	];
+	protected $urlPatterns = [];
 
 	/**
 	 * Prefix to call function
@@ -59,7 +76,12 @@ abstract class Builder {
 	/**
 	 * Methods to allow for prefix
 	 */
-	public static $methodsToAllow = [];
+	protected static $methodsToAllow = [];
+
+	/**
+	 * Patterns for externalLink
+	 */
+	protected static $externalLinks = [];
 
 	/**
 	 * Limit for voice, staff, related etc.
@@ -70,7 +92,7 @@ abstract class Builder {
 	 * Set limit
 	 *
 	 * @param 		int 			Limit number
-	 * @return 		this class
+	 * @return 		instance
 	 */
 	public function setLimit( $int ) {
 
@@ -80,53 +102,35 @@ abstract class Builder {
 	}
 
 	/**
-	 * Create url to request
+	 * File name for cache
 	 *
-	 * @return 		void
+	 * @return 		string
 	 */
-	protected function createUrl() {
-
-		$this->request()->createUrl( str_replace( '{id}', static::$id, $this->urlPaths[ static::$type ] ) );
-	}
+	protected function fileName() {}
 
 	/**
-	 * Get data
+	 * Image name for cache
 	 *
-	 * @return 		void
+	 * @return 		string
 	 */
-	public function get() {
+	protected function imageName() {}
 
-		$this->createUrl();
-
-		$this->times[ 'start' ] = time();
-
-		if ( $this->config()->cache == TRUE AND $this->cache()->check() ) {
-
-			static::$data = $this->cache()->get();
-
-			if ( static::$data == FALSE ) static::$data = [];
-		}
-
-		if ( empty( static::$data ) ) {
-
-			$this->request()->send( $this->config()->curl );
-		}
-	}
+	/**
+	 * Url query
+	 *
+	 * @return 		string
+	 */
+	protected function url() {}
 
 	/**
 	 * Changes you want to apply before values are displayed
 	 *
 	 * @param 		string 			$data 				String before writing
-	 * @return 		string
+	 * @return 		mix
 	 */
 	public function lastChanges( $data ) {
 
 		if ( $data == FALSE ) return FALSE;
-
-		if ( $this->config()->encodeValue == TRUE ) {
-
-			$data = htmlentities( $data );
-		}
 
 		return $data;
 	}
@@ -138,19 +142,53 @@ abstract class Builder {
 	 */
 	public function isSuccess() {
 
-		return $this->request()->isSuccess() OR !empty( static::$data );
+		return $this->request()->isSuccess() OR $this->cached;
 	}
 
 	/**
-	 * Take object parameter
 	 *
-	 * @param 		int 			$id 				MAL id
 	 * @return 		void
 	 */
-	public function __construct( $id ) {
+	public function __construct() {
 
-		static::$id   = $id;
 		static::$data = [];
+	}
+
+	/**
+	 * Send request to the page or get data from cache
+	 *
+	 * @return 		void
+	 */
+	public function sendRequestOrGetData() {
+
+		$this->request()->createUrl( $this->url() );
+
+		$this->times[ 'start' ] = time();
+
+		if ( $this->config()->isOnCache() ) {
+
+			$fileName = $this->fileName();
+
+			if ( $this->cache()->checkFile( "{$fileName}_time" ) ) {
+
+				$cacheTime = $this->cache()->readFile( "{$fileName}_time" );
+
+				if ( $this->cache()->expired( $cacheTime ) ) {
+
+					$this->cached = TRUE;
+
+					if ( $this->cacheMode == 'single' ) {
+
+						static::$data = $this->cache()->readFile( $fileName );
+					}
+				}
+			}
+		}
+
+		if ( ( $this->cacheMode == 'single' AND empty( static::$data ) ) OR !$this->cached ) {
+
+			$this->request()->send( $this->config()->curlSettings() );
+		}
 	}
 
 	/**
@@ -168,6 +206,16 @@ abstract class Builder {
 
 		if ( method_exists( $this, $functionName ) ) {
 
+			if ( $this->cacheMode == 'multi' AND !isset( static::$data[ $funcKey ] ) ) {
+
+				$fileName = $this->fileName();
+
+				if ( $this->cache()->checkFile( "{$fileName}_{$funcKey}" ) ) {
+
+					static::$data[ $funcKey ] = $this->cache()->readFile( "{$fileName}_{$funcKey}" );
+				}
+			}
+
 			return $this->$functionName();
 		}
 
@@ -177,13 +225,16 @@ abstract class Builder {
 	/**
 	 * Magic Method: Set
 	 *
-	 * @param 		string 			$key 			Key
+	 * @param 		string 			$key 				Key
 	 * @param 		string 			$value 			Value
 	 * @return 		void
 	 */
 	public function __set( $key, $value ) {
 
+		$this->changed = TRUE;
+
 		static::$data[ static::$prefix . $key ] = $value;
+		static::$prefix                         = '';
 	}
 
 	/**
@@ -193,11 +244,31 @@ abstract class Builder {
 	 */
 	public function __destruct() {
 
-		if ( $this->config()->cache == TRUE ) {
+		if ( $this->config()->isOnCache() AND ( $this->changed OR $this->request()->isSuccess() ) ) {
 
-			$this->cache()->file[ 'content' ] = static::$data;
+			$fileName = $this->fileName();
 
-			$this->cache()->set();
+			if ( $this->cacheMode == 'single' ) {
+
+				$this->cache()->writeFile( $fileName,          static::$data );
+				$this->cache()->writeFile( "{$fileName}_time", time() );
+			}
+			else if ( $this->cacheMode == 'multi' ) {
+
+				foreach( static::$data as $key => $value ) {
+
+					if ( $key != 'link' ) {
+
+						$this->cache()->writeFile( "{$fileName}_{$key}", $value );
+					}
+				}
+
+				$this->cache()->writeFile( "{$fileName}_time", time() );
+			}
+			else {
+
+				throw new \Exception( "[MyAnimeList Error] Invalid cache mode. Please use 'single' or 'multi' keywords." );
+			}
 		}
 	}
 
@@ -233,52 +304,44 @@ abstract class Builder {
 	}
 
 	/**
-	 * Cache Class
+	 * Cache class
 	 */
 	protected $cache = NULL;
 
 	public function cache() {
 
-		if ( $this->cache == NULL ) {
-
-			$this->cache = new Cache( static::$id, static::$type );
-		}
+		if ( $this->cache == NULL ) $this->cache = new Cache( static::$type, $this->folders );
 
 		return $this->cache;
 	}
 
 	/**
-	 * Config Class
+	 * Config class
 	 */
 	protected $config = NULL;
 
 	public function config() {
 
-		if ( $this->config == NULL ) {
+		if ( $this->config == NULL ) 	$this->config = new Config();
 
-			$this->config = new Config();
-		}
 
 		return $this->config;
 	}
 
 	/**
-	 * Text Class
+	 * Text class
 	 */
 	protected $text = NULL;
 
 	public function text() {
 
-		if ( $this->text == NULL ) {
-
-			$this->text = new Text();
-		}
+		if ( $this->text == NULL ) $this->text = new Text();
 
 		return $this->text;
 	}
 
 	/**
-	 * Request Class
+	 * Request class
 	 */
 	protected $request = NULL;
 
@@ -290,6 +353,18 @@ abstract class Builder {
 		}
 
 		return $this->request;
+	}
+
+	/**
+	 * Create mal link from given query string
+	 *
+	 * @param 		string 			$group 			Key of $externalLinks
+	 * @param 		string 			$s 				Page id
+	 * @return 		string
+	 */
+	public function externalLink( $group, $s ) {
+
+		return $this->request()::SITE . str_replace( '{s}', $s, static::$externalLinks[ $group ] );
 	}
 
 	/**
@@ -311,7 +386,7 @@ abstract class Builder {
 	/**
 	 * Assign a value to static::data
 	 *
-	 * @param 		string 			$key 			key of array of $data
+	 * @param 		string 			$key 				key of array of $data
 	 * @param 		string 			$value 			value of array of $data
 	 * @return 		bool
 	 */

@@ -14,177 +14,189 @@ namespace myanimelist\Helper;
 class Cache {
 
 	/**
-	 * File Items
+	 * Saving directories
 	 */
-	public $file = [
-		'name'    => NULL,
-		'ext'     => 'json',
-		'content' => NULL
+	protected $folders = [
+
+		'file'  => NULL,
+		'image' => NULL,
+		'main'  => NULL
 	];
 
 	/**
-	 * Image Items
+	 * Cache folder
 	 */
-	public $image = [
-		'name' => NULL,
-		'ext'  => 'jpg'
-	];
-
-	public $folders = [
-		'file'  => 'json',
-		'image' => 'cover',
-		'main'  => 'cache'
-	];
+	protected $cacheFolder = 'myanimelist';
 
 	/**
-	 * Extra Options
+	 * Type
 	 */
-	public $extra = [];
+	protected $type = NULL;
 
 	/**
-	 * Cache Expired Time By Day
+	 * Cache expired time by Day
 	 */
-	public $expiredByDay = 2;
+	protected $expiredByDay = 2;
 
 	/**
-	 * MAL Id
+	 * Cache path
 	 */
-	public $id;
-
-	/**
-	 * MAL Type
-	 */
-	public $type;
-
-	/**
-	 * Root path
-	 */
-	public $root = '';
-
-	/**
-	 * Cache dir
-	 */
-	public $dir = '';
+	protected $path = NULL;
 
 	/**
 	 * Set parameters
 	 *
-	 * @param 		int 			$id 				MAL id
-	 * @param 		string 			$type 				MAL type
+	 * @param 		$type 			MAL Type
+	 * @param 		$folders 			Saving directories
 	 * @return 		void
 	 */
-	public function __construct( $id, $type ) {
+	public function __construct( $type, $folders=[] ) {
 
-		$this->id   = $id;
+		foreach( $this->folders as $k => $v ) $this->folders[ $k ] = $folders[ $k ];
+
 		$this->type = $type;
 
-		if ( $this->file[ 'name' ] == NULL )  $this->file[ 'name' ]  = $id;
-		if ( $this->image[ 'name' ] == NULL ) $this->image[ 'name' ] = $id;
-		if ( empty( $this->root ) )           $this->root            = __DIR__;
-		if ( empty( $this->dir ) )            $this->dir             = '../../..';
+		$this->setPath( __DIR__ . '../../../../cache' );
 	}
 
 	/**
-	 * If cache file exists
+	 * Set path to save
 	 *
+	 * @param 		$root 			Root path
+	 * @param 		$path 			Path to save
 	 * @return 		bool
 	 */
-	public function check() {
+	public function setPath( $path ) {
 
-		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
-		$f    = $this->fixSeperator( $path . '/' . $this->file[ 'name' ] . '.' . $this->file[ 'ext' ] );
+		$this->path = $path;
+	}
+
+	/**
+	 * Set expired time
+	 *
+	 * @param 		$days 			Number in days
+	 * @return 		bool
+	 */
+	public function setExpiredTime( $days ) {
+
+		$this->expiredByDay = $days;
+	}
+
+	/**
+	 * If file exists
+	 *
+	 * @param 		$fileName 				File name
+	 * @return 		bool
+	 */
+	public function checkFile( $fileName ) {
+
+		$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
+		$f    = $this->fixSeparator( $path . '/' . $fileName . '.json' );
 
 		return ( file_exists( $f ) ) ? TRUE : FALSE;
 	}
 
 	/**
-	 * Get data from cache file
+	 * Is cache expired?
 	 *
+	 * @param 		$time 				Timestamp
 	 * @return 		array
 	 */
-	public function get() {
+	public function expired( $time ) {
 
-		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
-		$f       = $this->fixSeperator( $path . '/' . $this->file[ 'name' ] . '.' . $this->file[ 'ext' ] );
-		$exp_day = ( $this->expiredByDay > 1 ) ? $this->expiredByDay : 1;
+		$expDay  = ( $this->expiredByDay > 1 ) ? $this->expiredByDay : 1;
+		$expTime = strtotime( "-{$expDay} days" );
+
+		if ( $expTime < $time ) {
+
+			return TRUE;
+		}
+		else {
+
+			return FALSE;
+		}
+	}
+
+	/**
+	 * Read data from cache file
+	 *
+	 * @param 		$fileName 				File name
+	 * @return 		array
+	 */
+	public function readFile( $fileName ) {
+
+		$path    = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
+		$f       = $this->fixSeparator( $path . '/' . $fileName . '.json' );
 
 		try {
 
-			$jsonFile = json_decode( file_get_contents( $f ), TRUE );
+			$content = json_decode( file_get_contents( $f ), TRUE );
 		}
 		catch ( \Exception $e ) {
 
-			throw new \Exception( "[MyAnimeList Cache Error] Getting Data: {$e}" );
+			throw new \Exception( "[MyAnimeList Cache Error] {$e}" );
 		}
 
-		$timeExpired = strtotime( "-{$exp_day} days" );
-		$timeData    = $jsonFile[ 'time' ];
-
-		if ( $timeExpired > $timeData ) {
-
-			return NULL;
-		}
-
-		return $jsonFile[ 'data' ];
+		return $content;
 	}
 
 	/**
 	 * Write cache file
 	 *
+	 * @param 		$fileName 				File name with extension
 	 * @return 		void
 	 */
-	public function set() {
+	public function writeFile( $fileName, $content ) {
 
-		if ( empty( $this->file[ 'content' ] ) ) return NULL;
+		if ( empty( $content ) ) return NULL;
 
-		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
+		$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
 
-		if ( !file_exists( $path ) ) {
+		if ( !file_exists( $path ) ) mkdir( $path, 0777, TRUE );
 
-			mkdir( $path, 0777, TRUE );
-		}
-
-		$f = $this->fixSeperator( $path . '/' . $this->file[ 'name' ] . '.' . $this->file[ 'ext' ] );
+		$f = $this->fixSeparator( $path . '/' . $fileName . '.json' );
 
 		try {
 
-			file_put_contents( $f, json_encode( [ 'time' => time(), 'data' => $this->file[ 'content' ] ] ) );
+			file_put_contents( $f, json_encode( $content ) );
 		}
 		catch ( \Exception $e ) {
 
-			throw new \Exception( "[MyAnimeList Cache Error] Writing Data: {$e}" );
+			throw new \Exception( "[MyAnimeList Cache Error] {$e}" );
 		}
 	}
 
 	/**
-	 * Converts slashes to a different direction
+	 * Converts slashes by OS
 	 *
 	 * @param 		$path 				Path
-	 * @param 		$direction 			Bending direction
 	 * @return 		string
 	 */
-	protected function fixSeperator( $path, $direction='left' ) {
+	protected function fixSeparator( $path ) {
 
-		if ( $direction == 'left' )  $path = str_replace( '/', '\\', $path );
-		if ( $direction == 'right' ) $path = str_replace( '\\', '/', $path );
-
-		return $path;
+		return str_replace( [ '/', '\\' ],  DIRECTORY_SEPARATOR, $path );
 	}
 
 	/**
 	 * Save poster
 	 *
-	 * @param 		$url 			External url of a image
+	 * @param 		$fileName 				File name with extension
+	 * @param 		$url 					External url of a image
+	 * @param 		$overWrite 				Force to write
 	 * @return 		string
 	 */
-	public function savePoster( $url ) {
+	public function savePoster( $fileName, $url, $overWrite=FALSE ) {
 
-		$path = $this->fixSeperator( implode( '/', [ $this->root, $this->dir, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ] ) );
-		$f    = $this->fixSeperator( $path . '/' . $this->image[ 'name' ] . '.' . $this->image[ 'ext' ] );
+		$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ] ) );
+		$f    = $this->fixSeparator( $path . '/' . $fileName );
 
 		if ( !file_exists( $path ) ) {
 
 			mkdir( $path, 0777, TRUE );
+		}
+		else {
+
+			if ( $overWrite == FALSE AND file_exists( $f ) == TRUE ) return NULL;
 		}
 
 		try {
@@ -193,9 +205,9 @@ class Cache {
 		}
 		catch ( \Exception $e ) {
 
-			throw new \Exception( "[MyAnimeList Cache Error] Writing Data: {$e}" );
+			throw new \Exception( "[MyAnimeList Cache Error] {$e}" );
 		}
 
-		return $this->fixSeperator( str_replace( $this->fixSeperator( $_SERVER['DOCUMENT_ROOT'] ), '', $path ) . '/' . $this->image[ 'name' ] . '.' . $this->image[ 'ext' ], 'right' );
+		return $this->fixSeparator( str_replace( $this->fixSeparator( $_SERVER[ 'DOCUMENT_ROOT' ] ), '', $path ) . '/' . $fileName );
 	}
 }

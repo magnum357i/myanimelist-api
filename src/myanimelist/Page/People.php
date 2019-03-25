@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MyAnimeList People API
+ * MyAnimeList People Page API
  *
  * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
@@ -9,20 +9,32 @@
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace myanimelist\Types;
+namespace myanimelist\Page;
 
-class People extends \myanimelist\Helper\Builder {
+class People extends \myanimelist\Builder\Page {
 
 	/**
 	 * Set type
 	 */
-	public static $type = 'people';
+	protected static $type = 'people';
 
 	/**
 	 * Methods to allow for prefix
 	 */
-	public static $methodsToAllow = [
+	protected static $methodsToAllow = [
+
 		'statistic'
+	];
+
+	/**
+	 * Patterns for externalLink
+	 */
+	protected static $externalLinks = [
+
+		'character' => 'character/{s}',
+		'people'    => 'people/{s}',
+		'anime'     => 'anime/{s}',
+		'manga'     => 'manga/{s}'
 	];
 
 	/**
@@ -37,13 +49,13 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
+		$data = $this->request()::match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->reverseName == TRUE ) $data = $this->text()->reverseName( $data );
+		if ( $this->config()->isOnNameConverting() ) $data = $this->text()->reverseName( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -60,9 +72,9 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchGroup( [
+		$data = $this->request()::matchGroup( [
 
 				'(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)',
 				'(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)'
@@ -71,9 +83,9 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->cache == TRUE ) {
+		if ( $this->config()->isOnCache() ) {
 
-			$newPoster = $this->cache()->savePoster( $data );
+			$newPoster = $this->cache()->savePoster( $this->imageName(), $data );
 			$data      = $newPoster;
 		}
 
@@ -92,9 +104,9 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">more:</span></div><div[^>]+">(.*?)</div>.*?</td>', '<br>', 'si' );
+		$data = $this->request()::match( '<span class="dark_text">more:</span></div><div[^>]+">(.*?)</div>.*?</td>', '<br>', 'si' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -116,7 +128,7 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
 		$data = 'people';
 
@@ -135,9 +147,9 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">member favorites:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">member favorites:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -189,29 +201,30 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'voice acting roles</div><table.*?>(.+?)</table>',
 		'<tr>(.*?)</tr>',
-        [
-		'<a href="[^"]+/(anime/[0-9]+)/[^"]+">[^<]+</a>',
-		'<a href="[^"]+/anime/[0-9]+/[^"]+">([^<]+)</a>',
-		'<a href="[^"]+/(character/[0-9]+)/[^"]+">[^<]+</a>',
-		'<a href="[^"]+/character/[0-9]+/[^"]+">([^<]+)</a>'
-        ],
-        [
-		'anime_link',
+		[
+		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>',
+		'<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>',
+		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>',
+		'<a href="[^"]+character/\d+[^"]+">([^<]+)</a>'
+		],
+		[
+		'anime_id',
 		'anime_title',
-		'character_link',
+		'character_id',
 		'character_name'
-        ],
-        static::$limit,
-        TRUE,
-        '<a href="[^"]+/anime/([0-9]+)/[^"]+">[^<]+</a>'
+		],
+		static::$limit,
+		NULL,
+		TRUE,
+		'anime_id'
 		);
 
 		return static::setValue( $key, $data );
@@ -229,27 +242,28 @@ class People extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'anime staff positions</div><table.*?>(.+?)</table>',
 		'<tr>(.*?)</tr>',
-        [
-		'<a href="[^"]+/(anime/[0-9]+)/[^"]+">[^<]+</a>',
-		'<a href="[^"]+/anime/[0-9]+/[^"]+">([^<]+)</a>',
+		[
+		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>',
+		'<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>',
 		'<small>([^<]+)</small>'
-        ],
-        [
-		'link',
+		],
+		[
+		'id',
 		'title',
 		'work'
-        ],
-        static::$limit,
-        TRUE,
-        '<a href="[^"]+/anime/([0-9]+)/[^"]+">[^<]+</a>'
+		],
+		static::$limit,
+		NULL,
+		TRUE,
+		'id'
 		);
 
 		return static::setValue( $key, $data );
@@ -263,12 +277,6 @@ class People extends \myanimelist\Helper\Builder {
 	 */
 	protected function _link() {
 
-		$key = 'link';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()->isSent() ) return FALSE;
-
-		return static::setValue( 'link', $this->lastChanges( $this->request()::$url ) );
+		return $this->lastChanges( $this->request()::$url );
 	}
 }

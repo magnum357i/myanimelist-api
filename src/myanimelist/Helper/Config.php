@@ -16,29 +16,87 @@ class Config {
 	/**
 	 * If true, names becomes the first-last order instead of the last-first order
 	 */
-	public $reverseName = TRUE;
-
-	/**
-	 * If true, converts text to html entities
-	 */
-	public $encodeValue = FALSE;
+	protected $reverseName = FALSE;
 
 	/**
 	 * If true, cache system runs, so data to take is saved to a json file
 	 */
-	public $cache = FALSE;
+	protected $cache = FALSE;
 
 	/**
-	 * Curl Options
+	 * Curl options
 	 */
-	public $curl = [
-		'returnTransfer' => TRUE,
-		'header'         => FALSE,
-		'userAgent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
-		'followLocation' => FALSE,
-		'connectTimeout' => 15,
-		'timeout'        => 60,
-		'ssl_verifyHost' => FALSE,
-		'ssl_verifypeer' => FALSE
+	protected $curl = [
+
+		'RETURNTRANSFER' => TRUE,
+		'HEADER'         => FALSE,
+		'USERAGENT'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36',
+		'FOLLOWLOCATION' => FALSE,
+		'CONNECTTIMEOUT' => 15,
+		'TIMEOUT'        => 60,
+		'SSL_VERIFYHOST' => FALSE,
+		'SSL_VERIFYPEER' => FALSE
 	];
+
+	/**
+	 * Enable cache setting
+	 *
+	 * @return 		void
+	 */
+	public function enableCache() {
+
+		$this->cache = TRUE;
+	}
+
+	/**
+	 * Enable reverse name setting
+	 *
+	 * @return 		void
+	 */
+	public function convertName() {
+
+		$this->reverseName = TRUE;
+	}
+
+	/**
+	 * Is the cache on?
+	 *
+	 * @return 		bool
+	 */
+	public function isOnCache() {
+
+		return $this->cache;
+	}
+
+	/**
+	 * Are the names being converted?
+	 *
+	 * @return 		bool
+	 */
+	public function isOnNameConverting() {
+
+		return $this->reverseName;
+	}
+
+	/**
+	 * Curl Settings
+	 *
+	 * @return 		bool
+	 */
+	public function curlSettings() {
+
+		return $this->curl;
+	}
+
+	/**
+	 * Set new user agent
+	 *
+	 * @param 		$value 			Value of curl setting you entered
+	 * @param 		$setting 			Curl setting
+	 * @return 		void
+	 */
+	public function setCurlOption( $value, $setting ) {
+
+		$this->curl[ $setting ] = $value;
+	}
 }

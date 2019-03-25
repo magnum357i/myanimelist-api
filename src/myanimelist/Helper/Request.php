@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CURL Request
+ * CURL Request Class
  *
  * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
@@ -31,16 +31,16 @@ class Request {
 	/**
 	 * Status of send
 	 */
-	protected $sent = FALSE;
+	protected static $sent = FALSE;
 
 	/**
 	 * Is the request sent
 	 *
 	 * @return 		bool
 	 */
-	public function isSent() {
+	public static function isSent() {
 
-		return $this->sent;
+		return static::$sent;
 	}
 
 	/**
@@ -70,15 +70,12 @@ class Request {
 
 			$cSession = curl_init();
 
-			curl_setopt( $cSession, CURLOPT_URL,            static::$url );
-			curl_setopt( $cSession, CURLOPT_RETURNTRANSFER, $curlOptions[ 'returnTransfer' ] );
-			curl_setopt( $cSession, CURLOPT_HEADER,         $curlOptions[ 'header' ] );
-			curl_setopt( $cSession, CURLOPT_USERAGENT,      $curlOptions[ 'userAgent' ] );
-			curl_setopt( $cSession, CURLOPT_FOLLOWLOCATION, $curlOptions[ 'followLocation' ] );
-			curl_setopt( $cSession, CURLOPT_CONNECTTIMEOUT, $curlOptions[ 'connectTimeout' ] );
-			curl_setopt( $cSession, CURLOPT_TIMEOUT,        $curlOptions[ 'timeout' ] );
-			curl_setopt( $cSession, CURLOPT_SSL_VERIFYHOST, $curlOptions[ 'ssl_verifyHost' ] );
-			curl_setopt( $cSession, CURLOPT_SSL_VERIFYPEER, $curlOptions[ 'ssl_verifypeer' ] );
+			curl_setopt( $cSession, CURLOPT_URL, static::$url );
+
+			foreach ( $curlOptions as $setting => $value ) {
+
+				curl_setopt( $cSession, constant( "CURLOPT_{$setting}" ), $value );
+			}
 
 			static::$content = curl_exec( $cSession );
 			static::$content = html_entity_decode( static::$content );
@@ -88,7 +85,7 @@ class Request {
 				$this->success = TRUE;
 			}
 
-			$this->sent = TRUE;
+			static::$sent = TRUE;
 
 			curl_close( $cSession );
 		}
@@ -109,11 +106,11 @@ class Request {
 	/**
 	 * Match string from raw html
 	 *
-	 * @param 		string 			$template  			Regex code for match ( except the start and end character )
-	 * @param 		bool 			$allowTags 			Which tags should not be deleted?
+	 * @param 		string 		$template  				Regex code for match ( except the start and end character )
+	 * @param 		bool 			$allowTags 				Which tags should not be deleted?
 	 * @return 		string
 	 */
-	public function match( $template, $allowTags=NULL ) {
+	public static function match( $template, $allowTags=NULL ) {
 
 		preg_match( '@' . $template . '@si', static::$content, $result );
 
@@ -134,17 +131,17 @@ class Request {
 	/**
 	 * Match strings from raw html
 	 *
-	 * @param 		string 			$templates  		Regex code for match ( except the start and end character )
-	 * @param 		bool 			$allowTags 			Which tags should not be deleted?
+	 * @param 		string 		$templates  			Regex code for match ( except the start and end character )
+	 * @param 		bool 			$allowTags 				Which tags should not be deleted?
 	 * @return 		string
 	 */
-	public function matchGroup( $templates, $allowTags=NULL ) {
+	public static function matchGroup( $templates, $allowTags=NULL ) {
 
 		$result = FALSE;
 
 		foreach ( $templates as $template ) {
 
-			$result = $this->match( $template, $allowTags );
+			$result = static::match( $template, $allowTags );
 
 			if ( $result != FALSE ) break;
 		}
@@ -153,66 +150,79 @@ class Request {
 	}
 
 	/**
+	 * Makes the value simple
+	 *
+	 * @param 		callable 			$lastChanges 		Things before write
+	 * @param 		object 			$config 			Config object
+	 * @param 		object 			$text 			Text object
+	 * @param 		string 			$value 			A value
+	 * @param 		string 			$key 				A key
+	 * @return 		array
+	 */
+	public static function reflection( callable $lastChanges,\myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $value, $key ) {
+
+		if ( $value == NULL ) return NULL;
+
+		$value = strip_tags( $value );
+		$value = trim( $value );
+
+		if ( preg_match( '/link$/', $key, $no ) ) {
+
+			$value = static::SITE . $value;
+			$value = call_user_func( $lastChanges, $value );
+		}
+		else if ( $config->isOnNameConverting() && preg_match( '/name$/', $key, $no ) ) {
+
+			$value = $text->reverseName( $value );
+			$value = call_user_func( $lastChanges, $value );
+		}
+		else if ( preg_match( '/list$/', $key, $no ) ) {
+
+			$value = $text->listValue( $value, ',', $lastChanges );
+		}
+		else {
+
+			$value = call_user_func( $lastChanges, $value );
+		}
+
+		return $value;
+	}
+
+	/**
 	 * Get data as table
 	 *
-	 * @param 		callable 		$lastChanges 		Things before write
+	 * @param 		callable 			$lastChanges 		Things before write
 	 * @param 		object 			$config 			Config object
-	 * @param 		object 			$text 				Text object
+	 * @param 		object 			$text 			Text object
 	 * @param 		string 			$tableQuery 		A regex code to match a table
 	 * @param 		string 			$rowQuery 			A regex code to match a row in the table
 	 * @param 		array 			$queryList 			A regex code to match a value in the row
 	 * @param 		array 			$keyList 			A key to assign the value in the row
-	 * @param 		string 			$limit 				How many records will return?
-	 * @param 		bool 			$last 				Reverse sorting?
-	 * @param 		string 			$sortQuery 			Is it especially ordered by value?
+	 * @param 		string 			$limit 			How many records will return?
+	 * @param 		array 			$customChanges 		Desired changes in the value
+	 * @param 		bool 				$last 			Reverse sorting?
+	 * @param 		string 			$sortKey 			Sort by key
 	 * @return 		array
 	 */
-	public function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $last=FALSE, $sortQuery='' ) {
-
-		if ( empty( $queryList ) OR empty( $keyList ) ) return FALSE;
+	public static function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $customChanges=NULL, $last=FALSE, $sortKey='' ) {
 
 		preg_match( '@' . $tableQuery . '@si', static::$content, $table );
 
-		if ( empty( $table[ 1 ] ) ) return FALSE;
+		if ( empty( $table ) ) return FALSE;
 
 		preg_match_all( '@' . $rowQuery . '@si', $table[ 1 ], $rows );
 
 		if ( empty( $rows[ 1 ] ) ) return FALSE;
 
-		$reflection = function( $lastChanges, $config, $text, $value, $key ) {
-
-			$value = strip_tags( $value );
-			$value = trim( $value );
-
-			if ( preg_match( '/link/', $key, $no ) ) {
-
-				$value = static::SITE . $value;
-				$value = call_user_func( $lastChanges, $value );
-			}
-			else if ( $config->reverseName == TRUE && preg_match( '/name/', $key, $no ) ) {
-
-				$value = $text->reverseName( $value );
-				$value = call_user_func( $lastChanges, $value );
-			}
-			else if ( preg_match( '/list/', $key, $no ) ) {
-
-				$value = $text->listValue( $value, ',', $lastChanges );
-			}
-			else {
-
-				$value = call_user_func( $lastChanges, $value );
-			}
-
-			return $value;
-		};
-
-		$i      = 0;
 		$result = [];
+		$j      = 0;
 		$count  = count( $rows[ 1 ] );
 
-		while( $i < $count ) {
+		for( $i = 0; $i < $count; $i++ ) {
 
-			if ( $sortQuery == '' AND $limit > 0 AND $i >= $limit ) break;
+			$assignedValue = FALSE;
+
+			if ( $sortKey == '' AND $limit > 0 AND $i >= $limit ) break;
 
 			for ( $k = 0; $k < count( $queryList ); $k++ ) {
 
@@ -222,53 +232,37 @@ class Request {
 
 					$row_value = $row_value[ 1 ];
 
-					if ( $sortQuery == '' ) {
+					if ( $customChanges != NULL && isset( $customChanges[ $keyList[ $k ] ] ) ) {
 
-						$row_value = $reflection( $lastChanges, $config, $text, $row_value, $keyList[ $k ] );
+						$row_value = call_user_func( $customChanges[ $keyList[ $k ] ], $row_value );
 					}
 					else {
 
-						if ( !isset( $result[ $i ][ 'sort' ] ) ) {
-
-							preg_match( '@' . $sortQuery . '@si', $rows[ 1 ][ ( $last == TRUE ) ? $count - $i - 1 : $i ], $sort_value );
-
-							if ( !empty( $sort_value[ 1 ] ) ) {
-
-								$result[ $i ][ 'sort' ] = $sort_value[ 1 ];
-							}
-						}
+						$row_value = static::reflection( $lastChanges, $config, $text, $row_value, $keyList[ $k ] );
 					}
 
-					$result[ $i ][ $keyList[ $k ] ] = $row_value;
+					if ( $row_value != NULL ) {
+
+						$assignedValue                  = TRUE;
+						$result[ $j ][ $keyList[ $k ] ] = $row_value;
+					}
 				}
 			}
 
-			$i++;
+			if ( $assignedValue ) $j++;
 		}
 
-		if ( $sortQuery != '' AND isset( $result[ 0 ][ 'sort' ] ) ) {
+		if ( $sortKey != '' AND isset( $result[ 0 ][ $sortKey ] ) ) {
 
-			usort( $result, function( $a, $b ) {
+			usort( $result,
 
-				return $a[ 'sort' ] - $b[ 'sort' ];
-			});
+				function( $a, $b ) use ( $sortKey ) {
 
-			$temp_result = [];
-
-			foreach ( $result as $i => $key ) {
-
-				if ( $limit > 0 AND $i >= $limit ) break;
-
-				for ( $k = 0; $k < count( $queryList ); $k++ ) {
-
-					if ( isset( $result[ ( $last == TRUE ) ? $count - $i - 1 : $i ][ $keyList[ $k] ] ) ) {
-
-						$temp_result[ $i ][ $keyList[ $k ] ] = $reflection( $lastChanges, $config, $text, $result[ ( $last == TRUE ) ? $count - $i - 1 : $i ][ $keyList[ $k ] ], $keyList[ $k ] );
-					}
+					return $a[ $sortKey ] - $b[ $sortKey ];
 				}
-			}
+			);
 
-			$result = $temp_result;
+			$result = array_slice( $result, 0, $limit );
 		}
 
 		return ( count( $result ) > 0 ) ? $result : FALSE;

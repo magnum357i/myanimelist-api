@@ -17,16 +17,16 @@ class Text {
 	 * Names becomes the first-last order instead of the last-first order
 	 *
 	 * @param 		string 			$name 			A person name with a comma
-	 * @param 		string 			$mode 			Reverse mode
+	 * @param 		int 				$mode 			Reverse mode
 	 * @return 		array
 	 */
-	public function reverseName( $name, $mode='1' ) {
+	public function reverseName( $name, $mode=1 ) {
 
 		switch ( $mode ) {
 
-			case '1': return $this->replace( '(.+),\s*(.+)',            '$2 $1',    $name ); break;
-			case '2': return $this->replace( '(.+),\s*(.+)\s*(\(.+\))', '$2 $1 $3', $name ); break;
-			case '3': return $this->replace( '(.+)(\s*"[^"]+"\s*)(.+)', '$3$2$1',   $name ); break;
+			case 1: $name = $this->replace( '(.+),\s*(.+)',            '$2 $1',    $name ); break;
+			case 2: $name = $this->replace( '(.+),\s*(.+)\s*(\(.+\))', '$2 $1 $3', $name ); break;
+			case 3: $name = $this->replace( '(.+)(\s*"[^"]+"\s*)(.+)', '$3$2$1',   $name ); break;
 		}
 
 		return $name;
@@ -35,17 +35,14 @@ class Text {
 	/**
 	 * Separates the text from a character and returns it as array
 	 *
-	 * @param 		string 			$value 					A text
-	 * @param 		string 			$exp 					Seperate character
+	 * @param 		string 		$value 				A text
+	 * @param 		string 		$exp 					Seperate character
 	 * @param 		callback 		$lastChanges 			Run function before returned any value
 	 * @return 		array
 	 */
 	public function listValue( $value, $exp, callable $lastChanges ) {
 
-		if ( $value == FALSE ) {
-
-			return FALSE;
-		}
+		if ( $value == FALSE ) 	return FALSE;
 
 		$result = [];
 		$splits = explode( $exp, $value );
@@ -73,10 +70,7 @@ class Text {
 
 		$number = $this->replace( '[^0-9]+', '', $number );
 
-		if ( !$this->validate( [ 'mode' => 'number' ], $number ) ) {
-
-			return FALSE;
-		}
+		if ( !$this->validate( [ 'mode' => 'number' ], $number ) ) 	return FALSE;
 
 		return ( $number > 1000 ) ? round( $number / 1000 ) . 'K' : $number;
 	}
@@ -152,7 +146,7 @@ class Text {
 	 * Validate
 	 *
 	 * @param 		array 			$options 			Options to validate mods
-	 * @param 		string 			$text 				String to check
+	 * @param 		string 			$text 			String to check
 	 * @return 		bool
 	 */
 	public function validate( $options, $text ) {
@@ -172,10 +166,10 @@ class Text {
 	/**
 	 * Change string simply
 	 *
-	 * @param 		string 			$match 				Old value in regex format
+	 * @param 		string 			$match 			Old value in regex format
 	 * @param 		string 			$replace 			New value
 	 * @param 		string 			$str 				A text
-	 * @param 		string 			$flags 				Regex flags
+	 * @param 		string 			$flags 			Regex flags
 	 * @return 		string
 	 */
 	public function replace( $match, $replace, $str, $flags='' ) {

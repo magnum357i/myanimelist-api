@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MyAnimeList Character API
+ * MyAnimeList Character Page API
  *
  * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
@@ -9,21 +9,32 @@
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace myanimelist\Types;
+namespace myanimelist\Page;
 
-class Character extends \myanimelist\Helper\Builder {
+class Character extends \myanimelist\Builder\Page {
 
 	/**
 	 * Set type
 	 */
-	public static $type = 'character';
+	protected static $type = 'character';
 
 	/**
 	 * Methods to allow for prefix
 	 */
-	public static $methodsToAllow = [
+	protected static $methodsToAllow = [
+
 		'title',
 		'statistic'
+	];
+
+	/**
+	 * Patterns for externalLink
+	 */
+	protected static $externalLinks = [
+
+		'people'    => 'people/{s}',
+		'anime'     => 'anime/{s}',
+		'manga'     => 'manga/{s}'
 	];
 
 	/**
@@ -40,11 +51,11 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
+		$data = $this->request()::match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config->reverseName == TRUE ) $data = $this->text()->reverseName( $data, 3 );
+		if ( $this->config->isOnNameConverting() ) $data = $this->text()->reverseName( $data, 3 );
 
 		$data = $this->text()->replace( '\s*".+"\s*', ' ', $data );
 
@@ -65,11 +76,11 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '</div><h1.*?>.*?"(.*?)".*?</h1></div><div id="content" ?>' );
+		$data = $this->request()::match( '</div><h1.*?>.*?"(.*?)".*?</h1></div><div id="content" ?>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->reverseName == TRUE ) $data = $this->text()->reverseName( $data );
+		if ( $this->config()->isOnNameConverting() ) $data = $this->text()->reverseName( $data );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -107,7 +118,7 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->matchGroup( [
+		$data = $this->request()::matchGroup( [
 
 				'(https://myanimelist.cdn-dena.com/images/characters/[0-9]+/[0-9]+\.jpg)',
 				'(https://cdn.myanimelist.net/images/characters/[0-9]+/[0-9]+\.jpg)'
@@ -116,9 +127,9 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->cache == TRUE ) {
+		if ( $this->config()->isOnCache() ) {
 
-			$newPoster = $this->cache()->savePoster( $data );
+			$newPoster = $this->cache()->savePoster( $this->imageName(), $data );
 			$data      = $newPoster;
 		}
 
@@ -139,7 +150,7 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?<div.*?>.*?</div>(.*?)<div[^>]*>voice actors</div>', "<br><span>" );
+		$data = $this->request()::match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?<div.*?>.*?</div>(.*?)<div[^>]*>voice actors</div>', "<br><span>" );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -165,12 +176,13 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->match( 'member favorites:\s*([\d,]+)' );
+		$data = $this->request()::match( 'member favorites:\s*([\d,]+)' );
 
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 		$data = [
+
 			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
 			'full'   => $this->lastChanges( $data )
 		];
@@ -218,24 +230,25 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<div class="normal_header">animeography</div>.*?<table.*?(.*?)</table>',
 		'<tr>(.*?)</tr>',
-        [
-		'<a href="[^"]+/(anime/[0-9]+)/[^"]+">[^<]+</a>',
-		'<a href="[^"]+/anime/[0-9]+/[^"]+">([^<]+)</a>',
+		[
+		'<a href="[^"]+anime/(\d+)[^"]+">[^<>]+</a>',
+		'<a href="[^"]+anime/\d+[^"]+">([^<>]+)</a>',
 		'<small>([^<]+)</small>'
-        ],
-        [
-		'link',
+		],
+		[
+		'id',
 		'title',
 		'role'
-        ],
-        static::$limit,
-        TRUE
+		],
+		static::$limit,
+		NULL,
+		TRUE
 		);
 
 		return static::setValue( $key, $data );
@@ -255,24 +268,26 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<div class="normal_header">mangaography</div>.*?<table.*?(.*?)</table>',
 		'<tr>(.*?)</tr>',
-        [
-		'<a href="[^"]+/(manga/[0-9]+)/[^"]+">[^<]+</a>',
-		'<a href="[^"]+/manga/[0-9]+/[^"]+">([^<]+)</a>',
+		[
+		'<a href="[^"]+manga/(\d+)[^"]+">[^<>]+</a>',
+		'<a href="[^"]+manga/\d+[^"]+">([^<>]+)</a>',
 		'<small>([^<]+)</small>'
-        ],
-        [
-		'link',
+		],
+		[
+		'id',
 		'title',
 		'role'
-        ],
-        static::$limit,
-        TRUE
+		],
+		static::$limit,
+		NULL,
+		TRUE,
+		'id'
 		);
 
 		return static::setValue( $key, $data );
@@ -293,23 +308,23 @@ class Character extends \myanimelist\Helper\Builder {
 
 		if ( !$this->request()->isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'voice actors</div>(.+</table>.*<br>)',
 		'<tr>(.*?)</tr>',
-        [
-		'<a href="[^"]+/(people/[0-9]+)/[^"]+">[^<]+</a>.*?<div[^>]+><small>' . $lang . '</small>',
-		'<a href="[^"]+/people/[0-9]+/[^"]+">([^<]+)</a>.*?<div[^>]+><small>' . $lang . '</small>',
-		'<a href="[^"]+/people/[0-9]+/[^"]+">[^<]+</a>.*?<div[^>]+><small>(' . $lang . ')</small>'
-        ],
-        [
-		'people_link',
-		'people_name',
-		'people_lang'
-        ],
-        static::$limit
+		[
+		'<a href="[^"]+people/(\d+)[^"]+">[^<]+</a>.*?<div[^>]+><small>' . $lang . '</small>',
+		'<a href="[^"]+people/\d+[^"]+">([^<]+)</a>.*?<div[^>]+><small>' . $lang . '</small>',
+		'<a href="[^"]+people/\d+[^"]+">[^<]+</a>.*?<div[^>]+><small>(' . $lang . ')</small>'
+		],
+		[
+		'id',
+		'name',
+		'lang'
+		],
+		static::$limit
 		);
 
 		return static::setValue( $key, $data );
@@ -323,12 +338,6 @@ class Character extends \myanimelist\Helper\Builder {
 	 */
 	protected function _link() {
 
-		$key = 'link';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()->isSent() ) return FALSE;
-
-		return static::setValue( 'link', $this->lastChanges( $this->request()::$url ) );
+		return $this->lastChanges( $this->request()::$url );
 	}
 }

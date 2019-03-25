@@ -4,11 +4,11 @@ use PHPUnit\Framework\TestCase;
 
 class TestPeople extends TestCase {
 
-	public function testGetPeopleData() {
+	public function testGetPeoplePage() {
 
-		$mal = new myanimelist\Types\People( 75 );
+		$mal = new \myanimelist\Page\People( 75 );
 
-		$mal->get();
+		$mal->sendRequestOrGetData();
 
 		$success = TRUE;
 

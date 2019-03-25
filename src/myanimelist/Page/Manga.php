@@ -1,7 +1,7 @@
 <?php
 
 /**
- * MyAnimeList Manga API
+ * MyAnimeList Manga Page API
  *
  * @package	 		MyAnimeList API
  * @author     		Magnum357 [https://github.com/magnum357i/]
@@ -9,24 +9,38 @@
  * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
-namespace myanimelist\Types;
+namespace myanimelist\Page;
 
-class Manga extends \myanimelist\Helper\Builder {
+class Manga extends \myanimelist\Builder\Page {
 
 	/**
 	 * Set type
 	 */
-	public static $type = 'manga';
+	protected static $type = 'manga';
 
 	/**
 	 * Methods to allow for prefix
 	 */
-	public static $methodsToAllow = [
+	protected static $methodsToAllow = [
+
 		'title',
 		'score',
 		'statistic',
 		'related',
 		'published' => [ 'first', 'last' ]
+	];
+
+	/**
+	 * Patterns for externalLink
+	 */
+	protected static $externalLinks = [
+
+		'genre'     => 'manga/genre/{s}',
+		'magazine'  => 'manga/magazine/{s}',
+		'character' => 'character/{s}',
+		'people'    => 'people/{s}',
+		'anime'     => 'anime/{s}',
+		'manga'     => 'manga/{s}'
 	];
 
 	/**
@@ -41,9 +55,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span itemprop="name">(.*?)</span>' );
+		$data = $this->request()::match( '<span itemprop="name">(.*?)</span>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -60,9 +74,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">english:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">english:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -79,9 +93,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">japanese:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">japanese:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -98,9 +112,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchGroup( [
+		$data = $this->request()::matchGroup( [
 
 				'(https://myanimelist.cdn-dena.com/images/manga/[0-9]+/[0-9]+\.jpg)',
 				'(https://cdn.myanimelist.net/images/manga/[0-9]+/[0-9]+\.jpg)'
@@ -109,9 +123,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->cache == TRUE ) {
+		if ( $this->config()->isOnCache() ) {
 
-			$newPoster = $this->cache()->savePoster( $data );
+			$newPoster = $this->cache()->savePoster( $this->imageName(), $data );
 			$data      = $newPoster;
 		}
 
@@ -130,9 +144,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span itemprop="description">(.*?)</span>', '<br>' );
+		$data = $this->request()::match( '<span itemprop="description">(.*?)</span>', '<br>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -153,9 +167,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">type:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">type:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -172,9 +186,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( 'scored by <span itemprop="ratingCount">(.*?)</span> users' );
+		$data = $this->request()::match( 'scored by <span itemprop="ratingCount">(.*?)</span> users' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -226,9 +240,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchGroup( [
+		$data = $this->request()::matchGroup( [
 
 				'<span class="dark_text">score:</span>(.*?)<sup>',
 				'<span itemprop="ratingValue">(.*?)</span>'
@@ -256,9 +270,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">ranked:</span>(.*?)<sup>' );
+		$data = $this->request()::match( '<span class="dark_text">ranked:</span>(.*?)<sup>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -288,21 +302,21 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<span class="dark_text">genres:</span>(.*?)</div>',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+genre/(\d+)[^"]+"[^>]+>.*?</a>',
 		'<a href="[^"]+"[^>]+>(.*?)</a>'
 		],
 		[
-		'link',
-		'name'
+		'id',
+		'title'
 		],
 		static::$limit
 		);
@@ -322,9 +336,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">popularity:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">popularity:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -349,9 +363,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">members:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">members:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -403,9 +417,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">favorites:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">favorites:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -457,9 +471,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">status:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">status:</span>(.*?)</div>' );
 
 		return static::setValue( $key, $this->lastChanges( $data ) );
 	}
@@ -476,20 +490,25 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">authors:</span>(.*?)</div>' );
-
-		if ( $data == FALSE ) return FALSE;
-
-		$data = $this->text()->listValue( $data, '),', [ $this, 'lastChanges' ] );
-
-		foreach ( $data as &$value )
-		{
-			if ( end( $data ) != $value ) $value = $value . ')';
-
-			if ( $this->config()->reverseName == TRUE ) $value = $this->text()->reverseName( $value, '2' );
-		}
+		$data = $this->request()::matchTable(
+		[ $this, 'lastChanges' ],
+		$this->config(),
+		$this->text(),
+		'<span class="dark_text">authors:</span>(.*?)</div>',
+		'(<a[^>]+>.*?</a>[^<,]+)',
+		[
+		'<a href="[^"]+people/(\d+)[^"]+">.*?</a>',
+		'<a href="[^"]+people/\d+[^"]+">(.*?)</a>',
+		'<a href="[^"]+people/\d+[^"]+">.*?</a>\s+\(([^)]+)\)'
+		],
+		[
+		'id',
+		'name',
+		'job'
+		]
+		);
 
 		return static::setValue( $key, $data );
 	}
@@ -506,9 +525,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match('<span class="dark_text">volumes:</span>(.*?)</div>');
+		$data = $this->request()::match('<span class="dark_text">volumes:</span>(.*?)</div>');
 
 		if ( $data == FALSE OR !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
 
@@ -527,9 +546,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">chapters:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">chapters:</span>(.*?)</div>' );
 
 		if ( $data == FALSE OR !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
 
@@ -548,21 +567,21 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<span class="dark_text">serialization:</span>(.*?)</div>',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="/([^"]+)"[^>]+>.*?</a>',
+		'<a href="[^"]+manga/magazine/(\d+)[^"]+"[^>]+>.*?</a>',
 		'<a href="[^"]+"[^>]+>(.*?)</a>'
 		],
 		[
-		'link',
-		'name'
+		'id',
+		'title'
 		],
 		static::$limit
 		);
@@ -582,11 +601,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">published:</span>(.*?)</div>' );
-
-		if ( $data == FALSE OR $this->text()->validate( [ 'mode' => 'count', 'max_len' => 100 ], $data ) ) return FALSE;
+		$data = $this->request()::match( '<span class="dark_text">published:</span>(.*?)</div>' );
 
 		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)\s*to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)/', $data, $out );
 
@@ -726,9 +743,9 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->match( '<span class="dark_text">published:</span>(.*?)</div>' );
+		$data = $this->request()::match( '<span class="dark_text">published:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -753,23 +770,23 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'</div>characters</h2><div.*?">(.+?</table>)</div></div>',
 		'<table[^>]*>(.*?)</table>',
 		[
-		'<a href="[^"]+/(character/[0-9]+)/[^"]+">[^<]+</a>',
-		'<a href="[^"]+/character/[0-9]+/[^"]+">([^<]+)</a>',
+		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>',
+		'<a href="[^"]+character/\d+[^"]+">([^<]+)</a>',
 		'<small>([^<]+)</small>'
 		],
 		[
-		'character_link',
-		'character_name',
-		'character_role'
+		'id',
+		'name',
+		'role'
 		],
 		static::$limit
 		);
@@ -789,20 +806,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>adaptation:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+anime/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -823,20 +840,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>sequel:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -857,20 +874,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>prequel:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -891,20 +908,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>parent story:</td>.*?(<td.*?>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -925,20 +942,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>side story:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -959,20 +976,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>other:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -993,20 +1010,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>spin\-off:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -1027,20 +1044,20 @@ class Manga extends \myanimelist\Helper\Builder {
 
 		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
 
-		if ( !$this->request()->isSent() ) return FALSE;
+		if ( !$this->request()::isSent() ) return FALSE;
 
-		$data = $this->request()->matchTable(
+		$data = $this->request()::matchTable(
 		[ $this, 'lastChanges' ],
 		$this->config(),
 		$this->text(),
 		'<td.*?>alternative version:</td>.*?(<td[^>]*>.*?</td>)',
 		'(<a href=[^>]+>.*?</a>)',
 		[
-		'<a href="[^"]*/(anime/[0-9]+|manga/[0-9]+)[^"]*">.*?</a>',
+		'<a href="[^"]+manga/(\d+)[^"]+">.*?</a>',
 		'<a href="[^"]+">(.*?)</a>'
 		],
 		[
-		'link',
+		'id',
 		'title'
 		],
 		static::$limit
@@ -1057,12 +1074,6 @@ class Manga extends \myanimelist\Helper\Builder {
 	 */
 	protected function _link() {
 
-		$key = 'link';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()->isSent() ) return FALSE;
-
-		return static::setValue( 'link', $this->lastChanges( $this->request()::$url ) );
+		return $this->lastChanges( $this->request()::$url );
 	}
 }
