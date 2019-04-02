@@ -3,6 +3,9 @@
 ![](https://img.shields.io/github/license/magnum357i/myanimelist-api.svg)
 
 # myanimelist-api
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/62f62a2e43e140efb0fa1702e6f171c5)](https://app.codacy.com/app/magnum357i/myanimelist-api?utm_source=github.com&utm_medium=referral&utm_content=magnum357i/myanimelist-api&utm_campaign=Badge_Grade_Dashboard)
+
 This is an api developed to get information from pages of anime, manga, character and people on MyAnimelist. It works by scanning the html code of the page requested, so this library crashes when it changes.
 
 # Required
