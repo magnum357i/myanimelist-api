@@ -52,7 +52,7 @@ class Cache {
 	 */
 	public function __construct( $type, $folders=[] ) {
 
-		foreach( $this->folders as $k => $v ) $this->folders[ $k ] = $folders[ $k ];
+		foreach( $this->folders as $key => $value ) $this->folders[ $key ] = $folders[ $key ];
 
 		$this->type = $type;
 
@@ -91,9 +91,9 @@ class Cache {
 	public function checkFile( $fileName ) {
 
 		$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
-		$f    = $this->fixSeparator( $path . '/' . $fileName . '.json' );
+		$file = $this->fixSeparator( $path . '/' . $fileName . '.json' );
 
-		return ( file_exists( $f ) ) ? TRUE : FALSE;
+		return ( file_exists( $file ) ) ? TRUE : FALSE;
 	}
 
 	/**
@@ -125,12 +125,12 @@ class Cache {
 	 */
 	public function readFile( $fileName ) {
 
-		$path    = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
-		$f       = $this->fixSeparator( $path . '/' . $fileName . '.json' );
+		$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
+		$file = $this->fixSeparator( $path . '/' . $fileName . '.json' );
 
 		try {
 
-			$content = json_decode( file_get_contents( $f ), TRUE );
+			$content = json_decode( file_get_contents( $file ), TRUE );
 		}
 		catch ( \Exception $e ) {
 
@@ -154,11 +154,11 @@ class Cache {
 
 		if ( !file_exists( $path ) ) mkdir( $path, 0777, TRUE );
 
-		$f = $this->fixSeparator( $path . '/' . $fileName . '.json' );
+		$file = $this->fixSeparator( $path . '/' . $fileName . '.json' );
 
 		try {
 
-			file_put_contents( $f, json_encode( $content ) );
+			file_put_contents( $file, json_encode( $content ) );
 		}
 		catch ( \Exception $e ) {
 
@@ -194,10 +194,8 @@ class Cache {
 
 			mkdir( $path, 0777, TRUE );
 		}
-		else {
 
-			if ( $overWrite == FALSE AND file_exists( $f ) == TRUE ) return NULL;
-		}
+		if ( $overWrite == FALSE AND file_exists( $f ) == TRUE ) return NULL;
 
 		try {
 
@@ -208,6 +206,8 @@ class Cache {
 			throw new \Exception( "[MyAnimeList Cache Error] {$e}" );
 		}
 
-		return $this->fixSeparator( str_replace( $this->fixSeparator( $_SERVER[ 'DOCUMENT_ROOT' ] ), '', $path ) . '/' . $fileName );
+		$documentRoot = $_SERVER[ 'DOCUMENT_ROOT' ];
+
+		return $this->fixSeparator( str_replace( $this->fixSeparator( $documentRoot ), '', $path ) . '/' . $fileName );
 	}
 }

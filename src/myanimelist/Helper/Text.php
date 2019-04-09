@@ -37,10 +37,9 @@ class Text {
 	 *
 	 * @param 		string 		$value 				A text
 	 * @param 		string 		$exp 					Seperate character
-	 * @param 		callback 		$lastChanges 			Run function before returned any value
 	 * @return 		array
 	 */
-	public function listValue( $value, $exp, callable $lastChanges ) {
+	public function listValue( $value, $exp ) {
 
 		if ( $value == FALSE ) 	return FALSE;
 
@@ -53,7 +52,7 @@ class Text {
 
 			if ( \strlen( $split ) > 0 and $split != "..." and $split != "&nbsp;" ) {
 
-				$result[] = call_user_func( $lastChanges, $split );
+				$result[] = $split;
 			}
 		}
 
@@ -90,53 +89,39 @@ class Text {
 		$desc = $this->replace( '\s*Included one\-shot.+',       '', $desc, 'si' );
 		$desc = $this->replace( 'this series is on hiatus.+',    '', $desc, 'si' );
 
-		# Br tags
+		$maxSearch     = 10;
+		$count         = 1;
+		$patternSearch = '<br \/>\s*$';
 
-		// Search for br tag in start and begin of desc
+		while ( $count < $maxSearch ) {
 
-		$removelastbr_maxcount = 10;
+			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $patternSearch ], $desc ) ) {
 
-		$removelastbr_count    = 1;
-		$removelastbr_pattern  = '<br \/>\s*$';
-
-		// Remove br tags in start of desc
-
-		while ( $removelastbr_count < $removelastbr_maxcount ) {
-
-			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $removelastbr_pattern ], $desc ) ) {
-
-				$desc = $this->replace( $removelastbr_pattern, '', $desc, 'si' );
+				$desc = $this->replace( $patternSearch, '', $desc, 'si' );
 			}
 			else {
 
 				break;
 			}
 
-			$removelastbr_count++;
+			$count++;
 		}
 
-		// Reset counter
+		$count         = 1;
+		$patternSearch = '^\s*<br \/>\s*';
 
-		$removelastbr_count    = 1;
+		while ( $count < $maxSearch ) {
 
-		// New pattern for end
+			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $patternSearch ], $desc ) ) {
 
-		$removelastbr_pattern = '^\s*<br \/>\s*';
-
-		// Remove br tags in end of desc
-
-		while ( $removelastbr_count < $removelastbr_maxcount ) {
-
-			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $removelastbr_pattern ], $desc ) ) {
-
-				$desc = $this->replace( $removelastbr_pattern, '', $desc, 'si' );
+				$desc = $this->replace( $patternSearch, '', $desc, 'si' );
 			}
 			else {
 
 				break;
 			}
 
-			$removelastbr_count++;
+			$count++;
 		}
 
 		return ( !$this->validate( [ 'mode' => 'count', 'max_len' => 20 ], $desc ) ) ? FALSE : $desc;
@@ -153,7 +138,7 @@ class Text {
 
 		switch ( $options[ 'mode' ] ) {
 
-			case 'regex':  return preg_match( '/' . $options[ 'regex_code' ] . '/' . ( isset( $options[ 'regex_flags' ] ) ? $options[ 'regex_flags' ] : '' ), $text, $result ) ? TRUE : FALSE; break;
+			case 'regex':  return preg_match( '/' . $options[ 'regex_code' ] . '/' . ( isset( $options[ 'regex_flags' ] ) ? $options[ 'regex_flags' ] : '' ), $text ); break;
 
 			case 'number': return ( is_numeric( $text ) ) ? TRUE : FALSE; break;
 

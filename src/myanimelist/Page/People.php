@@ -21,35 +21,18 @@ class People extends \myanimelist\Builder\Page {
 	/**
 	 * Methods to allow for prefix
 	 */
-	protected static $methodsToAllow = [
-
-		'statistic'
-	];
+	protected static $methodsToAllow = [ 'statistic', 'recent' ];
 
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [
-
-		'character' => 'character/{s}',
-		'people'    => 'people/{s}',
-		'anime'     => 'anime/{s}',
-		'manga'     => 'manga/{s}'
-	];
+	protected static $externalLinks = [ 'character' => 'character/{s}', 'people' => 'people/{s}', 'anime' => 'anime/{s}', 'manga' => 'manga/{s}' ];
 
 	/**
-	 * Get name
-	 *
 	 * @return 		string
 	 * @usage 		name
 	 */
-	protected function _name() {
-
-		$key = 'name';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
+	protected function getNameFromData() {
 
 		$data = $this->request()::match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
 
@@ -57,226 +40,136 @@ class People extends \myanimelist\Builder\Page {
 
 		if ( $this->config()->isOnNameConverting() ) $data = $this->text()->reverseName( $data );
 
-		return static::setValue( $key, $this->lastChanges( $data ) );
+		return $data;
 	}
 
 	/**
-	 * Get poster
-	 *
 	 * @return 		string
 	 * @usage 		poster
 	 */
-	protected function _poster() {
+	protected function getPosterFromData() {
 
-		$key = 'poster';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchGroup( [
-
-				'(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)',
-				'(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)'
-			]
-		);
+		$data = $this->request()::match( [ '(https://myanimelist.cdn-dena.com/images/voiceactors/[0-9]+/[0-9]+\.jpg)', '(https://cdn.myanimelist.net/images/voiceactors/[0-9]+/[0-9]+\.jpg)' ] );
 
 		if ( $data == FALSE ) return FALSE;
 
 		if ( $this->config()->isOnCache() ) {
 
-			$newPoster = $this->cache()->savePoster( $this->imageName(), $data );
+			$newPoster = $this->cache()->savePoster( $this->getImageName(), $data );
 			$data      = $newPoster;
 		}
 
-		return static::setValue( $key, $this->lastChanges( $data ) );
+		return $data;
 	}
 
 	/**
-	 * Get description
-	 *
 	 * @return 		string
 	 * @usage 		description
 	 */
-	protected function _description() {
+	protected function getDescriptionFromData() {
 
-		$key = 'description';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::match( '<span class="dark_text">more:</span></div><div[^>]+">(.*?)</div>.*?</td>', '<br>', 'si' );
+		$data = $this->request()::match( '<span class="dark_text">more:</span></div><div[^>]+">(.*?)</div>.*?</td>', '<br>' );
 
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^\n]+:[^\n]+', '', $data, 'si' );
 		$data = $this->text()->descCleaner( $data );
 
-		return static::setValue( $key, $this->lastChanges( $data ) );
+		return $data;
 	}
 
 	/**
-	 * Get category
-	 *
 	 * @return 		string
 	 * @usage 		category
 	 */
-	protected function _category() {
+	protected function getCategoryFromData() {
 
-		$key = 'category';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = 'people';
-
-		return static::setValue( $key, $this->lastChanges( $data ) );
+		return 'people';
 	}
 
 	/**
-	 * Get favorite
-	 *
 	 * @return 		array
 	 * @usage 		favorite
 	 */
 	protected function favorite() {
-
-		$key = 'favorite';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
 
 		$data = $this->request()::match( '<span class="dark_text">member favorites:</span>(.*?)</div>' );
 
 		if ( $data == FALSE ) return FALSE;
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
-		$data = [
 
-			'simple' => $this->lastChanges( $this->text()->formatK( $data ) ),
-			'full'   => $this->lastChanges( $data )
-		];
-
-		return static::setValue( $key, $this->lastChanges( $data ) );
+		return $data;
 	}
 
 	/**
-	 * Get number with K of favorite
-	 *
 	 * @return 		string
 	 * @usage 		statistic()->favorite
 	 */
-	protected function _statisticfavorite() {
+	protected function getFavoriteWithStatisticFromData() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
+		$data = $this->getFavoriterawWithStatisticFromData();
 
-		return ( isset( static::$data[ 'favorite' ][ 'simple' ] ) ) ? static::$data[ 'favorite' ][ 'simple' ] : FALSE;
+		if ( $data == FALSE ) return FALSE;
+
+		return $this->text()->formatK( $data );
 	}
 
 	/**
-	 * Get number without K of favorite
-	 *
 	 * @return 		string
 	 * @usage 		statistic()->favoriteraw
 	 */
-	protected function _statisticfavoriteraw() {
+	protected function getFavoriterawWithStatisticFromData() {
 
-		if ( !isset( static::$data[ 'favorite' ] ) ) $this->favorite();
-
-		return ( isset( static::$data[ 'favorite' ][ 'full' ] ) ) ? static::$data[ 'favorite' ][ 'full' ] : FALSE;
+		return $this->favorite();
 	}
 
 	/**
-	 * Get recent voice actiong roles
-	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		recentvoice
 	 */
-	protected function _recentvoice() {
+	protected function getVoiceWithRecentFromData() {
 
-		$key = 'recentvoice';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
-		'voice acting roles</div><table.*?>(.+?)</table>',
-		'<tr>(.*?)</tr>',
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'voice acting roles</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>',
-		'<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>',
-		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>',
-		'<a href="[^"]+character/\d+[^"]+">([^<]+)</a>'
+		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>',
+		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+character/\d+[^"]+">([^<]+)</a>'
 		],
 		[
-		'anime_id',
-		'anime_title',
-		'character_id',
-		'character_name'
+		'anime_id', 'anime_title',
+		'character_id', 'character_name'
 		],
-		static::$limit,
-		NULL,
-		TRUE,
-		'anime_id'
+		static::$limit, NULL, TRUE, 'anime_id'
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
-	 * Get recent works
-	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		recentwork
 	 */
-	protected function _recentwork() {
+	protected function getWorkWithRecentFromData() {
 
-		$key = 'recentwork';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
-		'anime staff positions</div><table.*?>(.+?)</table>',
-		'<tr>(.*?)</tr>',
-		[
-		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>',
-		'<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>',
-		'<small>([^<]+)</small>'
-		],
-		[
-		'id',
-		'title',
-		'work'
-		],
-		static::$limit,
-		NULL,
-		TRUE,
-		'id'
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'anime staff positions</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
+		[ '<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', '<small>([^<]+)</small>' ],
+		[ 'id', 'title', 'work' ],
+		static::$limit, NULL, TRUE, 'id'
 		);
 
-		return static::setValue( $key, $data );
+		return $data;
 	}
 
 	/**
-	 * Get link of the request page
-	 *
 	 * @return 		string
 	 * @usage 		link
 	 */
-	protected function _link() {
+	public function link() {
 
-		return $this->lastChanges( $this->request()::$url );
+		return $this->request()::$url;
 	}
 }

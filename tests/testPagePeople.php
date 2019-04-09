@@ -12,13 +12,13 @@ class testPagePeople extends TestCase {
 
 		$success = TRUE;
 
-		if ( !$mal->isSuccess() )                         $success = FALSE;
-		if ( $mal->name === FALSE )                       $success = FALSE;
-		if ( $mal->poster === FALSE )                     $success = FALSE;
-		if ( $mal->description === FALSE )                $success = FALSE;
-		if ( $mal->statistic()->favorite === FALSE )      $success = FALSE;
-		if ( $mal->setLimit( 5 )->recentvoice === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 5 )->recentwork === FALSE )  $success = FALSE;
+		if ( !$mal->isSuccess() )                             $success = FALSE;
+		if ( $mal->name === FALSE )                           $success = FALSE;
+		if ( $mal->poster === FALSE )                         $success = FALSE;
+		if ( $mal->description === FALSE )                    $success = FALSE;
+		if ( $mal->statistic()->favorite === FALSE )          $success = FALSE;
+		if ( $mal->setLimit( 5 )->recent()->voice === FALSE ) $success = FALSE;
+		if ( $mal->setLimit( 5 )->recent()->work === FALSE )  $success = FALSE;
 
 		$this->assertTrue( $success );
 	}

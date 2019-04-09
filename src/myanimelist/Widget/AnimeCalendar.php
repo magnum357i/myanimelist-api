@@ -21,27 +21,7 @@ class AnimeCalendar extends \myanimelist\Builder\Widget {
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [
-
-		'genre'     => 'anime/genre/{s}',
-		'producer'  => 'anime/producer/{s}',
-		'anime'     => 'anime/{s}'
-	];
-
-	/**
-	 * Edits poster
-	 *
-	 * @return 		array
-	 */
-	public function custom_poster( $value ) {
-
-		if ( $this->text()->validate( [ 'mode' => 'regex', 'regex_code' => 'anime\/\d+' ], $value ) ) {
-
-			return $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $value, 'poster' );
-		}
-
-		return NULL;
-	}
+	protected static $externalLinks = [ 'genre' => 'anime/genre/{s}', 'producer' => 'anime/producer/{s}', 'anime' => 'anime/{s}' ];
 
 	/**
 	 * Edits studios
@@ -64,8 +44,8 @@ class AnimeCalendar extends \myanimelist\Builder\Widget {
 
 			$rows[] = [
 
-				'id'    => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
-				'title' => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
+				'id'    => $this->request()::reflection( $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
+				'title' => $this->request()::reflection( $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
 			];
 		}
 
@@ -91,8 +71,8 @@ class AnimeCalendar extends \myanimelist\Builder\Widget {
 
 			$rows[] = [
 
-				'id'    => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
-				'title' => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
+				'id'    => $this->request()::reflection( $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
+				'title' => $this->request()::reflection( $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
 			];
 		}
 
@@ -102,316 +82,183 @@ class AnimeCalendar extends \myanimelist\Builder\Widget {
 	/**
 	 * Get anime list of monday
 	 *
-	 * @return 		string
-	 * @usage 		tvnew
+	 * @return 		array
+	 * @usage 		monday
 	 */
-	protected function _monday() {
+	protected function getMondayFromData() {
 
-		$key = 'monday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*monday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of tuesday
 	 *
-	 * @return 		string
-	 * @usage 		tvnew
+	 * @return 		array
+	 * @usage 		tuesday
 	 */
-	protected function _tuesday() {
+	protected function getTuesdayFromData() {
 
-		$key = 'tuesday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*tuesday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of wednesday
 	 *
-	 * @return 		string
-	 * @usage 		tvnew
+	 * @return 		array
+	 * @usage 		wednesday
 	 */
-	protected function _wednesday() {
+	protected function getWednesdayFromData() {
 
-		$key = 'wednesday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*wednesday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of thursday
 	 *
-	 * @return 		string
-	 * @usage 		tvnew
+	 * @return 		array
+	 * @usage 		thursday
 	 */
-	protected function _thursday() {
+	protected function getThursdayFromData() {
 
-		$key = 'thursday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*thursday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of friday
 	 *
 	 * @return 		string
-	 * @usage 		tvnew
+	 * @usage 		friday
 	 */
-	protected function _friday() {
+	protected function getFridayFromData() {
 
-		$key = 'friday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*friday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of saturday
 	 *
 	 * @return 		string
-	 * @usage 		tvnew
+	 * @usage 		saturday
 	 */
-	protected function _saturday() {
+	protected function getSaturdayFromData() {
 
-		$key = 'saturday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*saturday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of sunday
 	 *
 	 * @return 		string
-	 * @usage 		tvnew
+	 * @usage 		sunday
 	 */
-	protected function _sunday() {
+	protected function getSundayFromData() {
 
-		$key = 'sunday';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*sunday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -420,8 +267,8 @@ class AnimeCalendar extends \myanimelist\Builder\Widget {
 	 * @return 		string
 	 * @usage 		link
 	 */
-	protected function _link() {
+	public function link() {
 
-		return $this->lastChanges( $this->request()::$url );
+		return $this->request()::$url;
 	}
 }

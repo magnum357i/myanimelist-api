@@ -6,7 +6,7 @@ class testPageManga extends TestCase {
 
 	public function testGetMangaPage() {
 
-		$mal = new \myanimelist\Page\Manga( 20 );
+		$mal = new \myanimelist\Page\Manga( 22 );
 
 		$mal->sendRequestOrGetData();
 
@@ -16,6 +16,7 @@ class testPageManga extends TestCase {
 		if ( $mal->title()->original === FALSE )                    $success = FALSE;
 		if ( $mal->title()->english === FALSE )                     $success = FALSE;
 		if ( $mal->title()->japanese === FALSE )                    $success = FALSE;
+		if ( $mal->title()->sysnonmys === FALSE )                   $success = FALSE;
 		if ( $mal->poster === FALSE )                               $success = FALSE;
 		if ( $mal->description === FALSE )                          $success = FALSE;
 		if ( $mal->status === FALSE )                               $success = FALSE;

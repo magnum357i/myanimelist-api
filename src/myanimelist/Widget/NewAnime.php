@@ -21,27 +21,7 @@ class NewAnime extends \myanimelist\Builder\Widget {
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [
-
-		'genre'     => 'anime/genre/{s}',
-		'producer'  => 'anime/producer/{s}',
-		'anime'     => 'anime/{s}'
-	];
-
-	/**
-	 * Edits poster
-	 *
-	 * @return 		array
-	 */
-	public function custom_poster( $value ) {
-
-		if ( $this->text()->validate( [ 'mode' => 'regex', 'regex_code' => 'anime\/\d+' ], $value ) ) {
-
-			return $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $value, 'poster' );
-		}
-
-		return NULL;
-	}
+	protected static $externalLinks = [ 'genre' => 'anime/genre/{s}', 'producer' => 'anime/producer/{s}', 'anime' => 'anime/{s}' ];
 
 	/**
 	 * Edits studios
@@ -64,8 +44,8 @@ class NewAnime extends \myanimelist\Builder\Widget {
 
 			$rows[] = [
 
-				'id'    => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
-				'title' => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
+				'id'    => $this->request()::reflection( $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
+				'title' => $this->request()::reflection( $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
 			];
 		}
 
@@ -91,8 +71,8 @@ class NewAnime extends \myanimelist\Builder\Widget {
 
 			$rows[] = [
 
-				'id'    => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
-				'title' => $this->request()::reflection( [ $this, 'lastChanges' ], $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
+				'id'    => $this->request()::reflection( $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
+				'title' => $this->request()::reflection( $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
 			];
 		}
 
@@ -102,226 +82,158 @@ class NewAnime extends \myanimelist\Builder\Widget {
 	/**
 	 * Get anime list of tv new
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		tvnew
 	 */
-	protected function _tvnew() {
+	protected function getTvnewFromData() {
 
-		$key = 'tvnew';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*tv\s*\(new\)\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ],
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
+	}
 
-		return static::setValue( $key, $data );
+
+	/**
+	 * Get anime list of tv continuing
+	 *
+	 * @return 		array
+	 * @usage 		tvcontinuing
+	 */
+	protected function getTvcontinuingFromData() {
+
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'<div class="anime-header">\s*tv\s*\(continuing\)\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
+		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
+		[
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
+		],
+		[
+		'id', 'title', 'poster',
+		'studios', 'genres'
+		],
+		static::$limit,
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		);
 	}
 
 	/**
 	 * Get anime list of ona
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		ona
 	 */
-	protected function _ona() {
+	protected function getOnaFromData() {
 
-		$key = 'ona';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*ona\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ]
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of ova
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		ova
 	 */
-	protected function _ova() {
+	protected function getOvaFromData() {
 
-		$key = 'ova';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*ova\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>' 
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ]
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of movie
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		movie
 	 */
-	protected function _movie() {
+	protected function getMovieFromData() {
 
-		$key = 'movie';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*movie\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ]
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
 	 * Get anime list of special
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		special
 	 */
-	protected function _special() {
+	protected function getSpecialFromData() {
 
-		$key = 'special';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
 		'<div class="anime-header">\s*special\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)\s*</div>\s*</div>',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+"',
-		'<p class="title-text">(.*?)</p>',
-		'<img.*?src="(.*?)".*?>',
-		'<span class="producer">(.*?)</span>',
-		'<div class="genres-inner js-genre-inner">(.*?)</div>'
+		'<a href="[^"]+anime/(\d+)[^"]+"', '<p class="title-text">(.*?)</p>', '<img.*?src="([^"]+images/anime[^"]+)".*?>',
+		'<span class="producer">(.*?)</span>', '<div class="genres-inner js-genre-inner">(.*?)</div>'
 		],
 		[
-		'id',
-		'title',
-		'poster',
-		'studios',
-		'genres'
+		'id', 'title', 'poster',
+		'studios', 'genres'
 		],
 		static::$limit,
-		[
-		'poster'  => [ $this, 'custom_poster' ],
-		'studios' => [ $this, 'custom_studios' ],
-		'genres'  => [ $this, 'custom_genres' ]
-		]
+		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -330,8 +242,8 @@ class NewAnime extends \myanimelist\Builder\Widget {
 	 * @return 		string
 	 * @usage 		link
 	 */
-	protected function _link() {
+	public function link() {
 
-		return $this->lastChanges( $this->request()::$url );
+		return $this->request()::$url;
 	}
 }

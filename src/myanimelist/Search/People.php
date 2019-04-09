@@ -21,45 +21,24 @@ class People extends \myanimelist\Builder\Search {
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [
-
-		'people' => 'people/{s}'
-	];
+	protected static $externalLinks = [ 'people' => 'people/{s}' ];
 
 	/**
 	 * Get results
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		results
 	 */
-	protected function _results() {
+	protected function getResultsFromData() {
 
-		$key = 'results';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
-		'search results(.*?</table>)',
-		'<tr>(.*?)</tr>',
-		[
-		'<a[^>]+href="[^"]+people/(\d+)[^"]+">[^<]+</a>',
-		'<a[^>]+href="[^"]+people/\d+[^"]+">([^<]+)</a>',
-		'<img[^>]+src="([^"]+)"[^>]*>'
-		],
-		[
-		'id',
-		'name',
-		'poster'
-		],
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'search results(.*?</table>)', '<tr>(.*?)</tr>',
+		[ '<a[^>]+href="[^"]+people/(\d+)[^"]+">[^<]+</a>', '<a[^>]+href="[^"]+people/\d+[^"]+">([^<]+)</a>', '<img[^>]+src="([^"]+images/voiceactors[^"]+)"[^>]*>' ],
+		[ 'id', 'name', 'poster' ],
 		static::$limit
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -68,8 +47,8 @@ class People extends \myanimelist\Builder\Search {
 	 * @return 		string
 	 * @usage 		link
 	 */
-	protected function _link() {
+	public function link() {
 
-		return $this->lastChanges( $this->request()::$url );
+		return $this->request()::$url;
 	}
 }

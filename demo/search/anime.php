@@ -53,7 +53,7 @@ if ( \$mal->results !== FALSE ) {
 
 		echo '<li class="list-group-item" style="background: none;">';
 
-		if ( \$result[ 'poster' ] ) {
+		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 		}
@@ -77,20 +77,13 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link()</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
 
 	$output = <<<EX
 
-if ( \$mal->link !== FALSE ) {
-
-	echo "<a href=\"{\$mal->link}\" target=\"_blank\">{\$mal->link}</a>";
-}
-else {
-
-	echo '<span class="text-danger">Not found.</span>';
-}
+	echo "<a href=\"{\$mal->link()}\" target=\"_blank\">{\$mal->link()}</a>";
 EX;
 
 	eval( $output );

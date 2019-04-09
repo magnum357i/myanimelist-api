@@ -95,55 +95,53 @@ class Request {
 	/**
 	 * Create url to request
 	 *
-	 * @param 		string 			$u 				Url without the site name
+	 * @param 		string 			$query 			Url without the site name
 	 * @return 		void
 	 */
-	public function createUrl( $u ) {
+	public function createUrl( $query ) {
 
-		static::$url = static::SITE . $u;
+		static::$url = static::SITE . $query;
 	}
 
 	/**
 	 * Match string from raw html
 	 *
-	 * @param 		string 		$template  				Regex code for match ( except the start and end character )
+	 * @param 		string 		$templates 				Regex template or templates
 	 * @param 		bool 			$allowTags 				Which tags should not be deleted?
+	 * @param 		bool 			$clean 				Strip value
+	 * @param 		bool 			$content 				Html content
 	 * @return 		string
 	 */
-	public static function match( $template, $allowTags=NULL ) {
+	public static function match( $templates, $allowTags=NULL, $clean=TRUE, $content=NULL ) {
 
-		preg_match( '@' . $template . '@si', static::$content, $result );
+		if ( !is_array( $templates ) ) {
 
-		if ( isset( $result[ 1 ] ) ) {
-
-			$m = $result[ 1 ];
-			$m = ( $allowTags != NULL ) ? strip_tags( $m, $allowTags ) : strip_tags( $m );
-			$m = trim( $m );
-
-			return  $m;
+			$tempTemplates = $templates;
+			$templates     = [];
+			$templates[]   = $tempTemplates;
 		}
-		else {
-
-			return FALSE;
-		}
-	}
-
-	/**
-	 * Match strings from raw html
-	 *
-	 * @param 		string 		$templates  			Regex code for match ( except the start and end character )
-	 * @param 		bool 			$allowTags 				Which tags should not be deleted?
-	 * @return 		string
-	 */
-	public static function matchGroup( $templates, $allowTags=NULL ) {
 
 		$result = FALSE;
 
 		foreach ( $templates as $template ) {
 
-			$result = static::match( $template, $allowTags );
+			preg_match( '@' . $template . '@si', ( $content != NULL ) ? $content : static::$content, $out );
 
-			if ( $result != FALSE ) break;
+			if ( isset( $out[ 1 ] ) ) {
+
+				if ( $clean == TRUE ) {
+
+					$result = $out[ 1 ];
+					$result = ( $allowTags != NULL ) ? strip_tags( $result, $allowTags ) : strip_tags( $result );
+					$result = trim( $result );
+				}
+				else {
+
+					$result = $out[ 1 ];
+				}
+
+				break;
+			}
 		}
 
 		return $result;
@@ -152,37 +150,30 @@ class Request {
 	/**
 	 * Makes the value simple
 	 *
-	 * @param 		callable 			$lastChanges 		Things before write
 	 * @param 		object 			$config 			Config object
 	 * @param 		object 			$text 			Text object
 	 * @param 		string 			$value 			A value
 	 * @param 		string 			$key 				A key
 	 * @return 		array
 	 */
-	public static function reflection( callable $lastChanges,\myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $value, $key ) {
+	public static function reflection( \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $value, $key ) {
 
 		if ( $value == NULL ) return NULL;
 
 		$value = strip_tags( $value );
 		$value = trim( $value );
 
-		if ( preg_match( '/link$/', $key, $no ) ) {
+		if ( preg_match( '/link$/', $key ) ) {
 
 			$value = static::SITE . $value;
-			$value = call_user_func( $lastChanges, $value );
 		}
-		else if ( $config->isOnNameConverting() && preg_match( '/name$/', $key, $no ) ) {
+		else if ( $config->isOnNameConverting() && preg_match( '/name$/', $key ) ) {
 
 			$value = $text->reverseName( $value );
-			$value = call_user_func( $lastChanges, $value );
 		}
-		else if ( preg_match( '/list$/', $key, $no ) ) {
+		else if ( preg_match( '/list$/', $key ) ) {
 
-			$value = $text->listValue( $value, ',', $lastChanges );
-		}
-		else {
-
-			$value = call_user_func( $lastChanges, $value );
+			$value = $text->listValue( $value, ',' );
 		}
 
 		return $value;
@@ -191,7 +182,6 @@ class Request {
 	/**
 	 * Get data as table
 	 *
-	 * @param 		callable 			$lastChanges 		Things before write
 	 * @param 		object 			$config 			Config object
 	 * @param 		object 			$text 			Text object
 	 * @param 		string 			$tableQuery 		A regex code to match a table
@@ -204,7 +194,7 @@ class Request {
 	 * @param 		string 			$sortKey 			Sort by key
 	 * @return 		array
 	 */
-	public static function matchTable( callable $lastChanges, \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $customChanges=NULL, $last=FALSE, $sortKey='' ) {
+	public static function matchTable( \myanimelist\Helper\Config $config, \myanimelist\Helper\Text $text, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $customChanges=NULL, $last=FALSE, $sortKey='' ) {
 
 		preg_match( '@' . $tableQuery . '@si', static::$content, $table );
 
@@ -226,25 +216,23 @@ class Request {
 
 			for ( $k = 0; $k < count( $queryList ); $k++ ) {
 
-				preg_match( '@' . $queryList[ $k ] . '@si', $rows[ 1 ][ ( $last == TRUE ) ? $count - $i - 1 : $i ], $row_value );
+				$rowValue = static::match( $queryList[ $k ], NULL, FALSE, $rows[ 1 ][ ( $last == TRUE ) ? $count - $i - 1 : $i ] );
 
-				if ( !empty( $row_value[ 1 ] ) ) {
-
-					$row_value = $row_value[ 1 ];
+				if ( $rowValue != FALSE ) {
 
 					if ( $customChanges != NULL && isset( $customChanges[ $keyList[ $k ] ] ) ) {
 
-						$row_value = call_user_func( $customChanges[ $keyList[ $k ] ], $row_value );
+						$rowValue = call_user_func( $customChanges[ $keyList[ $k ] ], $rowValue );
 					}
 					else {
 
-						$row_value = static::reflection( $lastChanges, $config, $text, $row_value, $keyList[ $k ] );
+						$rowValue = static::reflection( $config, $text, $rowValue, $keyList[ $k ] );
 					}
 
-					if ( $row_value != NULL ) {
+					if ( $rowValue != NULL ) {
 
 						$assignedValue                  = TRUE;
-						$result[ $j ][ $keyList[ $k ] ] = $row_value;
+						$result[ $j ][ $keyList[ $k ] ] = $rowValue;
 					}
 				}
 			}

@@ -21,7 +21,7 @@ abstract class Builder {
 	/**
 	 * Software version
 	 */
-	const VERSION = '0.9.8';
+	const VERSION = '0.9.9';
 
 	/**
 	 * "single": Saves all values in a single file
@@ -47,21 +47,12 @@ abstract class Builder {
 	/**
 	 * Start and end of elapsed time
 	 */
-	protected $times = [
-
-		'start' => 0,
-		'end'   => 0
-	];
+	protected $times = [ 'start' => 0, 'end' => 0 ];
 
 	/**
 	 * Saving directories
 	 */
-	protected $folders = [
-
-		'main'  => NULL,
-		'file'  => NULL,
-		'image' => NULL
-	];
+	protected $folders = [ 'main' => NULL, 'file' => NULL, 'image' => NULL ];
 
 	/**
 	 * base_url/?
@@ -69,9 +60,14 @@ abstract class Builder {
 	protected $urlPatterns = [];
 
 	/**
-	 * Prefix to call function
+	 * Prefixes to call function
 	 */
-	protected static $prefix = '';
+	protected static $prefix = [];
+
+	/**
+	 * Prefix count
+	 */
+	protected static $prefixCount = 0;
 
 	/**
 	 * Methods to allow for prefix
@@ -91,7 +87,7 @@ abstract class Builder {
 	/**
 	 * Set limit
 	 *
-	 * @param 		int 			Limit number
+	 * @param 		int 			$int 				Limit number for values returned array
 	 * @return 		instance
 	 */
 	public function setLimit( $int ) {
@@ -102,18 +98,35 @@ abstract class Builder {
 	}
 
 	/**
+	 * Load required function
+	 *
+	 * @param 		string 			$functionName 				A function name
+	 * @return 		void
+	 */
+	 protected function setRequired( $functionName ) {
+
+		if ( !isset( static::$data[ $functionName ] ) ) {
+
+			$value = $this->$functionName();
+
+			if ( $value != FALSE ) static::$data[ $functionName ] = $value;
+		}
+
+	}
+
+	/**
 	 * File name for cache
 	 *
 	 * @return 		string
 	 */
-	protected function fileName() {}
+	protected function getFileName() {}
 
 	/**
 	 * Image name for cache
 	 *
 	 * @return 		string
 	 */
-	protected function imageName() {}
+	protected function getImageName() {}
 
 	/**
 	 * Url query
@@ -121,19 +134,6 @@ abstract class Builder {
 	 * @return 		string
 	 */
 	protected function url() {}
-
-	/**
-	 * Changes you want to apply before values are displayed
-	 *
-	 * @param 		string 			$data 				String before writing
-	 * @return 		mix
-	 */
-	public function lastChanges( $data ) {
-
-		if ( $data == FALSE ) return FALSE;
-
-		return $data;
-	}
 
 	/**
 	 * Page is correct?
@@ -167,7 +167,7 @@ abstract class Builder {
 
 		if ( $this->config()->isOnCache() ) {
 
-			$fileName = $this->fileName();
+			$fileName = $this->getFileName();
 
 			if ( $this->cache()->checkFile( "{$fileName}_time" ) ) {
 
@@ -199,24 +199,41 @@ abstract class Builder {
 	 */
 	public function __get( $key ) {
 
-		$prefix         = static::$prefix;
-		$funcKey        = "{$prefix}{$key}";
-		$functionName   = "_{$funcKey}";
-		static::$prefix = '';
+		$functionName  = 'get';
+		$functionName .= ucfirst( $key );
+		$functionName .= ( static::$prefixCount > 0 ) ? 'With' . implode( '', array_map( 'ucfirst', static::$prefix ) ) : '';
+		$functionName .= 'FromData';
+		$value         = FALSE;
 
 		if ( method_exists( $this, $functionName ) ) {
 
-			if ( $this->cacheMode == 'multi' AND !isset( static::$data[ $funcKey ] ) ) {
+			$value = static::getValue( $key );
 
-				$fileName = $this->fileName();
+			if ( $value == FALSE ) {
 
-				if ( $this->cache()->checkFile( "{$fileName}_{$funcKey}" ) ) {
+				if ( $this->request()::isSent() ) {
 
-					static::$data[ $funcKey ] = $this->cache()->readFile( "{$fileName}_{$funcKey}" );
+					static::setValue( $key, $this->$functionName() );
+
+					$value = static::getValue( $key );
+				}
+				else if ( $this->config()->isOnCache() AND $this->cacheMode == 'multi' AND !isset( static::$data[ $key ] ) ) {
+
+					$fileName = $this->getFileName();
+
+					if ( $this->cache()->checkFile( "{$fileName}_{$key}" ) ) {
+
+						static::setValue( $key, $this->cache()->readFile( "{$fileName}_{$key}" ) );
+
+						$value = static::getValue( $key );
+					}
 				}
 			}
 
-			return $this->$functionName();
+			static::$prefix      = [];
+			static::$prefixCount = 0;
+
+			return $value;
 		}
 
 		throw new \Exception( "[MyAnimeList Error] Undefined variable: {$key}" );
@@ -233,8 +250,9 @@ abstract class Builder {
 
 		$this->changed = TRUE;
 
-		static::$data[ static::$prefix . $key ] = $value;
-		static::$prefix                         = '';
+		static::setValue( $key, $value );
+
+		static::$prefix = [];
 	}
 
 	/**
@@ -246,7 +264,7 @@ abstract class Builder {
 
 		if ( $this->config()->isOnCache() AND ( $this->changed OR $this->request()->isSuccess() ) ) {
 
-			$fileName = $this->fileName();
+			$fileName = $this->getFileName();
 
 			if ( $this->cacheMode == 'single' ) {
 
@@ -289,15 +307,26 @@ abstract class Builder {
 	 */
 	public function __call( $method, $args ) {
 
-		if (
-			in_array( $method, static::$methodsToAllow )
-			OR
-			isset( static::$methodsToAllow[ $method ] )
-			OR
-			isset( static::$methodsToAllow[ static::$prefix ] ) AND in_array( $method, static::$methodsToAllow[ static::$prefix ] )
-		) {
+		$passed = FALSE;
 
-			static::$prefix = static::$prefix . $method;
+		switch( static::$prefixCount ) {
+
+			case 0:
+			$passed = ( in_array( $method, static::$methodsToAllow ) OR isset( static::$methodsToAllow[ $method ] ) ) ? TRUE : FALSE;
+			break;
+			case 1:
+			$passed = in_array( $method, static::$methodsToAllow[ static::$prefix[ 0 ] ] )                        ? TRUE : FALSE;
+			break;
+		}
+
+		if ( $passed == TRUE ) {
+
+			static::$prefix[]    = $method;
+			static::$prefixCount = count( static::$prefix );
+		}
+		else {
+
+			throw new \Exception( "[MyAnimeList Error] Bad prefix: {$method}" );
 		}
 
 		return $this;
@@ -386,22 +415,41 @@ abstract class Builder {
 	/**
 	 * Assign a value to static::data
 	 *
-	 * @param 		string 			$key 				key of array of $data
-	 * @param 		string 			$value 			value of array of $data
-	 * @return 		bool
+	 * @param 		string 			$value 			Data key
+	 * @param 		mixed 			$value 			Data value
+	 * @return 		void
 	 */
 	protected static function setValue( $key, $value ) {
 
 		if ( $value ) {
 
-			static::$data[ $key ] = $value;
+			switch ( static::$prefixCount ) {
 
-			return $value;
+				case 0: static::$data[ $key ]                                                 = $value; break;
+				case 1: static::$data[ static::$prefix[ 0 ] ][ $key ]                         = $value; break;
+				case 2: static::$data[ static::$prefix[ 0 ] ][ static::$prefix[ 1 ] ][ $key ] = $value; break;
+			}
 		}
-		else {
+	}
 
-			return FALSE;
+	/**
+	 * Get a value from static::data
+	 *
+	 * @param 		string 			$value 			Data key
+	 * @return 		mixed
+	 */
+	protected static function getValue( $key ) {
+
+		$result = FALSE;
+
+		switch ( static::$prefixCount ) {
+
+			case 0: $result = isset( static::$data[ $key ] )                                                 ? static::$data[ $key ]                                                 : FALSE; break;
+			case 1: $result = isset( static::$data[ static::$prefix[ 0 ] ][ $key ] )                         ? static::$data[ static::$prefix[ 0 ] ][ $key ]                         : FALSE; break;
+			case 2: $result = isset( static::$data[ static::$prefix[ 0 ] ][ static::$prefix[ 1 ] ][ $key ] ) ? static::$data[ static::$prefix[ 0 ] ][ static::$prefix[ 1 ] ][ $key ] : FALSE; break;
 		}
+
+		return $result;
 	}
 
 	/**

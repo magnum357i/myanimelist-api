@@ -73,7 +73,7 @@ abstract class Search extends \myanimelist\Builder\Builder {
 	 *
 	 * @return 		string
 	 */
-	protected function fileName() {
+	protected function getFileName() {
 
 		return mb_strtolower( preg_replace( '@[^\s0-9a-zA-Z]+@', '', static::$query ) );
 	}
@@ -83,7 +83,7 @@ abstract class Search extends \myanimelist\Builder\Builder {
 	 *
 	 * @return 		string
 	 */
-	protected function imageName() {
+	protected function getImageName() {
 
 		return NULL;
 	}

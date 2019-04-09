@@ -73,7 +73,7 @@ abstract class Page extends \myanimelist\Builder\Builder {
 	 *
 	 * @return 		string
 	 */
-	protected function fileName() {
+	protected function getFileName() {
 
 		return static::$id;
 	}
@@ -83,7 +83,7 @@ abstract class Page extends \myanimelist\Builder\Builder {
 	 *
 	 * @return 		string
 	 */
-	protected function imageName() {
+	protected function getImageName() {
 
 		return static::$id;
 	}

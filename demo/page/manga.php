@@ -106,6 +106,29 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">title()->sysnonmys</span></td>';
+	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
+	echo '<td class="align-middle">';
+
+	$output = <<<EX
+
+if ( \$mal->title()->sysnonmys !== FALSE ) {
+
+	echo \$mal->title()->sysnonmys;
+}
+else {
+
+	echo '<span class="text-danger">Not found.</span>';
+}
+EX;
+
+	eval( $output );
+	echo '</td>';
+	echo '<td class="align-middle text-center">';
+	echo '<button type="button" class="btn btn-sm btn-outline-dark btn-block" data-html="true" data-toggle="popover" data-placement="left" data-content="' . outputFormatter( $output ) . '"><i class="fas fa-question-circle"></i></button>';
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">poster</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
@@ -990,20 +1013,13 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link()</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
 
 	$output = <<<EX
 
-if ( \$mal->link !== FALSE ) {
-
-	echo "<a href=\"{\$mal->link}\" target=\"_blank\">{\$mal->link}</a>";
-}
-else {
-
-	echo '<span class="text-danger">Not found.</span>';
-}
+	echo "<a href=\"{\$mal->link()}\" target=\"_blank\">{\$mal->link()}</a>";
 EX;
 
 	eval( $output );

@@ -21,55 +21,30 @@ class Anime extends \myanimelist\Builder\Search {
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [
-
-		'anime' => 'anime/{s}'
-	];
+	protected static $externalLinks = [ 'anime' => 'anime/{s}' ];
 
 	/**
-	 * Get results
-	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		results
 	 */
-	protected function _results() {
+	protected function getResultsFromData() {
 
-		$key = 'results';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
-		'search results(.*?</table>)',
-		'<tr>(.*?)</tr>',
-		[
-		'<a[^>]+href="[^"]+anime/(\d+)[^"]+"[^>]+>.*?<strong>',
-		'<strong>(.*?)</strong>',
-		'<img[^>]+src="(.*?)"[^>]+>'
-		],
-		[
-		'id',
-		'title',
-		'poster'
-		],
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'search results(.*?</table>)', '<tr>(.*?)</tr>',
+		[ '<a[^>]+href="[^"]+anime/(\d+)[^"]+"[^>]+>.*?<strong>', '<strong>(.*?)</strong>', '<img[^>]+src="([^"]+images/anime[^"]+)"[^>]+>' ],
+		[ 'id', 'title', 'poster' ],
 		static::$limit
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
-	 * Get link of the request page
-	 *
 	 * @return 		string
 	 * @usage 		link
 	 */
-	protected function _link() {
+	public function link() {
 
-		return $this->lastChanges( $this->request()::$url );
+		return $this->request()::$url;
 	}
 }
