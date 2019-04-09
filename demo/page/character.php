@@ -198,7 +198,7 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentanime</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recent()->anime</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
 	echo '<td class="align-middle">';
 
@@ -206,11 +206,11 @@ EX;
 
 \$mal->setLimit( 10 );
 
-if ( \$mal->recentanime !== FALSE ) {
+if ( \$mal->recent()->anime !== FALSE ) {
 
 	echo '<ul class="commaList">';
 
-	foreach ( \$mal->recentanime as \$a ) {
+	foreach ( \$mal->recent()->anime as \$a ) {
 
 		echo "<li><a href=\"" . \$mal->externalLink( 'anime', \$a[ 'id' ] ) . "\" target=\"_blank\">{\$a[ 'title' ]}</a> ({\$a[ 'role' ]})</li>";
 	}
@@ -230,7 +230,7 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentmanga</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recent()->manga</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
 	echo '<td class="align-middle">';
 
@@ -238,11 +238,11 @@ EX;
 
 \$mal->setLimit( 10 );
 
-if ( \$mal->recentmanga !== FALSE ) {
+if ( \$mal->recent()->manga !== FALSE ) {
 
 	echo '<ul class="commaList">';
 
-	foreach ( \$mal->recentmanga as \$m ) {
+	foreach ( \$mal->recent()->manga as \$m ) {
 
 		echo "<li><a href=\"" . \$mal->externalLink( 'manga', \$m[ 'id' ] ) . "\" target=\"_blank\">{\$m[ 'title' ]}</a> ({\$m[ 'role' ]})</li>";
 	}
@@ -294,20 +294,13 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link()</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
 
 	$output = <<<EX
 
-if ( \$mal->link !== FALSE ) {
-
-	echo "<a href=\"{\$mal->link}\" target=\"_blank\">{\$mal->link}</a>";
-}
-else {
-
-	echo '<span class="text-danger">Not found.</span>';
-}
+	echo "<a href=\"{\$mal->link()}\" target=\"_blank\">{\$mal->link()}</a>";
 EX;
 
 	eval( $output );

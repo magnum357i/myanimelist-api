@@ -54,7 +54,7 @@ abstract class Widget extends \myanimelist\Builder\Builder {
 	 *
 	 * @return 		string
 	 */
-	protected function fileName() {
+	protected function getFileName() {
 
 		return 'newanime';
 	}
@@ -64,7 +64,7 @@ abstract class Widget extends \myanimelist\Builder\Builder {
 	 *
 	 * @return 		string
 	 */
-	protected function imageName() {
+	protected function getImageName() {
 
 		return NULL;
 	}

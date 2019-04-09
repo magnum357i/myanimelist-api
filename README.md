@@ -1,16 +1,27 @@
+# myanimelist-api
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/62f62a2e43e140efb0fa1702e6f171c5)](https://app.codacy.com/app/magnum357i/myanimelist-api?utm_source=github.com&utm_medium=referral&utm_content=magnum357i/myanimelist-api&utm_campaign=Badge_Grade_Dashboard)
 ![](https://travis-ci.org/magnum357i/myanimelist-api.svg?branch=master)
 ![](https://img.shields.io/github/last-commit/magnum357i/myanimelist-api.svg)
 ![](https://img.shields.io/github/license/magnum357i/myanimelist-api.svg)
 
-# myanimelist-api
+<<<<<<< HEAD
+This is an api developed to get information from MyAnimelist. It works by scanning the html code of the page requested, so this library crashes when it changes.
+=======
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/62f62a2e43e140efb0fa1702e6f171c5)](https://app.codacy.com/app/magnum357i/myanimelist-api?utm_source=github.com&utm_medium=referral&utm_content=magnum357i/myanimelist-api&utm_campaign=Badge_Grade_Dashboard)
 
 This is an api developed to get information from pages of anime, manga, character and people on MyAnimelist. It works by scanning the html code of the page requested, so this library crashes when it changes.
+>>>>>>> origin/master
 
 # Required
 * CURL
 * PHP 7
+
+# Supported Pages
+* Page (anime, manga, character, people)
+* Search (anime, manga, character, people)
+* Widget (new anime, anime calendar, upcoming anime)
 
 # How to Install?
 
@@ -108,6 +119,7 @@ if ( $mal->isSuccess() ) {
    echo $mal->title()->original;
    echo $mal->title()->english;
    echo $mal->title()->japanese;
+   echo $mal->title()->sysnonmys;
    echo $mal->poster;
    echo $mal->description;
    echo $mal->type;
@@ -170,8 +182,8 @@ if ( $mal->isSuccess() ) {
    echo $mal->description;
    echo $mal->statistic()->favorite;
    echo $mal->statistic()->favoriteraw;
-   echo $mal->recentanime;
-   echo $mal->recentmanga;
+   echo $mal->recent()->anime;
+   echo $mal->recent()->manga;
    echo $mal->voiceactors;
 }
 else {
@@ -199,8 +211,8 @@ if ( $mal->isSuccess() ) {
    echo $mal->description;
    echo $mal->statistic()->favorite;
    echo $mal->statistic()->favoriteraw;
-   echo $mal->recentvoice;
-   echo $mal->recentwork;
+   echo $mal->recent()->voice;
+   echo $mal->recent()->work;
    echo $mal->link;
 }
 else {
@@ -393,4 +405,20 @@ $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/2010
 
 // Send request
 $mal->sendRequestOrGetData();
+```
+
+### Limitation
+
+If you use a value of array type, you can limit it with the setLimit function.
+
+```php
+// Create object
+$mal = new myanimelist\Page\Anime( 285 );
+
+// Send request
+$mal->sendRequestOrGetData();
+
+$mal->setLimit( 3 ); // works for all values of array type
+
+var_dump( $mal->voice );
 ```

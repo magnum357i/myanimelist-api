@@ -21,49 +21,32 @@ class Character extends \myanimelist\Builder\Search {
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [
-
-		'character' => 'character/{s}'
-	];
+	protected static $externalLinks = [ 'character' => 'character/{s}' ];
 
 	/**
 	 * Get results
 	 *
-	 * @return 		string
+	 * @return 		array
 	 * @usage 		results
 	 */
-	protected function _results() {
+	protected function getResultsFromData() {
 
-		$key = 'results';
-
-		if ( isset( static::$data[ $key ] ) ) return static::$data[ $key ];
-
-		if ( !$this->request()::isSent() ) return FALSE;
-
-		$data = $this->request()::matchTable(
-		[ $this, 'lastChanges' ],
-		$this->config(),
-		$this->text(),
-		'search results(.*?</table>)',
-		'<tr>(.*?)</tr>',
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'search results(.*?</table>)', '<tr>(.*?)</tr>',
 		[
-		'<a[^>]+href="[^"]+character/\d+[^"]+">([^<]+)</a>',
-		'<a[^>]+href="[^"]+character/(\d+)[^"]+">[^<]+</a>',
-		'<img[^>]+src="(.*?)"[^>]+>',
-		'<small>\s*anime:\s*<a[^>]+">(.+)</a>\s*</small>',
-		'<small>\s*<div>manga:\s*<a[^>]+">(.+)</a></div>\s*</small>'
+		'<a[^>]+href="[^"]+character/\d+[^"]+">([^<]+)</a>', '<a[^>]+href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<img[^>]+src="([^"]+images/characters[^"]+)"[^>]+>',
+		[ '<small>\s*anime:\s*<a[^>]+>(.+)</a>\s*</small>', '<small>\s*anime:\s*<a[^>]+>(.+)</a>\s*</div>' ],
+		[ '<small>\s*<div>manga:\s*<a[^>]+>(.+)</a></div>\s*</small>', '<div>\s*manga:\s*<a[^>]+>(.+)</a>\s*</div>' ]
 		],
 		[
-		'character_name',
-		'character_id',
-		'character_poster',
+		'character_name', 'character_id', 'character_poster',
 		'anime_titles_list',
 		'manga_titles_list'
 		],
 		static::$limit
 		);
-
-		return static::setValue( $key, $data );
 	}
 
 	/**
@@ -72,8 +55,8 @@ class Character extends \myanimelist\Builder\Search {
 	 * @return 		string
 	 * @usage 		link
 	 */
-	protected function _link() {
+	public function link() {
 
-		return $this->lastChanges( $this->request()::$url );
+		return $this->request()::$url;
 	}
 }

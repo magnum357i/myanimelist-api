@@ -1041,6 +1041,96 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">song()->opening</span></td>';
+	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
+	echo '<td class="align-middle">';
+
+	$output = <<<EX
+
+\$mal->setLimit( 10 );
+
+if ( \$mal->song()->opening !== FALSE ) {
+
+	echo '<ul class="commaList">';
+
+	foreach ( \$mal->song()->opening as \$o ) {
+
+		echo "<li>";
+		echo "<i>{\$o[ 'title' ]}</i> by <b>{\$o[ 'singer' ]}</b>";
+
+		if ( isset( \$o[ 'start' ] ) ) {
+
+			echo " - {\$o[ 'start' ]}";
+		}
+
+		if ( isset( \$o[ 'end' ] ) ) {
+
+			echo " to {\$o[ 'end' ]}";
+		}
+
+		echo "</li>";
+	}
+
+	echo '</ul>';
+}
+else {
+
+	echo '<span class="text-danger">Not found.</span>';
+}
+EX;
+
+	eval( $output );
+	echo '</td>';
+	echo '<td class="align-middle text-center">';
+	echo '<button type="button" class="btn btn-sm btn-outline-dark btn-block" data-html="true" data-toggle="popover" data-placement="left" data-content="' . outputFormatter( $output ) . '"><i class="fas fa-question-circle"></i></button>';
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">song()->ending</span></td>';
+	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
+	echo '<td class="align-middle">';
+
+	$output = <<<EX
+
+\$mal->setLimit( 10 );
+
+if ( \$mal->song()->ending !== FALSE ) {
+
+	echo '<ul class="commaList">';
+
+	foreach ( \$mal->song()->ending as \$e ) {
+
+		echo "<li>";
+		echo "<i>{\$e[ 'title' ]}</i> by <b>{\$e[ 'singer' ]}</b>";
+
+		if ( isset( \$e[ 'start' ] ) ) {
+
+			echo " - {\$e[ 'start' ]}";
+		}
+
+		if ( isset( \$e[ 'end' ] ) ) {
+
+			echo " to {\$e[ 'end' ]}";
+		}
+
+		echo "</li>";
+	}
+
+	echo '</ul>';
+}
+else {
+
+	echo '<span class="text-danger">Not found.</span>';
+}
+EX;
+
+	eval( $output );
+	echo '</td>';
+	echo '<td class="align-middle text-center">';
+	echo '<button type="button" class="btn btn-sm btn-outline-dark btn-block" data-html="true" data-toggle="popover" data-placement="left" data-content="' . outputFormatter( $output ) . '"><i class="fas fa-question-circle"></i></button>';
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">related()->adaptation</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
 	echo '<td class="align-middle">';
@@ -1320,20 +1410,13 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link()</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
 
 	$output = <<<EX
 
-if ( \$mal->link !== FALSE ) {
-
-	echo "<a href=\"{\$mal->link}\" target=\"_blank\">{\$mal->link}</a>";
-}
-else {
-
-	echo '<span class="text-danger">Not found.</span>';
-}
+	echo "<a href=\"{\$mal->link()}\" target=\"_blank\">{\$mal->link()}</a>";
 EX;
 
 	eval( $output );

@@ -175,7 +175,7 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentwork</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recent()->work</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
 	echo '<td class="align-middle">';
 
@@ -183,11 +183,11 @@ EX;
 
 \$mal->setLimit( 10 );
 
-if ( \$mal->recentwork !== FALSE ) {
+if ( \$mal->recent()->work !== FALSE ) {
 
 	echo '<ul class="commaList">';
 
-	foreach ( \$mal->recentwork as \$w ) {
+	foreach ( \$mal->recent()->work as \$w ) {
 
 		echo "<li><a href=\"" . \$mal->externalLink( 'anime', \$w[ 'id' ] ) . "\" target=\"_blank\">{\$w[ 'title' ]}</a> ({\$w[ 'work' ]})</li>";
 	}
@@ -207,7 +207,7 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recentvoice</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">recent()->voice</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
 	echo '<td class="align-middle">';
 
@@ -215,11 +215,11 @@ EX;
 
 \$mal->setLimit( 10 );
 
-if ( \$mal->recentvoice !== FALSE ) {
+if ( \$mal->recent()->voice !== FALSE ) {
 
 	echo '<ul class="commaList">';
 
-	foreach ( \$mal->recentvoice as \$v ) {
+	foreach ( \$mal->recent()->voice as \$v ) {
 
 		echo "<li><a href=\"" . \$mal->externalLink( 'anime', \$v[ 'anime_id' ] ) . "\" target=\"_blank\">{\$v[ 'anime_title' ]}</a> / <a href=\"" . \$mal->externalLink( 'character', \$v[ 'character_id' ] ) . "\" target=\"_blank\">{\$v[ 'character_name' ]}</a></li>";
 	}
@@ -239,20 +239,13 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
-	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link</span></td>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link()</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
 
 	$output = <<<EX
 
-if ( \$mal->link !== FALSE ) {
-
-	echo "<a href=\"{\$mal->link}\" target=\"_blank\">{\$mal->link}</a>";
-}
-else {
-
-	echo '<span class="text-danger">Not found.</span>';
-}
+	echo "<a href=\"{\$mal->link()}\" target=\"_blank\">{\$mal->link()}</a>";
 EX;
 
 	eval( $output );
