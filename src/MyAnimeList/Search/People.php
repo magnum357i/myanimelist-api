@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * MyAnimeList People Search API
+ *
+ * @package	 		MyAnimeList API
+ * @author     		Magnum357 [https://github.com/magnum357i/]
+ * @copyright  		2018
+ * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
+ */
+
+namespace MyAnimeList\Search;
+
+use MyAnimeList\Builder\AbstractSearch;
+
+class People extends AbstractSearch {
+
+	/**
+	 * Set type
+	 */
+	public static $type = 'people';
+
+	/**
+	 * Patterns for externalLink
+	 */
+	protected static $externalLinks = [ 'people' => 'people/{s}' ];
+
+	/**
+	 * @return 		array
+	 * @usage 		results
+	 */
+	protected function getResultsFromData() {
+
+		return
+		$this->request()::matchTable(
+		$this->config(), $this->text(),
+		'search results(.*?</table>)', '<tr>(.*?)</tr>',
+		[ '<a[^>]+href="[^"]+people/(\d+)[^"]+">[^<]+</a>', '<a[^>]+href="[^"]+people/\d+[^"]+">([^<]+)</a>', '<img[^>]+src="([^"]+images/voiceactors[^"]+)"[^>]*>' ],
+		[ 'id', 'name', 'poster' ],
+		static::$limit
+		);
+	}
+}

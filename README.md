@@ -29,7 +29,7 @@ $ composer require magnum357i/myanimelist-api
 ###### Example
 ```php
 // Create object
-$mal = new \myanimelist\Page\Anime( 20 );
+$mal = new \MyAnimeList\Page\Anime( 20 );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -37,57 +37,50 @@ $mal->sendRequestOrGetData();
 // Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
-   echo $mal->title()->original;
-   echo $mal->title()->english;
-   echo $mal->title()->japanese;
-   echo $mal->title()->sysnonmys;
+   echo $mal->titleOriginal;
+   echo $mal->titleEnglish;
+   echo $mal->titleJapanese;
+   echo $mal->titleOthers;
    echo $mal->poster;
    echo $mal->description;
    echo $mal->category;
    echo $mal->status;
-   echo $mal->broadcast()->day;
-   echo $mal->broadcast()->hour;
-   echo $mal->broadcast()->minute;
-   echo $mal->statistic()->rank;
-   echo $mal->statistic()->member;
-   echo $mal->statistic()->memberraw;
-   echo $mal->statistic()->popularity;
-   echo $mal->statistic()->favorite;
-   echo $mal->statistic()->favoriteraw;
+   echo $mal->broadcast;
+   echo $mal->statisticRank;
+   echo $mal->statisticMember;
+   echo $mal->statisticMemberraw;
+   echo $mal->statisticPopularity;
+   echo $mal->statisticFavorite;
+   echo $mal->statisticFavoriteraw;
    echo $mal->rating;
-   echo $mal->score()->vote;
-   echo $mal->score()->voteraw;
-   echo $mal->score()->point;
+   echo $mal->scoreVote;
+   echo $mal->scoreVoteraw;
+   echo $mal->scorePoint;
    echo $mal->genres;
    echo $mal->source;
-   echo $mal->aired()->first()->month;
-   echo $mal->aired()->first()->day;
-   echo $mal->aired()->first()->year;
-   echo $mal->aired()->last()->month;
-   echo $mal->aired()->last()->day;
-   echo $mal->aired()->last()->year;
+   echo $mal->airedFirst;
+   echo $mal->airedLast;
    echo $mal->episode;
    echo $mal->studios;
-   echo $mal->duration()->minute;
-   echo $mal->duration()->hour;
+   echo $mal->duration;
    echo $mal->producers;
    echo $mal->licensors;
-   echo $mal->premiered()->season;
-   echo $mal->premiered()->year;
+   echo $mal->premiered;
    echo $mal->year;
    echo $mal->voice;
    echo $mal->staff;
-   echo $mal->related()->adaptation;
-   echo $mal->related()->prequel;
-   echo $mal->related()->sequel;
-   echo $mal->related()->parentstory;
-   echo $mal->related()->sidestory;
-   echo $mal->related()->spinoff;
-   echo $mal->related()->alternativeversion;
-   echo $mal->related()->other;
-   echo $mal->related()->sequel;
-   echo $mal->link;
+   echo $mal->relatedAdaptation;
+   echo $mal->relatedPrequel;
+   echo $mal->relatedSequel;
+   echo $mal->relatedParentstory;
+   echo $mal->relatedSidestory;
+   echo $mal->relatedSpinoff;
+   echo $mal->relatedAlternativeversion;
+   echo $mal->relatedOther;
    echo $mal->trailer;
+   echo $mal->tabBase;
+   echo $mal->tabItems;
+   echo $mal->link();
 }
 else {
 
@@ -101,7 +94,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Page\Manga( 2 );
+$mal = new \MyAnimeList\Page\Manga( 2 );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -109,45 +102,43 @@ $mal->sendRequestOrGetData();
 // Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
-   echo $mal->title()->original;
-   echo $mal->title()->english;
-   echo $mal->title()->japanese;
-   echo $mal->title()->sysnonmys;
+   echo $mal->titleOriginal;
+   echo $mal->titleEnglish;
+   echo $mal->titleJapanese;
+   echo $mal->titleOthers;
    echo $mal->poster;
    echo $mal->description;
    echo $mal->type;
-   echo $mal->score()->vote;
-   echo $mal->score()->voteraw;
-   echo $mal->score()->point;
+   echo $mal->scoreVote;
+   echo $mal->scoreVoteraw;
+   echo $mal->scorePoint;
    echo $mal->genres;
-   echo $mal->statistic()->rank;
-   echo $mal->statistic()->popularity;
-   echo $mal->statistic()->member;
-   echo $mal->statistic()->memberraw;
-   echo $mal->statistic()->favorite;
-   echo $mal->statistic()->favoriteraw;
+   echo $mal->statisticRank;
+   echo $mal->statisticPopularity;
+   echo $mal->statisticMember;
+   echo $mal->statisticMemberraw;
+   echo $mal->statisticFavorite;
+   echo $mal->statisticFavoriteraw;
    echo $mal->status;
-   echo $mal->published()->first()->month;
-   echo $mal->published()->first()->day;
-   echo $mal->published()->first()->year;
-   echo $mal->published()->last()->month;
-   echo $mal->published()->last()->day;
-   echo $mal->published()->last()->year;
+   echo $mal->publishedFirst;
+   echo $mal->publishedLast;
    echo $mal->authors;
    echo $mal->volume;
    echo $mal->chapter;
    echo $mal->serialization;
    echo $mal->year;
    echo $mal->characters;
-   echo $mal->related()->adaptation;
-   echo $mal->related()->sequel;
-   echo $mal->related()->prequel;
-   echo $mal->related()->parentstory;
-   echo $mal->related()->sidestory;
-   echo $mal->related()->other;
-   echo $mal->related()->spinoff;
-   echo $mal->related()->alternativeversion;
-   echo $mal->link;
+   echo $mal->relatedAdaptation;
+   echo $mal->relatedSequel;
+   echo $mal->relatedPrequel;
+   echo $mal->relatedParentstory;
+   echo $mal->relatedSidestory;
+   echo $mal->relatedOther;
+   echo $mal->relatedSpinoff;
+   echo $mal->relatedAlternativeversion;
+   echo $mal->tabBase;
+   echo $mal->tabItems;
+   echo $mal->link();
 }
 else {
 
@@ -161,7 +152,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Page\Character( 40 );
+$mal = new \MyAnimeList\Page\Character( 40 );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -169,15 +160,21 @@ $mal->sendRequestOrGetData();
 // Is not 404 page or (cache enabled) cache file exists
 if ( $mal->isSuccess() ) {
 
-   echo $mal->title()->self;
-   echo $mal->title()->nickname;
+   echo $mal->titleSelf;
+   echo $mal->titleNickname;
    echo $mal->poster;
    echo $mal->description;
-   echo $mal->statistic()->favorite;
-   echo $mal->statistic()->favoriteraw;
-   echo $mal->recent()->anime;
-   echo $mal->recent()->manga;
+   echo $mal->statisticFavorite;
+   echo $mal->statisticFavoriteraw;
+   echo $mal->recentAnime;
+   echo $mal->recentManga;
    echo $mal->voiceactors;
+   echo $mal->age;
+   echo $mal->height;
+   echo $mal->weight;
+   echo $mal->tabBase;
+   echo $mal->tabItems;
+   echo $mal->link();
 }
 else {
 
@@ -191,7 +188,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Page\People( 80 );
+$mal = new \MyAnimeList\Page\People( 80 );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -202,11 +199,21 @@ if ( $mal->isSuccess() ) {
    echo $mal->name;
    echo $mal->poster;
    echo $mal->description;
-   echo $mal->statistic()->favorite;
-   echo $mal->statistic()->favoriteraw;
-   echo $mal->recent()->voice;
-   echo $mal->recent()->work;
-   echo $mal->link;
+   echo $mal->statisticFavorite;
+   echo $mal->statisticFavoriteraw;
+   echo $mal->recentVoice;
+   echo $mal->recentWork;
+   echo $mal->birth;
+   echo $mal->death;
+   echo $mal->height;
+   echo $mal->weight;
+   echo $mal->age;
+   echo $mal->socialFacebook;
+   echo $mal->socialTwitter;
+   echo $mal->socialWebsite;
+   echo $mal->tabBase;
+   echo $mal->tabItems;
+   echo $mal->link();
 }
 else {
 
@@ -220,7 +227,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Search\Anime( 'bleach' );
+$mal = new \MyAnimeList\Search\Anime( 'bleach' );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -229,7 +236,7 @@ $mal->sendRequestOrGetData();
 if ( $mal->isSuccess() ) {
 
    echo $mal->results;
-   echo $mal->link;
+   echo $mal->link();
 }
 else {
 
@@ -243,7 +250,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Search\Manga( 'baka to test to shoukanjuu' );
+$mal = new \MyAnimeList\Search\Manga( 'baka to test to shoukanjuu' );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -252,7 +259,7 @@ $mal->sendRequestOrGetData();
 if ( $mal->isSuccess() ) {
 
    echo $mal->results;
-   echo $mal->link;
+   echo $mal->link();
 }
 else {
 
@@ -266,7 +273,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Search\Character( 'yugi' );
+$mal = new \MyAnimeList\Search\Character( 'yugi' );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -275,7 +282,7 @@ $mal->sendRequestOrGetData();
 if ( $mal->isSuccess() ) {
 
    echo $mal->results;
-   echo $mal->link;
+   echo $mal->link();
 }
 else {
 
@@ -289,7 +296,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Search\People( 'yui' );
+$mal = new \MyAnimeList\Search\People( 'yui' );
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -298,7 +305,7 @@ $mal->sendRequestOrGetData();
 if ( $mal->isSuccess() ) {
 
    echo $mal->results;
-   echo $mal->link;
+   echo $mal->link();
 }
 else {
 
@@ -312,7 +319,7 @@ else {
 
 ```php
 // Create object
-$mal = new \myanimelist\Widget\NewAnime;
+$mal = new \MyAnimeList\Widget\NewAnime;
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -326,7 +333,7 @@ if ( $mal->isSuccess() ) {
    echo $mal->ova;
    echo $mal->movie;
    echo $mal->special;
-   echo $mal->link;
+   echo $mal->link();
 }
 else {
 
@@ -336,13 +343,38 @@ else {
 
 # Configuration
 
+### Override Default Cache Class
+
+If needed, you can use your own cache class. Type your cache object to the constructor your cache class which has Cache Interface (MyAnimeList/Cache/CacheInterface).
+
+```php
+
+// Page
+
+$folders = \MyAnimeList\Builder\AbstractPage::$folders
+$type    = \MyAnimeList\Page\Anime::$type
+$mal     = new \MyAnimeList\Page\Anime( 20, new \MyCustomCache( $type, $folders ) );
+
+// Search
+
+$folders = \MyAnimeList\Builder\AbstractSearch::$folders
+$type    = \MyAnimeList\Serach\Anime::$type
+$mal     = new \MyAnimeList\Search\Anime( 'naruto', new \MyCustomCache( $type, $folders ) );
+
+// Widget
+
+$folders = \MyAnimeList\Builder\AbstractWidget::$folders
+$type    = \MyAnimeList\Serach\AnimeCalendar::$type
+$mal     = new \MyAnimeList\Widget\AnimeCalendar( new \MyCustomCache( $type, $folders ) );
+```
+
 ### Reverse Names
 
 If true, the name order is reversed firstname-lastname instead of lastname-firstname.
 
 ```php
 // Create object
-$mal = new \myanimelist\Page\Manga( 1 );
+$mal = new \MyAnimeList\Page\Manga( 1 );
 
 // Reverse name
 $mal->config()->convertName();
@@ -364,7 +396,7 @@ If true, the cache system enabled.
 
 ```php
 // Create object
-$mal = new \myanimelist\Page\Anime( 1 );
+$mal = new \MyAnimeList\Page\Anime( 1 );
 
 // Enable cache
 $mal->config()->enableCache();
@@ -391,7 +423,7 @@ echo $mal->poster;
 
 ```php
 // Create object
-$mal = new myanimelist\Page\People( 1 );
+$mal = new \MyAnimeList\Page\People( 1 );
 
 // A sample setting
 $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0', 'USERAGENT' );
@@ -406,7 +438,7 @@ If you use a value of array type, you can limit it with the setLimit function.
 
 ```php
 // Create object
-$mal = new myanimelist\Page\Anime( 285 );
+$mal = new \MyAnimeList\Page\Anime( 285 );
 
 // Send request
 $mal->sendRequestOrGetData();
