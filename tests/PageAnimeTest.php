@@ -2,49 +2,183 @@
 
 use PHPUnit\Framework\TestCase;
 
-class PageAnime extends TestCase {
+class PageAnimeTest extends TestCase {
 
-	public function test_all_data() {
+    private $mal;
 
-		$mal = new \MyAnimeList\Page\Anime( 20 );
+    protected function setUp(): void {
 
-		$mal->sendRequestOrGetData();
+		$this->mal = new \MyAnimeList\Page\Anime( 20 );
+		$this->mal->sendRequestOrGetData();
+	}
 
-		$success = TRUE;
+	public function testTitleOriginal(): void {
 
-		if ( !$mal->isSuccess() )                               $success = FALSE;
-		if ( $mal->titleOriginal === FALSE )                    $success = FALSE;
-		if ( $mal->titleEnglish === FALSE )                     $success = FALSE;
-		if ( $mal->titleJapanese === FALSE )                    $success = FALSE;
-		if ( $mal->titleOthers === FALSE )                      $success = FALSE;
-		if ( $mal->poster === FALSE )                           $success = FALSE;
-		if ( $mal->description === FALSE )                      $success = FALSE;
-		if ( $mal->status === FALSE )                           $success = FALSE;
-		if ( $mal->broadcast === FALSE )                        $success = FALSE;
-		if ( $mal->statisticRank === FALSE )                    $success = FALSE;
-		if ( $mal->statisticMember === FALSE )                  $success = FALSE;
-		if ( $mal->statisticPopularity === FALSE )              $success = FALSE;
-		if ( $mal->statisticFavorite === FALSE )                $success = FALSE;
-		if ( $mal->rating === FALSE )                           $success = FALSE;
-		if ( $mal->episode === FALSE )                          $success = FALSE;
-		if ( $mal->scoreVote === FALSE )                        $success = FALSE;
-		if ( $mal->scorePoint === FALSE )                       $success = FALSE;
-		if ( $mal->genres === FALSE )                           $success = FALSE;
-		if ( $mal->source === FALSE )                           $success = FALSE;
-		if ( $mal->airedFirst === FALSE )                       $success = FALSE;
-		if ( $mal->airedLast === FALSE )                        $success = FALSE;
-		if ( $mal->studios === FALSE )                          $success = FALSE;
-		if ( $mal->producers === FALSE )                        $success = FALSE;
-		if ( $mal->licensors === FALSE )                        $success = FALSE;
-		if ( $mal->duration === FALSE )                         $success = FALSE;
-		if ( $mal->category === FALSE )                         $success = FALSE;
-		if ( $mal->premiered === FALSE )                        $success = FALSE;
-		if ( $mal->year === FALSE )                             $success = FALSE;
-		if ( $mal->setLimit( 5 )->voice === FALSE )             $success = FALSE;
-		if ( $mal->setLimit( 5 )->staff === FALSE )             $success = FALSE;
-		if ( $mal->setLimit( 2 )->relatedAdaptation === FALSE ) $success = FALSE;
-		if ( $mal->trailer === FALSE )                          $success = FALSE;
+		$this->assertTrue( ( $this->mal->titleOriginal == FALSE ) ? FALSE : TRUE );
+	}
 
-		$this->assertTrue( $success );
+	public function testTitleEnglish(): void {
+
+		$this->assertTrue( ( $this->mal->titleEnglish == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testTitleJapanese(): void {
+
+		$this->assertTrue( ( $this->mal->titleJapanese == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testTitleOthers(): void {
+
+		$this->assertTrue( ( $this->mal->titleOthers == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testPoster(): void {
+
+		$this->assertTrue( ( $this->mal->poster == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testDescription(): void {
+
+		$this->assertTrue( ( $this->mal->description == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStatus(): void {
+
+		$this->assertTrue( ( $this->mal->status == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testOpening(): void {
+
+		$this->assertTrue( ( $this->mal->songOpening == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testEnding(): void {
+
+		$this->assertTrue( ( $this->mal->songEnding == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testBroadcast(): void {
+
+		$this->assertTrue( ( $this->mal->broadcast == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStatisticRank(): void {
+
+		$this->assertTrue( ( $this->mal->statisticRank == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStatisticMember(): void {
+
+		$this->assertTrue( ( $this->mal->statisticMember == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStatisticPopularity(): void {
+
+		$this->assertTrue( ( $this->mal->statisticPopularity == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStatisticFavorite(): void {
+
+		$this->assertTrue( ( $this->mal->statisticFavorite == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testRating(): void {
+
+		$this->assertTrue( ( $this->mal->rating == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testEpisode(): void {
+
+		$this->assertTrue( ( $this->mal->episode == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testScoreVote(): void {
+
+		$this->assertTrue( ( $this->mal->scoreVote == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testScorePoint(): void {
+
+		$this->assertTrue( ( $this->mal->scorePoint == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testGenres(): void {
+
+		$this->assertTrue( ( $this->mal->genres == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testSource(): void {
+
+		$this->assertTrue( ( $this->mal->source == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testAiredFirst(): void {
+
+		$this->assertTrue( ( $this->mal->airedFirst == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testAiredLast(): void {
+
+		$this->assertTrue( ( $this->mal->airedLast == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStudios(): void {
+
+		$this->assertTrue( ( $this->mal->studios == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testProducers(): void {
+
+		$this->assertTrue( ( $this->mal->producers == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testLicensors(): void {
+
+		$this->assertTrue( ( $this->mal->licensors == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testDuration(): void {
+
+		$this->assertTrue( ( $this->mal->duration == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testCategory(): void {
+
+		$this->assertTrue( ( $this->mal->category == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testPremiered(): void {
+
+		$this->assertTrue( ( $this->mal->premiered == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testYear(): void {
+
+		$this->assertTrue( ( $this->mal->year == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testVoice(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 5 )->voice == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testStaff(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 5 )->staff == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testRelated(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 2 )->relatedAdaptation == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testTabBase(): void {
+
+		$this->assertTrue( ( $this->mal->tabBase == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testTabItems(): void {
+
+		$this->assertTrue( ( $this->mal->tabItems == FALSE ) ? FALSE : TRUE );
 	}
 }

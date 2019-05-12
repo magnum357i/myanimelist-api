@@ -2,23 +2,38 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WidgetNewAnime extends TestCase {
+class WidgetNewAnimeTest extends TestCase {
 
-	public function test_all_data() {
+    private $mal;
 
-		$mal = new \MyAnimeList\Widget\NewAnime;
+    protected function setUp(): void {
 
-		$mal->sendRequestOrGetData();
+		$this->mal = new \MyAnimeList\Widget\NewAnime;
+		$this->mal->sendRequestOrGetData();
+	}
 
-		$success = TRUE;
+	public function testTvnew(): void {
 
-		if ( !$mal->isSuccess() )                     $success = FALSE;
-		if ( $mal->setLimit( 3 )->tvnew   === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->ona     === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->ova     === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->movie   === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->special === FALSE ) $success = FALSE;
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->tvnew == FALSE ) ? FALSE : TRUE );
+	}
 
-		$this->assertTrue( $success );
+	public function testOna(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->ona == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testOva(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->ova == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testMovie(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->movie == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testSpecial(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->special == FALSE ) ? FALSE : TRUE );
 	}
 }

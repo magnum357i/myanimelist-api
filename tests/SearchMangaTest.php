@@ -2,19 +2,18 @@
 
 use PHPUnit\Framework\TestCase;
 
-class SearchManga extends TestCase {
+class SearchMangaTest extends TestCase {
 
-	public function test_all_data() {
+    private $mal;
 
-		$mal = new \MyAnimeList\Search\Manga( 'bleach' );
+    protected function setUp(): void {
 
-		$mal->sendRequestOrGetData();
+		$this->mal = new \MyAnimeList\Search\Manga( 'bleach' );
+		$this->mal->sendRequestOrGetData();
+	}
 
-		$success = TRUE;
+	public function testResult(): void {
 
-		if ( !$mal->isSuccess() )                     $success = FALSE;
-		if ( $mal->setLimit( 3 )->results === FALSE ) $success = FALSE;
-
-		$this->assertTrue( $success );
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->results == FALSE ) ? FALSE : TRUE );
 	}
 }

@@ -9,10 +9,9 @@
 	convertWarningsToExceptions="true"
 	processIsolation="false"
 	stopOnFailure="true"
-	syntaxCheck="false"
 >
 	<testsuites>
-		<testsuite name="Getting Data Test">
+		<testsuite name="All Tests">
 			<directory suffix=".php">tests</directory>
 		</testsuite>
 	</testsuites>

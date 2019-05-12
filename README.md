@@ -1,5 +1,6 @@
 # myanimelist-api
 
+![Packagist Version](https://img.shields.io/packagist/v/magnum357i/myanimelist-api.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/62f62a2e43e140efb0fa1702e6f171c5)](https://app.codacy.com/app/magnum357i/myanimelist-api?utm_source=github.com&utm_medium=referral&utm_content=magnum357i/myanimelist-api&utm_campaign=Badge_Grade_Dashboard)
 ![](https://travis-ci.org/magnum357i/myanimelist-api.svg?branch=master)
 ![](https://img.shields.io/github/last-commit/magnum357i/myanimelist-api.svg)

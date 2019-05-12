@@ -2,25 +2,48 @@
 
 use PHPUnit\Framework\TestCase;
 
-class WidgetAnimeCalendar extends TestCase {
+class WidgetAnimeCalendarTest extends TestCase {
 
-	public function test_all_data() {
+    private $mal;
 
-		$mal = new \MyAnimeList\Widget\AnimeCalendar;
+    protected function setUp(): void {
 
-		$mal->sendRequestOrGetData();
+		$this->mal = new \MyAnimeList\Widget\AnimeCalendar;
+		$this->mal->sendRequestOrGetData();
+	}
 
-		$success = TRUE;
+	public function testMonday(): void {
 
-		if ( !$mal->isSuccess() )                       $success = FALSE;
-		if ( $mal->setLimit( 3 )->monday    === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->tuesday   === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->wednesday === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->thursday  === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->friday    === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->saturday  === FALSE ) $success = FALSE;
-		if ( $mal->setLimit( 3 )->sunday    === FALSE ) $success = FALSE;
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->monday == FALSE ) ? FALSE : TRUE );
+	}
 
-		$this->assertTrue( $success );
+	public function testTuesday(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->tuesday == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testWednesday(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->wednesday == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testThursday(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->thursday == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testFriday(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->friday == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testSaturday(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->saturday == FALSE ) ? FALSE : TRUE );
+	}
+
+	public function testSunday(): void {
+
+		$this->assertTrue( ( $this->mal->setLimit( 3 )->sunday == FALSE ) ? FALSE : TRUE );
 	}
 }
