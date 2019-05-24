@@ -10,6 +10,7 @@ class WidgetNewAnimeTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Widget\NewAnime;
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testTvnew(): void {

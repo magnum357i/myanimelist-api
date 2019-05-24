@@ -10,6 +10,7 @@ class WidgetAnimeCalendarTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Widget\AnimeCalendar;
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testMonday(): void {

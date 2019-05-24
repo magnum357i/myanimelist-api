@@ -10,6 +10,7 @@ class PageMangaTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Page\Manga( 22 );
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testTitleOriginal(): void {

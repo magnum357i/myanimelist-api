@@ -10,6 +10,7 @@ class PagePeopleOneTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Page\People( 9411 );
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testName(): void {

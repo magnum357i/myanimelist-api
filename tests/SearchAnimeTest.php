@@ -10,6 +10,7 @@ class SearchAnimeTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Search\Anime( 'bleach' );
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testResult(): void {

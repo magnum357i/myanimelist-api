@@ -10,6 +10,7 @@ class PagePeopleTwoTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Page\People( 11297 );
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testStatisticFavorite(): void {

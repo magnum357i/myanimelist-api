@@ -10,6 +10,7 @@ class SearchMangaTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Search\Manga( 'bleach' );
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testResult(): void {

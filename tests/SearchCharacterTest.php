@@ -10,6 +10,7 @@ class SearchCharacterTest extends TestCase {
 
 		$this->mal = new \MyAnimeList\Search\Character( 'ichigo' );
 		$this->mal->sendRequestOrGetData();
+		$this->mal->config()->enablecache = TRUE;
 	}
 
 	public function testResult(): void {
