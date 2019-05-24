@@ -1,45 +1,22 @@
 <?php
 
 include( '../autoload.php' );
+include( 'functions.php' );
 
-$mal = new \MyAnimeList\Page\Anime( $id );
+$ram1 = memory_get_usage();
+$time = microtime( TRUE );
 
-$mal->config()->enableCache();
-$mal->config()->convertName();
-$mal->config()->setExpiredTime( 2 );
+$mal  = new \MyAnimeList\Page\Anime( $id );
+
+$mal->config()->enablecache  = TRUE;
+$mal->config()->reversename  = TRUE;
+$mal->config()->bigimages    = TRUE;
+$mal->config()->expiredbyday = 2;
 
 // If required
 // $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0', 'USERAGENT' );
 
 $mal->cache()->setPath( ROOT_PATH . '/upload' );
-
-function outputFormatter( $o ) {
-
-	$o = htmlspecialchars( $o );
-	$o = htmlentities( $o );
-	$o = "<pre>{$o}</pre>";
-
-	return $o;
-}
-
-function timeAgo( $unix ) {
-
-	$timeAgo = '';
-    $diff    = time() - $unix;
-    $min     = 60;
-    $hour    = 60 * $min;
-    $day     = $hour * 24;
-    $month   = $day * 30;
-
-    if( $diff < 60 )          $timeAgo = $diff                   . ' seconds';
-    elseif ( $diff < $hour )  $timeAgo = round( $diff / $min )   . ' minutes';
-    elseif ( $diff < $day )   $timeago = round( $diff / $hour )  . ' hours';
-    elseif ( $diff < $month ) $timeago = round( $diff / $day )   . ' days';
-    else                      $timeAgo = round( $diff / $month ) . ' months';
-
-    return $timeAgo;
-}
-
 $mal->sendRequestOrGetData();
 
 if ( $mal->isSuccess() ) {
@@ -61,7 +38,7 @@ if ( $mal->isSuccess() ) {
 
 	$output = <<<EX
 
-if ( \$mal->titleOriginal != FALSE ) {
+if ( isset( \$mal->titleOriginal ) ) {
 
 	echo \$mal->titleOriginal;
 }
@@ -832,15 +809,19 @@ if ( isset( \$mal->voice ) ) {
 
 	foreach ( \$mal->voice as \$v ) {
 
+		\$hoverPoster = ( isset( \$v[ 'cposter' ] ) ) ? hoverPoster( \$v[ 'cposter' ] ) : '';
+
 		echo "<li>";
-		echo "<a href=\"" . \$mal->externalLink( 'character', \$v[ 'character_id' ] ) . "\" target=\"_blank\">{\$v[ 'character_name' ]}</a>";
+		echo "<a {\$hoverPoster} href=\"" . \$mal->externalLink( 'character', \$v[ 'cid' ] ) . "\" target=\"_blank\">{\$v[ 'cname' ]}</a>";
 
 		// Sometimes this is not on MAL
 
-		if ( isset( \$v[ 'people_id' ] ) ) {
+		if ( isset( \$v[ 'pid' ] ) ) {
 
-			echo " / <a href=\"" . \$mal->externalLink( 'people', \$v[ 'people_id' ] ) . "\" target=\"_blank\">{\$v[ 'people_name' ]}</a>";
-			echo " ({\$v[ 'people_lang' ]})";
+			\$hoverPoster = ( isset( \$v[ 'pposter' ] ) ) ? hoverPoster( \$v[ 'pposter' ] ) : '';
+
+			echo " / <a {\$hoverPoster} href=\"" . \$mal->externalLink( 'people', \$v[ 'pid' ] ) . "\" target=\"_blank\">{\$v[ 'pname' ]}</a>";
+			echo " ({\$v[ 'plang' ]})";
 		}
 
 		echo "</li>";
@@ -875,12 +856,14 @@ if ( isset( \$mal->staff ) ) {
 
 	foreach ( \$mal->staff as \$s ) {
 
+		\$hoverPoster = ( isset( \$s[ 'poster' ] ) ) ? hoverPoster( \$s[ 'poster' ] ) : '';
+
 		echo "<li>";
-		echo "<a href=\"" . \$mal->externalLink( 'people', \$s[ 'people_id' ] ) . "\" target=\"_blank\">{\$s[ 'people_name' ]}</a>";
+		echo "<a {\$hoverPoster} href=\"" . \$mal->externalLink( 'people', \$s[ 'id' ] ) . "\" target=\"_blank\">{\$s[ 'name' ]}</a>";
 		echo '<ul class="commaList">';
 		echo " (";
 
-			foreach ( \$s[ 'people_positions_list' ] as \$p ) {
+			foreach ( \$s[ 'positionlist' ] as \$p ) {
 
 				echo "<li>{\$p}</li>";
 			}
@@ -1309,7 +1292,7 @@ if ( isset( \$mal->tabItems ) ) {
 
 	echo '<ul class="commaList">';
 
-	\$tabLink = ( \$mal->tabBase != FALSE ) ? \$mal->tabBase : '';
+	\$tabLink = ( isset( \$mal->tabBase ) ) ? \$mal->tabBase : '';
 
 	foreach ( \$mal->tabItems as \$tab ) {
 
@@ -1349,36 +1332,8 @@ EX;
 	echo '</tbody>';
 	echo '</table>';
 
-	if ( $mal->config()::isOnCache() ) {
-
-		echo '<h3>JSON Content</h3>';
-		echo '<div class="p-3 bg-dark mb-5 json">';
-		echo '<small>';
-		echo '<pre class="text-white">';
-		echo json_encode( json_decode( $mal, TRUE ), JSON_PRETTY_PRINT );
-		echo '</pre>';
-		echo '</small>';
-		echo '</div>';
-	}
-
-	echo '<h3>Time</h3>';
-	echo '<div class="p-3 bg-warning mb-5">';
-		echo '<div class="row text-center">';
-
-			if ( $mal->config()::isOnCache() ) {
-
-				echo '<div class="col-sm">';
-					echo '<div class="h6">Edited Time</div>';
-					echo '<span class="display-4">' . timeAgo( $mal->editedTime() ) . '</span>';
-				echo '</div>';
-			}
-
-			echo '<div class="col-sm">';
-			echo '<div class="h6">Elapsed Time</div>';
-				echo '<span class="display-4">' . timeAgo( $mal->elapsedTime() ) . '</span>';
-			echo '</div>';
-		echo '</div>';
-	echo '</div>';
+	jsonContent();
+	statisticDashboard( $id, TRUE );
 }
 else {
 

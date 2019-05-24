@@ -33,7 +33,7 @@ abstract class AbstractPage extends AbstractBuilder {
 	/**
 	 * Take object parameter
 	 *
-	 * @param 		int 				$s 				MAL Id
+	 * @param 		int 			$s 				MAL Id
 	 * @param 		object 			$cache 			Cache class
 	 * @return 		void
 	 */

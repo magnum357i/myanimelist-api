@@ -3,10 +3,10 @@
 /**
  * Text Converts
  *
- * @package	 		MyAnimeList API
- * @author     		Magnum357 [https://github.com/magnum357i/]
- * @copyright  		2018
- * @license    		http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @package 		MyAnimeList API
+ * @author 			Magnum357 [https://github.com/magnum357i/]
+ * @copyright 		2018
+ * @license 		http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 
 namespace MyAnimeList\Helper;
@@ -16,8 +16,8 @@ class Text {
 	/**
 	 * Names becomes the first-last order instead of the last-first order
 	 *
-	 * @param 		string 			$name 			A person name with a comma
-	 * @param 		int 				$mode 			Reverse mode
+	 * @param 		string 				$name 					A person name with a comma
+	 * @param 		int 				$mode 					Reverse mode
 	 * @return 		string
 	 */
 	public function reverseName( $name, $mode=1 ) {
@@ -35,8 +35,8 @@ class Text {
 	/**
 	 * Separates the text from a character and returns it as array
 	 *
-	 * @param 		string 		$value 				A text
-	 * @param 		string 		$exp 					Seperate character
+	 * @param 		string 				$value 				A text
+	 * @param 		string 				$exp 				Seperate character
 	 * @return 		array
 	 */
 	public function listValue( $value, $exp ) {
@@ -60,22 +60,34 @@ class Text {
 	/**
 	 * K (number/1000) Converter
 	 *
-	 * @param 		int 			$number 			A number
+	 * @param 		int 				$number 				A number
 	 * @return 		string
 	 */
 	public function formatK( $number ) {
 
 		$number = $this->replace( '[^0-9]+', '', $number );
 
-		if ( !$this->validate( [ 'mode' => 'number' ], $number ) ) 	return FALSE;
+		if ( !$this->validate( 'number', [], $number ) ) return FALSE;
 
-		return ( $number > 1000 ) ? round( $number / 1000 ) . 'K' : $number;
+		return ( $number > 1000 ) ? round( $number / 1000 ) . 'K' : (string) $number;
+	}
+
+	/**
+	 * Round a number
+	 *
+	 * @param 		int 				$number 				A number
+	 * @param 		int 				$precision 				Decimal
+	 * @return 		string
+	 */
+	public function roundNumber( $number, $precision=0 ) {
+
+		return (string) round( $this->replace( '[,]', '.', $number ), $precision );
 	}
 
 	/**
 	 * Clean description
 	 *
-	 * @param 		string 			$desc 			Description to clean
+	 * @param 		string 				$desc 				Description to clean
 	 * @return 		string
 	 */
 	public function descCleaner( $desc ) {
@@ -89,7 +101,7 @@ class Text {
 
 		while ( $count < $maxSearch ) {
 
-			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $patternSearch ], $desc ) ) {
+			if ( $this->validate( 'regex', [ 'match' => $patternSearch ], $desc ) ) {
 
 				$desc = $this->replace( $patternSearch, '', $desc, 'si' );
 			}
@@ -106,7 +118,7 @@ class Text {
 
 		while ( $count < $maxSearch ) {
 
-			if ( $this->validate( [ 'mode' => 'regex', 'regex_code' => $patternSearch ], $desc ) ) {
+			if ( $this->validate( 'regex', [ 'match' => $patternSearch ], $desc ) ) {
 
 				$desc = $this->replace( $patternSearch, '', $desc, 'si' );
 			}
@@ -118,37 +130,38 @@ class Text {
 			$count++;
 		}
 
-		return ( !$this->validate( [ 'mode' => 'count', 'max_len' => 20 ], $desc ) ) ? FALSE : $desc;
+		return ( !$this->validate( 'count', [ 'len' => 20 ], $desc ) ) ? FALSE : $desc;
 	}
 
 	/**
 	 * Validate
 	 *
-	 * @param 		array 			$options 			Options to validate mods
-	 * @param 		string 			$text 			String to check
+	 * @param 		array 				$options 				Validate mode
+	 * @param 		array 				$options 				Options to validate modes
+	 * @param 		string 				$text 					String to check
 	 * @return 		bool
 	 */
-	public function validate( $options, $text ) {
+	public function validate( $mode, $options, $text ) {
 
-		switch ( $options[ 'mode' ] ) {
+		$ok = FALSE;
 
-			case 'regex':  return preg_match( '/' . $options[ 'regex_code' ] . '/' . ( isset( $options[ 'regex_flags' ] ) ? $options[ 'regex_flags' ] : '' ), $text ); break;
+		switch ( $mode ) {
 
-			case 'number': return ( is_numeric( $text ) ) ? TRUE : FALSE; break;
-
-			case 'count':  return ( mb_strlen( $text ) > $options[ 'max_len' ] ) ? TRUE : FALSE; break;
+			case 'regex':  $ok = preg_match( '/' . $options[ 'match' ] . '/' . ( isset( $options[ 'flags' ] ) ? $options[ 'flags' ] : '' ), $text ); break;
+			case 'number': $ok = ( is_numeric( $text ) ) ? TRUE : FALSE; break;
+			case 'count':  $ok = ( mb_strlen( $text ) > $options[ 'len' ] ) ? TRUE : FALSE; break;
 		}
 
-		return FALSE;
+		return $ok;
 	}
 
 	/**
 	 * Change string simply
 	 *
-	 * @param 		string 			$match 			Old value in regex format
-	 * @param 		string 			$replace 			New value
-	 * @param 		string 			$str 				A text
-	 * @param 		string 			$flags 			Regex flags
+	 * @param 		string 				$match 					Old value in regex format
+	 * @param 		string 				$replace 				New value
+	 * @param 		string 				$str 					A text
+	 * @param 		string 				$flags 					Regex flags
 	 * @return 		string
 	 */
 	public function replace( $match, $replace, $str, $flags='' ) {
@@ -159,9 +172,9 @@ class Text {
 	/**
 	 * Converts date format date to original date
 	 *
-	 * @param 		string 			$month 			Month
-	 * @param 		string 			$day 				Day
-	 * @param 		string 			$year 			Year
+	 * @param 		string 				$month 				Month
+	 * @param 		string 				$day 				Day
+	 * @param 		string 				$year 				Year
 	 * @return 		array
 	 */
 	public function originalDate( $month, $day, $year ) {

@@ -69,6 +69,31 @@ class Cache implements CacheInterface {
 	}
 
 	/**
+	 * File size in bytes
+	 *
+	 * @param 		$fileName 				File name
+	 * @param 		$type 					'poster' or 'file'?
+	 * @return 		bool
+	 */
+	public function fileSize( $fileName, $type ) {
+
+		$file = NULL;
+
+		if ( $type == 'poster' ) {
+
+			$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ] ) );
+			$file = $this->fixSeparator( $path . '/' . $fileName . '.jpg' );
+		}
+		else if ( $type == 'file' ) {
+
+			$path = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'file' ], $this->type ] ) );
+			$file = $this->fixSeparator( $path . '/' . $fileName . '.json' );
+		}
+
+		return filesize( $file );
+	}
+
+	/**
 	 * If file exists
 	 *
 	 * @param 		$fileName 				File name
@@ -153,17 +178,16 @@ class Cache implements CacheInterface {
 	 */
 	public function savePoster( $fileName, $url, $overWrite=FALSE ) {
 
-		$fileName .= '.jpg';
-		$path      = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ] ) );
-		$f         = $this->fixSeparator( $path . '/' . $fileName );
+		$path   = $this->fixSeparator( implode( '/', [ $this->path, $this->cacheFolder, $this->folders[ 'main' ], $this->folders[ 'image' ], $this->type ] ) );
+		$poster = $this->fixSeparator( $path . '/' . $fileName . '.jpg' );
 
 		if ( !is_dir( $path ) ) mkdir( $path, 0700, TRUE );
 
-		if ( $overWrite == TRUE OR !file_exists( $f ) ) {
+		if ( $overWrite == TRUE OR !file_exists( $poster ) ) {
 
 			try {
 
-				copy( $url, $f );
+				copy( $url, $poster );
 			}
 			catch ( \Exception $e ) {
 
@@ -171,6 +195,6 @@ class Cache implements CacheInterface {
 			}
 		}
 
-		return $this->fixSeparator( str_replace( $this->fixSeparator( filter_input( INPUT_SERVER, 'DOCUMENT_ROOT', FILTER_SANITIZE_STRING ) ), '', $path ) . '/' . $fileName );
+		return $this->fixSeparator( str_replace( $this->fixSeparator( filter_input( INPUT_SERVER, 'DOCUMENT_ROOT', FILTER_SANITIZE_STRING ) ), '', $poster ) );
 	}
 }

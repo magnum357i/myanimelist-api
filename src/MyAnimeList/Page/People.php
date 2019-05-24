@@ -16,14 +16,9 @@ use MyAnimeList\Builder\AbstractPage;
 class People extends AbstractPage {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'people';
-
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'character' => 'character/{s}', 'people' => 'people/{s}', 'anime' => 'anime/{s}', 'manga' => 'manga/{s}' ];
+	public $keyList = [ 'name', 'poster', 'description', 'socialFacebook', 'socialTwitter', 'socialWebsite', 'height', 'weight', 'birth', 'death', 'category', 'age', 'statisticFavorite', 'recentVoice', 'recentWork', 'tabItems', 'tabBase', 'bloodtype', 'city', 'country' ];
 
 	/**
 	 * @return 		string
@@ -35,7 +30,7 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()::isOnNameConverting() ) $data = $this->text()->reverseName( $data );
+		if ( $this->config()->reversename ) $data = $this->text()->reverseName( $data );
 
 		return $data;
 	}
@@ -50,7 +45,7 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()::isOnCache() ) {
+		if ( $this->config()->enablecache ) {
 
 			$newPoster = $this->cache()->savePoster( $this->getImageName(), $data );
 			$data      = $newPoster;
@@ -81,7 +76,7 @@ class People extends AbstractPage {
 	 */
 	protected function getFacebookWithSocialFromData() {
 
-		return $this->request()::match( '<a href="https://www.facebook.com/([^"]+)"[^>]+>facebook</a>' );
+		return $this->request()::match( [ '<a href="https://w*\.?facebook\.com/([^"]+)"[^>]+>facebook</a>', 'facebook: \@<a[^>]+>(.*?)</a>' ] );
 	}
 
 	/**
@@ -90,7 +85,7 @@ class People extends AbstractPage {
 	 */
 	protected function getTwitterWithSocialFromData() {
 
-		return $this->request()::match( 'twitter: \@<a[^>]+>(.*?)</a>' );
+		return $this->request()::match( [ '<a href="https://w*\.?twitter\.com/([^"]+)"[^>]+>twitter</a>', 'twitter: \@<a[^>]+>(.*?)</a>' ] );
 	}
 
 	/**
@@ -114,22 +109,18 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = 'lorem' . $data;
+		preg_match( '@([\d\.,]+)\s+cm@', $data, $out );
 
-		preg_match( '@.+[^\d,\.]([\d,\.]+)\s+cm@', $data, $out );
+		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->replace( '[\.,].+', '', $out[ 1 ] );
-
-		$data = str_replace( '&#039;', "'", $data );
-
-		preg_match( '@.+[^\d](\d+)[\'"]\s*(\d+)[\'"]@', $data, $out );
+		preg_match( '@([\d\.,]+)[\'"]\s*([\d\.,]+)[\'"]@', $data, $out );
 
 		if ( !empty( $out ) ) {
 
 			$feet = $out[ 1 ];
 			$inc  = $out[ 2 ];
 
-			return $this->text()->replace( '[\.,].+', '', ( $feet * 30.48 ) + ( $inc * 2.54 ) );
+			return $this->text()->roundNumber( ( $feet * 30.48 ) + ( $inc * 2.54 ) );
 		}
 
 		return FALSE;
@@ -145,15 +136,13 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = 'lorem' . $data;
+		preg_match( '@([\d\.,]+)\s*kg@', $data, $out );
 
-		preg_match( '@.+[^\d,\.]([\d,\.]+)\s+kg@', $data, $out );
+		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->replace( '[\.,].+', '', $out[ 1 ] );
+		preg_match( '@([\d\.,]+)\s*lbs@', $data, $out );
 
-		preg_match( '@.+[^\d,\.]([\d]+)\s+lbs@', $data, $out );
-
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->replace( '[\.,].+', '', $out[ 1 ] / 2.2046 );
+		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] / 2.2046 );
 
 		return FALSE;
 	}
@@ -215,8 +204,8 @@ class People extends AbstractPage {
 	 */
 	protected function getAgeFromData() {
 
-		$birth = ( isset( static::$data[ 'birth' ] ) ) ? static::$data[ 'birth' ] : $this->getBirthFromData();
-		$death = ( isset( static::$data[ 'death' ] ) ) ? static::$data[ 'death' ] : $this->getDeathFromData();
+		$birth = $this->birth;
+		$death = $this->death;
 
 		if ( $birth == FALSE ) return FALSE;
 
@@ -234,6 +223,84 @@ class People extends AbstractPage {
 		$diff = $date1->diff( $date2 );
 
 		return $diff->format( '%y' );
+	}
+
+	/**
+	 * @return 		string
+	 * @usage 		bloodtype
+	 */
+	protected function getBloodtypeFromData() {
+
+		return $this->request()::match( 'blood\s*type[^:]*:([^<]+)<br />' );
+	}
+
+	protected $whereFrom = NULL;
+
+	/**
+	 * @return 		string
+	 */
+	protected function whereFrom() {
+
+		if ( $this->whereFrom != NULL ) return $this->whereFrom;
+
+		$this->whereFrom = $this->request()::match( [
+
+			'birth\s*place[^:]*: ([^<]+)<', 'home\s*town[^:]*: ([^<]+)<br />',
+			'born in ([^\.]+)\.',           'lives in ([^\.]+)\.'
+		] );
+
+		return $this->whereFrom;
+	}
+
+	/**
+	 * @return 		string
+	 * @usage 		city
+	 */
+	protected function getCityFromData() {
+
+		$whereFrom = $this->whereFrom();
+
+		if ( $whereFrom == FALSE ) return FALSE;
+
+		$whereFrom = $this->text()->listValue( $whereFrom, ',' );
+
+		return ( !empty( $whereFrom ) ) ? $whereFrom[ 0 ] : FALSE;
+	}
+
+	/**
+	 * @return 		string
+	 * @usage 		country
+	 */
+	protected function getCountryFromData() {
+
+		$whereFrom = $this->whereFrom();
+
+		if ( $whereFrom != FALSE ) {
+
+			$whereFrom = $this->text()->listValue( $whereFrom, ',' );
+
+			$allowedCountries = [ 'Japan', 'USA', 'Italy', 'Germany', 'China', 'Belgium', 'United States', 'U.S.A.' ];
+			$country          = end( $whereFrom );
+
+			if ( in_array( $country, $allowedCountries ) ) return str_replace( [ 'U.S.A.', 'United States' ], 'USA', $country );
+		}
+
+		$language = $this->request()::match( [ '(\w+) voice', '(\w+) actor', '(\w+) actress' ] );
+
+		if ( $language != FALSE ) {
+
+			$allowedLanguages = [
+
+				'German'  => 'Germany', 'Brazilian' => 'Brazil', 'Spanish'  => 'Spain', 'French' => 'France',
+				'Belgian' => 'Belgium', 'Mexican'   => 'USA',    'American' => 'USA'
+			];
+
+			if ( isset( $allowedLanguages[ $language ] ) ) return $allowedLanguages[ $language ];
+		}
+
+		if ( $this->request()::match( [ '(actor in korea)', '(actress in korea)', '(kbs voice)' ] ) != FALSE ) return 'Korea';
+
+		return FALSE;
 	}
 
 	/**
@@ -273,14 +340,11 @@ class People extends AbstractPage {
 		$this->config(), $this->text(),
 		'voice acting roles</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
 		[
-		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>',
-		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+character/\d+[^"]+">([^<]+)</a>'
+		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/anime/\d+/\d+\.jpg[^"]+)"',
+		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+character/\d+[^"]+">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/characters/\d+/\d+\.jpg[^"]+)"'
 		],
-		[
-		'anime_id', 'anime_title',
-		'character_id', 'character_name'
-		],
-		static::$limit, NULL, TRUE, 'anime_id'
+		[ 'aid', 'atitle', 'aposter', 'cid', 'cname', 'cposter' ],
+		static::$limit, NULL, TRUE, 'aid'
 		);
 	}
 
@@ -294,8 +358,8 @@ class People extends AbstractPage {
 		$this->request()::matchTable(
 		$this->config(), $this->text(),
 		'anime staff positions</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
-		[ '<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', '<small>([^<]+)</small>' ],
-		[ 'id', 'title', 'work' ],
+		[ '<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', '<small>([^<]+)</small>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/anime/\d+/\d+\.jpg[^"]+)"' ],
+		[ 'id', 'title', 'work', 'poster' ],
 		static::$limit, NULL, TRUE, 'id'
 		);
 	}

@@ -16,14 +16,16 @@ use MyAnimeList\Builder\AbstractPage;
 class Manga extends AbstractPage {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'manga';
+	public $keyList = [
 
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'genre' => 'manga/genre/{s}', 'magazine' => 'manga/magazine/{s}', 'character' => 'character/{s}', 'people' => 'people/{s}', 'anime' => 'anime/{s}', 'manga' => 'manga/{s}' ];
+		'titleOriginal', 'titleEnglish', 'titleJapanese', 'titleOthers', 'poster', 'description', 'background', 'category', 'authors',
+		'scoreVote', 'scorePoint', 'genres', 'publishedFirst', 'publishedLast', 'volume', 'chapter', 'serialization',
+		'statisticRank', 'statisticPopularity', 'statisticMember', 'statisticFavorite', 'status', 'year', 'characters',
+		'relatedAdaptation', 'relatedSequel', 'relatedPrequel', 'relatedParentstory', 'relatedSidestory',
+		'relatedOther', 'relatedSpinoff', 'relatedAlternativeversion', 'tabItems', 'tabBase'
+	];
 
 	/**
 	 * @return 		string
@@ -71,7 +73,7 @@ class Manga extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()::isOnCache() ) {
+		if ( $this->config()->enablecache ) {
 
 			$newPoster = $this->cache()->savePoster( $this->getImageName(), $data );
 			$data      = $newPoster;
@@ -152,7 +154,7 @@ class Manga extends AbstractPage {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 
-		if ( !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
+		if ( !$this->text()->validate( 'number', [], $data ) ) return FALSE;
 
 		$data = mb_substr( $data, 0, 2 );
 		$data = mb_substr( $data, 0, 1 ) . '.' . mb_substr( $data, 1, 2 );
@@ -172,7 +174,7 @@ class Manga extends AbstractPage {
 
 		$data = str_replace( '#', '', $data );
 
-		return $this->text()->validate( [ 'mode' => 'number' ], $data ) ? $data : FALSE;
+		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
 	}
 
 	/**
@@ -203,7 +205,7 @@ class Manga extends AbstractPage {
 
 		$data = str_replace( '#', '', $data );
 
-		return $this->text()->validate( [ 'mode' => 'number' ], $data ) ? $data : FALSE;
+		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
 	}
 
 	/**
@@ -291,7 +293,7 @@ class Manga extends AbstractPage {
 
 		$data = $this->request()::match('<span class="dark_text">volumes:</span>(.*?)</div>');
 
-		if ( $data == FALSE OR !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
+		if ( $data == FALSE OR !$this->text()->validate( 'number', [], $data ) ) return FALSE;
 
 		return $data;
 	}
@@ -304,7 +306,7 @@ class Manga extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">chapters:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
+		if ( $data == FALSE OR !$this->text()->validate( 'number', [], $data ) ) return FALSE;
 
 		return $data;
 	}
@@ -343,7 +345,7 @@ class Manga extends AbstractPage {
 	}
 
 	/**
-	 * @return 		array
+	 * @return 		array|no
 	 * @usage 		publishedLast
 	 */
 	protected function getLastWithPublishedFromData() {
@@ -388,8 +390,8 @@ class Manga extends AbstractPage {
 		$this->request()::matchTable(
 		$this->config(), $this->text(),
 		'</div>characters</h2><div.*?">(.+?</table>)</div></div>', '<table[^>]*>(.*?)</table>',
-		[ '<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+character/\d+[^"]+">([^<]+)</a>', '<small>([^<]+)</small>' ],
-		[ 'id', 'name', 'role' ],
+		[ '<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+character/\d+[^"]+">([^<]+)</a>', '<small>([^<]+)</small>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/characters/\d+/\d+\.jpg[^"]+)"' ],
+		[ 'id', 'name', 'role', 'poster' ],
 		static::$limit
 		);
 	}

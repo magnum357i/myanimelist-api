@@ -16,14 +16,9 @@ use MyAnimeList\Builder\AbstractPage;
 class Character extends AbstractPage {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'character';
-
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'people' => 'people/{s}', 'anime' => 'anime/{s}', 'manga' => 'manga/{s}' ];
+	public $keyList = [ 'titleSelf', 'titleNickname', 'category', 'poster', 'age', 'height', 'weight', 'statisticFavorite', 'recentAnime', 'recentManga', 'voiceactors', 'tabItems', 'tabBase', 'bloodtype' ];
 
 	/**
 	 * @return 		string
@@ -35,7 +30,7 @@ class Character extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config::isOnNameConverting() ) $data = $this->text()->reverseName( $data, 3 );
+		if ( $this->config()->reversename ) $data = $this->text()->reverseName( $data, 3 );
 
 		$data = $this->text()->replace( '\s*".+"\s*', ' ', $data );
 
@@ -70,7 +65,7 @@ class Character extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()::isOnCache() ) {
+		if ( $this->config()->enablecache ) {
 
 			$newPoster = $this->cache()->savePoster( $this->getImageName(), $data );
 			$data      = $newPoster;
@@ -153,18 +148,18 @@ class Character extends AbstractPage {
 		$data = 'lorem' . $out[ 1 ];
 		$data = $this->text()->replace( '\(.*?\)', '', $data, 'si' );
 
-		preg_match( '@.+[^\d,\.]([\d,\.]+)\s*cm@', $data, $out );
+		preg_match( '@.+[^\d\.,]+([\d\.,]+)\s*cm@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->replace( '[\.,].+', '', $out[ 1 ] );
+		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
 
-		preg_match( '@.+[^\d](\d+)[\'"]\s*(\d+)[\'"]@', $data, $out );
+		preg_match( '@.+[^\d]([\d\.,]+)[\'"]\s*([\d\.,]+)[\'"]@', $data, $out );
 
 		if ( !empty( $out ) ) {
 
 			$feet = $out[ 1 ];
 			$inc  = $out[ 2 ];
 
-			return $this->text()->replace( '[\.,].+', '', ( $feet * 30.48 ) + ( $inc * 2.54 ) );
+			return $this->text()->roundNumber( ( $feet * 30.48 ) + ( $inc * 2.54 ) );
 		}
 
 		return FALSE;
@@ -187,15 +182,30 @@ class Character extends AbstractPage {
 		$data = 'lorem' . $out[ 1 ];
 		$data = $this->text()->replace( '\(.*?\)', '', $data, 'si' );
 
-		preg_match( '@.+[^\d,\.]([\d,\.]+)\s*kg@', $data, $out );
+		preg_match( '@.+[^\d\.,]([\d\.,]+)\s*kg@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->replace( '[\.,].+', '', $out[ 1 ] );
+		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
 
-		preg_match( '@.+[^\d,\.]([\d]+)\s*lbs?@', $data, $out );
+		preg_match( '@.+[^\d\.,]([\d\.,]+)\s*lbs?@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->replace( '[\.,].+', '', $out[ 1 ] / 2.2046 );
+		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] / 2.2046 );
 
 		return FALSE;
+	}
+
+	/**
+	 * @return 		string
+	 * @usage 		bloodtype
+	 */
+	protected function getBloodtypeFromData() {
+
+		$description = "\n" . strip_tags( $this->fullDescription() );
+
+		if ( $description == FALSE ) return FALSE;
+
+		preg_match( '@\n[^\n]*blood\s*type\s*:([^\n]+)\n@i', $description, $out );
+
+		return ( !empty( $out[ 1 ] ) ) ? $out[ 1 ] : FALSE;
 	}
 
 	/**
@@ -271,13 +281,9 @@ class Character extends AbstractPage {
 		[
 		'<a href="[^"]+people/(\d+)[^"]+">[^<]+</a>.*?<div[^>]+><small>' . $lang . '</small>',
 		'<a href="[^"]+people/\d+[^"]+">([^<]+)</a>.*?<div[^>]+><small>' . $lang . '</small>',
-		'<a href="[^"]+people/\d+[^"]+">[^<]+</a>.*?<div[^>]+><small>(' . $lang . ')</small>'
+		'src="([^"]+myanimelist.net/images/voiceactors/\d+/[\d\w]+\.jpg)".+<a href="[^"]+people/(\d+)[^"]+">[^<]+</a>.*?<div[^>]+><small>' . $lang . '</small>'
 		],
-		[
-		'id',
-		'name',
-		'lang'
-		],
+		[ 'id', 'name', 'poster' ],
 		static::$limit
 		);
 	}

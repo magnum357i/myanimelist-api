@@ -16,14 +16,16 @@ use MyAnimeList\Builder\AbstractPage;
 class Anime extends AbstractPage {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'anime';
+	public $keyList = [
 
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'genre' => 'anime/genre/{s}', 'producer' => 'anime/producer/{s}', 'character' => 'character/{s}', 'people' => 'people/{s}', 'anime' => 'anime/{s}', 'manga' => 'manga/{s}' ];
+		'titleOriginal', 'titleEnglish', 'titleJapanese', 'titleOthers', 'poster', 'description', 'background', 'category', 'rating', 'licensors', 'producers',
+		'scoreVote', 'scorePoint', 'genres', 'source', 'airedFirst', 'airedLast', 'episode', 'studios', 'duration', 'premiered',
+		'statisticRank', 'statisticPopularity', 'statisticMember', 'statisticFavorite', 'status', 'broadcast', 'year', 'voice', 'staff',
+		'songOpening', 'songEnding', 'relatedAdaptation', 'relatedSequel', 'relatedPrequel', 'relatedParentstory', 'relatedSidestory',
+		'relatedOther', 'relatedSpinoff', 'relatedAlternativeversion', 'trailer', 'tabItems', 'tabBase'
+	];
 
 	/**
 	 * @return 		string
@@ -75,7 +77,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()::isOnCache() ) {
+		if ( $this->config()->enablecache ) {
 
 			$newPoster = $this->cache()->savePoster( $this->getImageName(), $data );
 			$data      = $newPoster;
@@ -106,7 +108,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span itemprop="description">.*?</span><h2[^>]*>.*?</h2>(.*?)<div[^>]*>', '<br>' );
 
-		if ( $data === FALSE OR $this->text()->validate( [ 'mode' => 'regex', 'regex_code' => 'no background information', 'regex_flags' => 'si' ], $data ) ) return FALSE;
+		if ( $data === FALSE OR $this->text()->validate( 'regex', [ 'match' => 'no background information', 'flags' => 'si' ], $data ) ) return FALSE;
 
 		return $data;
 	}
@@ -130,7 +132,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->text()->validate( [ 'mode' => 'regex', 'regex_code' => 'none', 'regex_flags' => 'si' ], $data ) ) return FALSE;
+		if ( $this->text()->validate( 'regex', [ 'match' => 'none', 'flags' => 'si' ], $data ) ) return FALSE;
 
 		$data = str_replace( [ '- Teens 13 or older', '(violence & profanity)', '- Mild Nudity', ' ' ], '', $data );
 		$data = trim( $data );
@@ -208,7 +210,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->text()->replace( '[^0-9]+', '', $data );
 
-		if ( !$this->text()->validate( [ 'mode' => 'number' ], $data ) ) return FALSE;
+		if ( !$this->text()->validate( 'number', [], $data ) ) return FALSE;
 
 		$data = mb_substr( $data, 0, 2 );
 		$data = mb_substr( $data, 0, 1 ) . '.' . mb_substr( $data, 1, 2 );
@@ -240,7 +242,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">source:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR $this->text()->validate( [ 'mode' => 'regex', 'regex_code' => 'unknown', 'regex_flags' => 'si' ], $data ) ) return FALSE;
+		if ( $data == FALSE OR $this->text()->validate( 'regex', [ 'match' => 'unknown', 'flags' => 'si' ], $data ) ) return FALSE;
 
 		return $data;
 	}
@@ -263,7 +265,7 @@ class Anime extends AbstractPage {
 	}
 
 	/**
-	 * @return 		array
+	 * @return 		array|no
 	 * @usage 		airedLast
 	 */
 	protected function getLastWithAiredFromData() {
@@ -291,7 +293,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">episodes:</span>(.*?)</div>' );
 
-		return $this->text()->validate( [ 'mode' => 'number' ], $data ) ? $data : FALSE;
+		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
 	}
 
 	/**
@@ -339,7 +341,7 @@ class Anime extends AbstractPage {
 
 		if ( empty( $out ) ) return FALSE;
 
-		$seasons = [ 'Summer', '1', 'Spring' => '2', 'Winter' => '3', 'Fall' => '4' ];
+		$seasons = [ 'Spring', '1', 'Summer' => '2', 'Fall' => '3', 'Winter' => '4' ];
 
 		if ( !isset( $seasons[ $out[ 1 ] ] ) ) return FALSE;
 
@@ -358,7 +360,7 @@ class Anime extends AbstractPage {
 
 		$data = str_replace( '#', '', $data );
 
-		return $this->text()->validate( [ 'mode' => 'number' ], $data ) ? $data : FALSE;
+		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
 	}
 
 	/**
@@ -373,7 +375,7 @@ class Anime extends AbstractPage {
 
 		$data = str_replace( '#', '', $data );
 
-		return $this->text()->validate( [ 'mode' => 'number' ], $data ) ? $data : FALSE;
+		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
 	}
 
 	/**
@@ -480,12 +482,12 @@ class Anime extends AbstractPage {
 		$this->config(), $this->text(),
 		'</div>characters & voice actors</h2>(.*?)<a name="staff">', '<tr>(.*?)</tr>',
 		[
-		'<a href="[^"]+/character/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/character/.*?/.*?">([^<]+)</a>',
-		'<a href="[^"]+/people/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/people/.*?/.*?">([^<]+)</a>', '<a href="[^"]+/people/.*?/.*?">[^<]+</a>.*?<small>(.*?)</small>'
+		'<a href="[^"]+/character/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/character/.*?/.*?">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/characters/\d+/\d+\.jpg[^"]+)"',
+		'<a href="[^"]+/people/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/people/.*?/.*?">([^<]+)</a>', '<a href="[^"]+/people/.*?/.*?">[^<]+</a>.*?<small>(.*?)</small>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/voiceactors/\d+/\d+\.jpg[^"]+)"'
 		],
 		[
-		'character_id', 'character_name',
-		'people_id', 'people_name', 'people_lang'
+		'cid', 'cname', 'cposter',
+		'pid', 'pname', 'plang', 'pposter'
 		],
 		static::$limit
 		);
@@ -501,8 +503,11 @@ class Anime extends AbstractPage {
 		$this->request()::matchTable(
 		$this->config(), $this->text(),
 		'</div>.*?staff[^<]*?</h2>(.*?)<h2>', '<table.*?>(.*?)</table>',
-		[ '<a href="[^"]+/people/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/people/.*?/.*?">([^<]+)</a>', '<a href="[^"]+/people/.*?/.*?">[^<]+</a>.*?<small>(.*?)</small>' ],
-		[ 'people_id', 'people_name', 'people_positions_list' ],
+		[
+		'<a href="[^"]+/people/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/people/.*?/.*?">([^<]+)</a>',
+		'data-src="([^"]+myanimelist.net/r/[\dx]+/images/voiceactors/\d+/\d+\.jpg[^"]+)"', '<a href="[^"]+/people/.*?/.*?">[^<]+</a>.*?<small>(.*?)</small>'
+		],
+		[ 'id', 'name', 'poster', 'positionlist' ],
 		static::$limit
 		);
 	}

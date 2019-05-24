@@ -19,9 +19,9 @@ abstract class AbstractWidget extends AbstractBuilder {
 	 */
 	protected $urlPatterns = [
 
-		'new'      => 'anime/season',
-		'upcoming' => 'anime/season/later',
-		'calendar' => 'anime/season/schedule'
+		'newanime'      => 'anime/season',
+		'upcominganime' => 'anime/season/later',
+		'animecalendar' => 'anime/season/schedule'
 	];
 
 	/**
@@ -41,16 +41,6 @@ abstract class AbstractWidget extends AbstractBuilder {
 	 */
 	protected function getFileName() {
 
-		return 'newanime';
-	}
-
-	/**
-	 * Image name for cache
-	 *
-	 * @return 		string
-	 */
-	protected function getImageName() {
-
-		return NULL;
+		return 'widget';
 	}
 }

@@ -70,6 +70,8 @@ if ( $mal->isSuccess() ) {
    echo $mal->year;
    echo $mal->voice;
    echo $mal->staff;
+   echo $mal->songOpening;
+   echo $mal->songEnding;
    echo $mal->relatedAdaptation;
    echo $mal->relatedPrequel;
    echo $mal->relatedSequel;
@@ -342,6 +344,63 @@ else {
 }
 ```
 
+### Upcoming Anime Widget
+
+###### Example
+
+```php
+// Create object
+$mal = new \MyAnimeList\Widget\UpcomingAnime;
+
+// Send request
+$mal->sendRequestOrGetData();
+
+// Is not 404 page or (cache enabled) cache file exists
+if ( $mal->isSuccess() ) {
+
+   echo $mal->tv;
+   echo $mal->ona;
+   echo $mal->ova;
+   echo $mal->movie;
+   echo $mal->special;
+   echo $mal->unknown;
+   echo $mal->link();
+}
+else {
+
+   echo 'No data.';
+}
+```
+
+### Anime Calendar Widget
+
+###### Example
+
+```php
+// Create object
+$mal = new \MyAnimeList\Widget\AnimeCalendar;
+
+// Send request
+$mal->sendRequestOrGetData();
+
+// Is not 404 page or (cache enabled) cache file exists
+if ( $mal->isSuccess() ) {
+
+   echo $mal->monday;
+   echo $mal->tuesday;
+   echo $mal->wednesday;
+   echo $mal->thursday;
+   echo $mal->friday;
+   echo $mal->saturday;
+   echo $mal->sunday;
+   echo $mal->link();
+}
+else {
+
+   echo 'No data.';
+}
+```
+
 # Configuration
 
 ### Override Default Cache Class
@@ -353,32 +412,30 @@ If needed, you can use your own cache class. Type your cache object to the const
 // Page
 
 $folders = \MyAnimeList\Builder\AbstractPage::$folders
-$type    = \MyAnimeList\Page\Anime::$type
+$type    = 'anime'
 $mal     = new \MyAnimeList\Page\Anime( 20, new \MyCustomCache( $type, $folders ) );
 
 // Search
 
 $folders = \MyAnimeList\Builder\AbstractSearch::$folders
-$type    = \MyAnimeList\Serach\Anime::$type
+$type    = 'anime'
 $mal     = new \MyAnimeList\Search\Anime( 'naruto', new \MyCustomCache( $type, $folders ) );
 
 // Widget
 
 $folders = \MyAnimeList\Builder\AbstractWidget::$folders
-$type    = \MyAnimeList\Serach\AnimeCalendar::$type
+$type    = 'animecalendar'
 $mal     = new \MyAnimeList\Widget\AnimeCalendar( new \MyCustomCache( $type, $folders ) );
 ```
 
 ### Reverse Names
 
-If true, the name order is reversed firstname-lastname instead of lastname-firstname.
-
 ```php
 // Create object
 $mal = new \MyAnimeList\Page\Manga( 1 );
 
-// Reverse name
-$mal->config()->convertName();
+// Reverse
+$mal->config()->reversename = TRUE;
 
 // Send request
 $mal->sendRequestOrGetData();
@@ -391,24 +448,38 @@ echo $mal->authors;
 // reverse name option is false: Urasawa, Naoki
 ```
 
-### Enable Cache
+### Bigger Images
 
-If true, the cache system enabled.
+```php
+// Create object
+$mal = new \MyAnimeList\Page\Manga( 1 );
+
+// Use bigger images
+$mal->config()->bigimages = TRUE;
+
+// Send request
+$mal->sendRequestOrGetData();
+
+// Test
+var_dump( $mal->staff );
+```
+
+### Enable Cache
 
 ```php
 // Create object
 $mal = new \MyAnimeList\Page\Anime( 1 );
 
 // Enable cache
-$mal->config()->enableCache();
-$mal->cache()->setExpiredTime( 5 ); // In days.
+$mal->config()->enablecache  = TRUE;
+$mal->config()->expiredbyday = 5;
 $mal->cache()->setPath( ROOT_PATH . '/upload' );
 
 // Send request
 $mal->sendRequestOrGetData();
 
 // Test
-echo $mal->title()->english;
+echo $mal->titleEnglish;
 echo $mal->poster;
 
 // Note
@@ -418,6 +489,22 @@ echo $mal->poster;
 // Also a poster named 1.jpg is saved.
 // After all, it will return false even if you call another value until the cache expires.
 // Please don't forget this.
+```
+
+### Capture all data at once
+
+```php
+// Create object
+$mal = new \MyAnimeList\Page\Manga( 20 );
+
+// Send request
+$mal->sendRequestOrGetData();
+
+// Get all data
+$mal->scanAvailableValues();
+
+// Print data
+var_dump( $mal->output() )
 ```
 
 ### cURL Settings
@@ -435,8 +522,6 @@ $mal->sendRequestOrGetData();
 
 ### Limitation
 
-If you use a value of array type, you can limit it with the setLimit function.
-
 ```php
 // Create object
 $mal = new \MyAnimeList\Page\Anime( 285 );
@@ -444,7 +529,7 @@ $mal = new \MyAnimeList\Page\Anime( 285 );
 // Send request
 $mal->sendRequestOrGetData();
 
-$mal->setLimit( 3 ); // works for all values of array type
+$mal->setLimit( 3 ); // works for all indexed arrays
 
 var_dump( $mal->voice );
 ```

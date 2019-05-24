@@ -16,14 +16,9 @@ use MyAnimeList\Builder\AbstractSearch;
 class Manga extends AbstractSearch {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'manga';
-
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'manga' => 'manga/{s}' ];
+	public $keyList = [ 'results' ];
 
 	/**
 	 * @return 		array

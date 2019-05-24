@@ -14,21 +14,6 @@ namespace MyAnimeList\Helper;
 class Config {
 
 	/**
-	 * Cache expired time by day
-	 */
-	protected $expiredByDay = 2;
-
-	/**
-	 * If true, names becomes the first-last order instead of the last-first order
-	 */
-	protected static $reverseName = NULL;
-
-	/**
-	 * If true, cache system of file system runs, so data to be taken is saved to a json file
-	 */
-	protected static $cache = NULL;
-
-	/**
 	 * Curl options
 	 */
 	protected $curl = [
@@ -44,64 +29,45 @@ class Config {
 	];
 
 	/**
+	 * reversename: If true, names becomes the first-last order instead of the last-first order
+	 * cache: If true, cache system of file system runs, so data to be taken is saved to a json file
+	 * bigimages: Real image sizes on staff, characters etc.
+	 * expiredbyday: Cache expired time by day
+	 */
+	protected static $settings = [];
+
+	/**
 	 *
 	 * @return 		void
 	 */
 	public function __construct() {
 
-		static::$reverseName = FALSE;
-		static::$cache       = FALSE;
+		static::$settings = [ 'reversename' => FALSE, 'enablecache' => FALSE, 'bigimages' => FALSE, 'expiredbyday' => 2 ];
 	}
 
 	/**
-	 * Set expired time
+	 * Magic Method: Get
 	 *
-	 * @param 		$dayNumber 			Number in days
-	 * @return 		void
+	 * @return 		mixed
 	 */
-	public function setExpiredTime( $dayNumber ) {
+	public function __get( $key ) {
 
-		$this->expiredByDay = $dayNumber;
+		if ( !isset( static::$settings[ $key ] ) ) throw new \Exception( "[MyAnimeList Config Error] Undefined setting: {$key}" );
+
+		return static::$settings[ $key ];
 	}
 
 	/**
-	 * Enable file cache setting
-	 *
-	 * @return 		void
-	 */
-	public function enableCache() {
-
-		static::$cache = TRUE;
-	}
-
-	/**
-	 * Is the file cache on?
-	 *
-	 * @return 		bool
-	 */
-	public static function isOnCache() {
-
-		return static::$cache;
-	}
-
-	/**
-	 * Enable reverse name setting
+	 * Magic Method: Set
 	 *
 	 * @return 		void
 	 */
-	public function convertName() {
+	public function __set( $key, $value ) {
 
-		static::$reverseName = TRUE;
-	}
+		if ( !isset( static::$settings[ $key ] ) ) throw new \Exception( "[MyAnimeList Config Error] Undefined setting: {$key}" );
+		if ( ( $key == 'expiredbyday' AND !is_numeric( $value ) ) OR ( $key != 'expiredbyday' AND !is_bool( $value ) ) ) throw new \Exception( "[MyAnimeList Config Error] Invalid value for {$key}" );
 
-	/**
-	 * Are the names being converted?
-	 *
-	 * @return 		bool
-	 */
-	public static function isOnNameConverting() {
-
-		return static::$reverseName;
+		static::$settings[ $key ] = $value;
 	}
 
 	/**
@@ -127,7 +93,7 @@ class Config {
 	/**
 	 * Set new user agent
 	 *
-	 * @param 		$value 			Value of curl setting you entered
+	 * @param 		$value 				Value of curl setting you entered
 	 * @param 		$setting 			Curl setting
 	 * @return 		void
 	 */

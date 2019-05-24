@@ -42,3 +42,12 @@ ul.commaList li:last-child:after {
 .json pre {
 	white-space: pre-wrap;
 }
+
+.tooltip img {
+	width: 150px;
+	height: 200px;
+}
+
+.miniImage img {
+    width: 120px;
+}

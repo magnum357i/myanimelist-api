@@ -1,45 +1,22 @@
 <?php
 
 include( '../autoload.php' );
+include( 'functions.php' );
+
+$ram1 = memory_get_usage();
+$time = microtime( TRUE );
 
 $mal = new \MyAnimeList\Widget\UpcomingAnime;
 
-$mal->config()->enableCache();
-$mal->config()->convertName();
-$mal->config()->setExpiredTime( 2 );
+$mal->config()->enablecache  = TRUE;
+$mal->config()->reversename  = TRUE;
+$mal->config()->bigimages    = TRUE;
+$mal->config()->expiredbyday = 2;
 
 // If required
 // $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0', 'USERAGENT' );
 
 $mal->cache()->setPath( ROOT_PATH . '/upload' );
-
-function outputFormatter( $o ) {
-
-	$o = htmlspecialchars( $o );
-	$o = htmlentities( $o );
-	$o = "<pre>{$o}</pre>";
-
-	return $o;
-}
-
-function timeAgo( $unix ) {
-
-	$timeAgo = '';
-    $diff    = time() - $unix;
-    $min     = 60;
-    $hour    = 60 * $min;
-    $day     = $hour * 24;
-    $month   = $day * 30;
-
-    if( $diff < 60 )          $timeAgo = $diff                   . ' seconds';
-    elseif ( $diff < $hour )  $timeAgo = round( $diff / $min )   . ' minutes';
-    elseif ( $diff < $day )   $timeago = round( $diff / $hour )  . ' hours';
-    elseif ( $diff < $month ) $timeago = round( $diff / $day )   . ' days';
-    else                      $timeAgo = round( $diff / $month ) . ' months';
-
-    return $timeAgo;
-}
-
 $mal->sendRequestOrGetData();
 
 if ( $mal->isSuccess() ) {
@@ -57,7 +34,7 @@ if ( $mal->isSuccess() ) {
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">tv</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -75,7 +52,7 @@ if ( isset( \$mal->tv ) ) {
 		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo '<div class="col-md-auto">';
-			echo "<img src=\"{\$result[ 'poster' ]}\" width=\"80px\" class=\"pr-2\">";
+			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 			echo '</div>';
 		}
 
@@ -126,7 +103,7 @@ EX;
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">ona</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -144,7 +121,7 @@ if ( isset( \$mal->ona ) ) {
 		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo '<div class="col-md-auto">';
-			echo "<img src=\"{\$result[ 'poster' ]}\" width=\"80px\" class=\"pr-2\">";
+			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 			echo '</div>';
 		}
 
@@ -195,7 +172,7 @@ EX;
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">ova</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -213,7 +190,7 @@ if ( isset( \$mal->ova ) ) {
 		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo '<div class="col-md-auto">';
-			echo "<img src=\"{\$result[ 'poster' ]}\" width=\"80px\" class=\"pr-2\">";
+			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 			echo '</div>';
 		}
 
@@ -264,7 +241,7 @@ EX;
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">movie</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -283,7 +260,7 @@ if ( isset( \$mal->movie ) ) {
 		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo '<div class="col-md-auto">';
-			echo "<img src=\"{\$result[ 'poster' ]}\" width=\"80px\" class=\"pr-2\">";
+			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 			echo '</div>';
 		}
 
@@ -334,7 +311,7 @@ EX;
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">special</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -352,7 +329,7 @@ if ( isset( \$mal->special ) ) {
 		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo '<div class="col-md-auto">';
-			echo "<img src=\"{\$result[ 'poster' ]}\" width=\"80px\" class=\"pr-2\">";
+			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 			echo '</div>';
 		}
 
@@ -403,7 +380,7 @@ EX;
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">unknown</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -421,7 +398,7 @@ if ( isset( \$mal->unknown ) ) {
 		if ( isset( \$result[ 'poster' ] ) ) {
 
 			echo '<div class="col-md-auto">';
-			echo "<img src=\"{\$result[ 'poster' ]}\" width=\"80px\" class=\"pr-2\">";
+			echo "<img src=\"{\$result[ 'poster' ]}\" class=\"pr-2\">";
 			echo '</div>';
 		}
 
@@ -472,7 +449,7 @@ EX;
 	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">link()</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
-	echo '<td class="align-middle">';
+	echo '<td class="align-middle miniImage">';
 
 	$output = <<<EX
 
@@ -488,36 +465,8 @@ EX;
 	echo '</tbody>';
 	echo '</table>';
 
-	if ( $mal->config()::isOnCache() ) {
-
-		echo '<h3>JSON Content</h3>';
-		echo '<div class="p-3 bg-dark mb-5 json">';
-		echo '<small>';
-		echo '<pre class="text-white">';
-		echo json_encode( json_decode( $mal, TRUE ), JSON_PRETTY_PRINT );
-		echo '</pre>';
-		echo '</small>';
-		echo '</div>';
-	}
-
-	echo '<h3>Time</h3>';
-	echo '<div class="p-3 bg-warning mb-5">';
-		echo '<div class="row text-center">';
-
-			if ( $mal->config()::isOnCache() ) {
-
-				echo '<div class="col-sm">';
-					echo '<div class="h6">Edited Time</div>';
-					echo '<span class="display-4">' . timeAgo( $mal->editedTime() ) . '</span>';
-				echo '</div>';
-			}
-
-			echo '<div class="col-sm">';
-			echo '<div class="h6">Elapsed Time</div>';
-				echo '<span class="display-4">' . timeAgo( $mal->elapsedTime() ) . '</span>';
-			echo '</div>';
-		echo '</div>';
-	echo '</div>';
+	jsonContent();
+	statisticDashboard( 'upcoming', FALSE );
 }
 else {
 

@@ -1,54 +1,22 @@
 <?php
 
 include( '../autoload.php' );
+include( 'functions.php' );
+
+$ram1 = memory_get_usage();
+$time = microtime( TRUE );
 
 $mal = new \MyAnimeList\Page\Character( $id );
 
-$mal->config()->enableCache();
-$mal->config()->convertName();
-$mal->config()->setExpiredTime( 2 );
+$mal->config()->enablecache  = TRUE;
+$mal->config()->reversename  = TRUE;
+$mal->config()->bigimages    = TRUE;
+$mal->config()->expiredbyday = 2;
 
 // If required
 // $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0', 'USERAGENT' );
 
 $mal->cache()->setPath( ROOT_PATH . '/upload' );
-
-function outputFormatter( $o ) {
-
-	$o = htmlspecialchars( $o );
-	$o = htmlentities( $o );
-	$o = "<pre>{$o}</pre>";
-
-	return $o;
-}
-
-function timeAgo( $unix ) {
-
-	$timeAgo = '';
-    $diff    = time() - $unix;
-    $min     = 60;
-    $hour    = 60 * $min;
-    $day     = $hour * 24;
-    $month   = $day * 30;
-
-    if( $diff < 60 )          $timeAgo = $diff                   . ' seconds';
-    elseif ( $diff < $hour )  $timeAgo = round( $diff / $min )   . ' minutes';
-    elseif ( $diff < $day )   $timeago = round( $diff / $hour )  . ' hours';
-    elseif ( $diff < $month ) $timeago = round( $diff / $day )   . ' days';
-    else                      $timeAgo = round( $diff / $month ) . ' months';
-
-    return $timeAgo;
-}
-
-function spoilerBBcode( $content ) {
-
-	return
-	'<div class="bg-info text-light p-3 m-3">
-		<h4>SPOILER!</h4>
-		<div>' . $content . '</div>
-	</div>';
-}
-
 $mal->sendRequestOrGetData();
 
 if ( $mal->isSuccess() ) {
@@ -248,6 +216,29 @@ EX;
 	echo '</td>';
 	echo '</tr>';
 	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">bloodtype</span></td>';
+	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
+	echo '<td class="align-middle">';
+
+	$output = <<<EX
+
+if ( isset( \$mal->bloodtype ) ) {
+
+	echo \$mal->bloodtype;
+}
+else {
+
+	echo '<span class="text-danger">Not found.</span>';
+}
+EX;
+
+	eval( $output );
+	echo '</td>';
+	echo '<td class="align-middle text-center">';
+	echo '<button type="button" class="btn btn-sm btn-outline-dark btn-block" data-html="true" data-toggle="popover" data-placement="left" data-content="' . outputFormatter( $output ) . '"><i class="fas fa-question-circle"></i></button>';
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
 	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">statisticFavorite</span></td>';
 	echo '<td class="align-middle"><span class="badge badge-info">string</span></td>';
 	echo '<td class="align-middle">';
@@ -372,7 +363,9 @@ if ( isset( \$mal->voiceactors ) ) {
 
 	foreach ( \$mal->voiceactors as \$v ) {
 
-		echo "<li><a href=\"" . \$mal->externalLink( 'people', \$v[ 'id' ] ) . "\" target=\"_blank\">{\$v[ 'name' ]}</a> ({\$v[ 'lang' ]})</li>";
+		\$hoverPoster = ( isset( \$v[ 'poster' ] ) ) ? hoverPoster( \$v[ 'poster' ] ) : '';
+
+		echo "<li><a {\$hoverPoster} href=\"" . \$mal->externalLink( 'people', \$v[ 'id' ] ) . "\" target=\"_blank\">{\$v[ 'name' ]}</a></li>";
 	}
 
 	echo '</ul>';
@@ -425,7 +418,7 @@ if ( isset( \$mal->tabItems ) ) {
 
 	echo '<ul class="commaList">';
 
-	\$tabLink = ( \$mal->tabBase != FALSE ) ? \$mal->tabBase : '';
+	\$tabLink = ( isset( \$mal->tabBase ) ) ? \$mal->tabBase : '';
 
 	foreach ( \$mal->tabItems as \$tab ) {
 
@@ -465,36 +458,8 @@ EX;
 	echo '</tbody>';
 	echo '</table>';
 
-	if ( $mal->config()::isOnCache() ) {
-
-		echo '<h3>JSON Content</h3>';
-		echo '<div class="p-3 bg-dark mb-5 json">';
-		echo '<small>';
-		echo '<pre class="text-white">';
-		echo json_encode( json_decode( $mal, TRUE ), JSON_PRETTY_PRINT );
-		echo '</pre>';
-		echo '</small>';
-		echo '</div>';
-	}
-
-	echo '<h3>Time</h3>';
-	echo '<div class="p-3 bg-warning mb-5">';
-		echo '<div class="row text-center">';
-
-			if ( $mal->config()::isOnCache() ) {
-
-				echo '<div class="col-sm">';
-					echo '<div class="h6">Edited Time</div>';
-					echo '<span class="display-4">' . timeAgo( $mal->editedTime() ) . '</span>';
-				echo '</div>';
-			}
-
-			echo '<div class="col-sm">';
-			echo '<div class="h6">Elapsed Time</div>';
-				echo '<span class="display-4">' . timeAgo( $mal->elapsedTime() ) . '</span>';
-			echo '</div>';
-		echo '</div>';
-	echo '</div>';
+	jsonContent();
+	statisticDashboard( $id, TRUE );
 }
 else {
 

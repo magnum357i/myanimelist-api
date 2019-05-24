@@ -16,14 +16,9 @@ use MyAnimeList\Builder\AbstractSearch;
 class Anime extends AbstractSearch {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'anime';
-
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'anime' => 'anime/{s}' ];
+	public $keyList = [ 'results' ];
 
 	/**
 	 * @return 		array

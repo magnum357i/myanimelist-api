@@ -16,66 +16,9 @@ use MyAnimeList\Builder\AbstractWidget;
 class UpcomingAnime extends AbstractWidget {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'upcoming';
-
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'genre' => 'anime/genre/{s}', 'producer' => 'anime/producer/{s}', 'anime' => 'anime/{s}' ];
-
-	/**
-	 * @return 		array
-	 */
-	public function custom_studios( $value ) {
-
-		if ( $value == '-' ) return NULL;
-
-		preg_match_all( '@<a href="[^"]+producer/(\d+)[^"]+"[^>]+>(.*?)</a>@', $value, $result );
-
-		$count = count( $result[ 1 ] );
-
-		if ( $count == 0 ) return NULL;
-
-		$rows = [];
-
-		for ( $i = 0; $i < $count; $i++ ) {
-
-			$rows[] = [
-
-				'id'    => $this->request()::reflection( $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
-				'title' => $this->request()::reflection( $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
-			];
-		}
-
-		return $rows;
-	}
-
-	/**
-	 * @return 		array
-	 */
-	public function custom_genres( $value ) {
-
-		preg_match_all( '@<a href="[^"]+genre/(\d+)[^"]+"[^>]+>(.*?)</a>@', $value, $result );
-
-		$count = count( $result[ 1 ] );
-
-		if ( $count == 0 ) return NULL;
-
-		$rows = [];
-
-		for ( $i = 0; $i < $count; $i++ ) {
-
-			$rows[] = [
-
-				'id'    => $this->request()::reflection( $this->config(), $this->text(), $result[ 1 ][ $i ], 'id' ),
-				'title' => $this->request()::reflection( $this->config(), $this->text(), $result[ 2 ][ $i ], 'title' )
-			];
-		}
-
-		return $rows;
-	}
+	public $keyList = [ 'tv', 'ona', 'ova', 'movie', 'special', 'unknown' ];
 
 	/**
 	 * @return 		array
@@ -96,8 +39,7 @@ class UpcomingAnime extends AbstractWidget {
 		'id', 'title', 'poster',
 		'studios', 'genres'
 		],
-		static::$limit,
-		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		static::$limit
 		);
 	}
 
@@ -120,8 +62,7 @@ class UpcomingAnime extends AbstractWidget {
 		'id', 'title', 'poster',
 		'studios', 'genres'
 		],
-		static::$limit,
-		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		static::$limit
 		);
 	}
 
@@ -144,8 +85,7 @@ class UpcomingAnime extends AbstractWidget {
 		'id', 'title', 'poster',
 		'studios', 'genres'
 		],
-		static::$limit,
-		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		static::$limit
 		);
 	}
 
@@ -168,8 +108,7 @@ class UpcomingAnime extends AbstractWidget {
 		'id', 'title', 'poster',
 		'studios', 'genres'
 		],
-		static::$limit,
-		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		static::$limit
 		);
 	}
 
@@ -192,8 +131,7 @@ class UpcomingAnime extends AbstractWidget {
 		'id', 'title', 'poster',
 		'studios', 'genres'
 		],
-		static::$limit,
-		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		static::$limit
 		);
 	}
 
@@ -216,8 +154,7 @@ class UpcomingAnime extends AbstractWidget {
 		'id', 'title', 'poster',
 		'studios', 'genres'
 		],
-		static::$limit,
-		[ 'studios' => [ $this, 'custom_studios' ], 'genres' => [ $this, 'custom_genres' ] ]
+		static::$limit
 		);
 	}
 }

@@ -16,14 +16,9 @@ use MyAnimeList\Builder\AbstractSearch;
 class Character extends AbstractSearch {
 
 	/**
-	 * Set type
+	 * Key list for all purposes
 	 */
-	public static $type = 'character';
-
-	/**
-	 * Patterns for externalLink
-	 */
-	protected static $externalLinks = [ 'character' => 'character/{s}' ];
+	public $keyList = [ 'results' ];
 
 	/**
 	 * @return 		array
@@ -31,21 +26,33 @@ class Character extends AbstractSearch {
 	 */
 	protected function getResultsFromData() {
 
+		$productEditing = function( $value ) {
+
+			preg_match_all( '@<a href="/[^/]+/(\d+)/[^"]+">(.*?)</a>@', $value, $out, PREG_SET_ORDER );
+
+			$rows = [];
+
+			foreach ( $out as $row ) $rows[] = [ 'id' => trim( strip_tags( $row[ 1 ] ) ), 'title' => trim( strip_tags( $row[ 2 ] ) ) ];
+
+			return $rows;
+		};
+
 		return
 		$this->request()::matchTable(
 		$this->config(), $this->text(),
 		'search results(.*?</table>)', '<tr>(.*?)</tr>',
 		[
 		'<a[^>]+href="[^"]+character/\d+[^"]+">([^<]+)</a>', '<a[^>]+href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<img[^>]+src="([^"]+images/characters[^"]+)"[^>]+>',
-		[ '<small>\s*anime:\s*<a[^>]+>(.+)</a>\s*</small>', '<small>\s*anime:\s*<a[^>]+>(.+)</a>\s*</div>' ],
-		[ '<small>\s*<div>manga:\s*<a[^>]+>(.+)</a></div>\s*</small>', '<div>\s*manga:\s*<a[^>]+>(.+)</a>\s*</div>' ]
+		[ '<small>\s*anime:\s*(<a[^>]+>.+</a>)\s*</small>', '<small>\s*anime:\s*(<a[^>]+>.+</a>)\s*</div>' ],
+		[ '<small>\s*<div>manga:\s*(<a[^>]+>.+</a>)</div>\s*</small>', '<div>\s*manga:\s*(<a[^>]+>.+</a>)\s*</div>' ]
 		],
 		[
-		'character_name', 'character_id', 'character_poster',
-		'anime_titles_list',
-		'manga_titles_list'
+		'name', 'id', 'poster',
+		'animes',
+		'mangas'
 		],
-		static::$limit
+		static::$limit,
+		[ 'animes' => $productEditing, 'mangas' => $productEditing ]
 		);
 	}
 }

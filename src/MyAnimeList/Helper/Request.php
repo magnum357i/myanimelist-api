@@ -44,6 +44,11 @@ class Request {
 	protected static $sent = NULL;
 
 	/**
+	 * Request Info
+	 */
+	protected $requestInfo = NULL;
+
+	/**
 	 * Is the request sent
 	 *
 	 * @return 		bool
@@ -69,9 +74,19 @@ class Request {
 	}
 
 	/**
+	 * Request info
+	 *
+	 * @return 		unix
+	 */
+	public function info() {
+
+		return $this->requestInfo;
+	}
+
+	/**
 	 * Load the raw html to static::$content
 	 *
-	 * @param 		array 			$curlOptions 		Curl options
+	 * @param 		array 			$curlOptions 			Curl options
 	 * @return 		void
 	 */
 	public function send( $curlOptions=[] ) {
@@ -95,7 +110,8 @@ class Request {
 				$this->success = TRUE;
 			}
 
-			static::$sent = TRUE;
+			$this->requestInfo = curl_getinfo( $cSession );
+			static::$sent      = TRUE;
 
 			curl_close( $cSession );
 		}
@@ -105,7 +121,7 @@ class Request {
 	/**
 	 * Create url to request
 	 *
-	 * @param 		string 			$query 			Url without the site name
+	 * @param 		string 			$query 					Url without the site name
 	 * @return 		void
 	 */
 	public function createUrl( $query ) {
@@ -116,9 +132,9 @@ class Request {
 	/**
 	 * Match string from raw html
 	 *
-	 * @param 		string 		$templates 				Regex template or templates
+	 * @param 		string 			$templates 				Regex template or templates
 	 * @param 		bool 			$allowTags 				Which tags should not be deleted?
-	 * @param 		bool 			$clean 				Strip value
+	 * @param 		bool 			$clean 					Strip value
 	 * @param 		bool 			$content 				Html content
 	 * @return 		string
 	 */
@@ -160,30 +176,77 @@ class Request {
 	/**
 	 * Makes the value simple
 	 *
-	 * @param 		object 			$config 			Config object
-	 * @param 		object 			$text 			Text object
-	 * @param 		string 			$value 			A value
-	 * @param 		string 			$key 				A key
+	 * @param 		object 				$config 			Config object
+	 * @param 		object 				$text 				Text object
+	 * @param 		string 				$value 				A value
+	 * @param 		string 				$key 				A key
 	 * @return 		array
 	 */
 	public static function reflection( \MyAnimeList\Helper\Config $config, \MyAnimeList\Helper\Text $text, $value, $key ) {
 
 		if ( $value == NULL ) return NULL;
 
-		$value = strip_tags( $value );
-		$value = trim( $value );
+		preg_match( '@(link|name|list|poster|studios|genres)$@', $key, $out );
 
-		if ( preg_match( '/link$/', $key ) ) {
+		$key = ( isset( $out[ 1 ] ) ) ? $out[ 1 ] : $key;
 
-			$value = static::SITE . $value;
+		if ( $key != 'studios' AND $key != 'genres' ) {
+
+			$value = strip_tags( $value );
+			$value = trim( $value );
 		}
-		else if ( $config::isOnNameConverting() && preg_match( '/name$/', $key ) ) {
 
-			$value = $text->reverseName( $value );
-		}
-		else if ( preg_match( '/list$/', $key ) ) {
+		switch ( $key ) {
 
-			$value = $text->listValue( $value, ',' );
+			case 'link': $value = static::SITE . $value; break;
+			case 'name': if ( $config->reversename ) $value = $text->reverseName( $value ); break;
+			case 'list': $value = $text->listValue( $value, ',' ); break;
+			case 'poster':
+
+				if ( $config->bigimages ) {
+
+					preg_match( '@images/([^/]+)/(\d+/\d+)@', $value, $out );
+
+					if ( !empty( $out ) ) {
+
+						$id    = $out[ 2 ];
+						$type  = $out[ 1 ];
+						$value = "https://cdn.myanimelist.net/images/{$type}/{$id}.jpg";
+					}
+				}
+
+			break;
+			case 'studios':
+
+				if ( $value != '-' ) {
+
+					preg_match_all( '@<a href="[^"]+producer/(\d+)[^"]+"[^>]+>(.*?)</a>@', $value, $result );
+
+					$count = count( $result[ 1 ] );
+					$rows  = [];
+
+					for ( $i = 0; $i < $count; $i++ ) $rows[] = [ 'id' => $result[ 1 ][ $i ], 'title' => $result[ 2 ][ $i ] ];
+
+					$value = $rows;
+				}
+				else {
+
+					$value = NULL;
+				}
+
+			break;
+			case 'genres':
+
+				preg_match_all( '@<a href="[^"]+genre/(\d+)[^"]+"[^>]+>(.*?)</a>@', $value, $result );
+
+				$count = count( $result[ 1 ] );
+				$rows  = [];
+
+				for ( $i = 0; $i < $count; $i++ ) $rows[] = [ 'id' => $result[ 1 ][ $i ], 'title' => $result[ 2 ][ $i ] ];
+
+				$value = $rows;
+
+			break;
 		}
 
 		return $value;
@@ -193,14 +256,14 @@ class Request {
 	 * Get data as table
 	 *
 	 * @param 		object 			$config 			Config object
-	 * @param 		object 			$text 			Text object
+	 * @param 		object 			$text 				Text object
 	 * @param 		string 			$tableQuery 		A regex code to match a table
 	 * @param 		string 			$rowQuery 			A regex code to match a row in the table
 	 * @param 		array 			$queryList 			A regex code to match a value in the row
 	 * @param 		array 			$keyList 			A key to assign the value in the row
-	 * @param 		string 			$limit 			How many records will return?
+	 * @param 		string 			$limit 				How many records will return?
 	 * @param 		array 			$customChanges 		Desired changes in the value
-	 * @param 		bool 				$last 			Reverse sorting?
+	 * @param 		bool 			$last 				Reverse sorting?
 	 * @param 		string 			$sortKey 			Sort by key
 	 * @return 		array
 	 */
@@ -239,7 +302,7 @@ class Request {
 						$rowValue = static::reflection( $config, $text, $rowValue, $keyList[ $k ] );
 					}
 
-					if ( $rowValue != NULL ) {
+					if ( $rowValue != NULL AND !empty( $rowValue ) ) {
 
 						$assignedValue                  = TRUE;
 						$result[ $j ][ $keyList[ $k ] ] = $rowValue;

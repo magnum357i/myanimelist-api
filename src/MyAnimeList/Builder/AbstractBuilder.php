@@ -13,7 +13,17 @@ abstract class AbstractBuilder {
 	/**
 	 * Software version
 	 */
-	const VERSION = '1.0.0.0';
+	const VERSION = '1.0.0.1';
+
+	/**
+	 * Set type
+	 */
+	public static $type = '';
+
+	/**
+	 * Key list for all purposes
+	 */
+	public $keyList = [];
 
 	/**
 	 * Are the values changed?
@@ -43,7 +53,12 @@ abstract class AbstractBuilder {
 	/**
 	 * Patterns for externalLink
 	 */
-	protected static $externalLinks = [];
+	protected static $externalLinks = [
+
+		'anime'    => 'anime/{s}',          'manga'     => 'manga/{s}',          'genre' => 'anime/genre/{s}',
+		'people'   => 'people/{s}',         'character' => 'character/{s}',
+		'producer' => 'anime/producer/{s}', 'magazine'  => 'manga/magazine/{s}'
+	];
 
 	/**
 	 * Limit for voice, staff, related etc.
@@ -54,94 +69,6 @@ abstract class AbstractBuilder {
 	 * Edited Time
 	 */
 	protected $edited = 0;
-
-	/**
-	 * Elapsed Time
-	 */
-	protected $elapsed = 0;
-
-	/**
-	 * Set limit
-	 *
-	 * @param 		int 			$int 				Limit number for values returned array
-	 * @return 		instance
-	 */
-	public function setLimit( $int ) {
-
-		static::$limit = ( $int > 0 OR $int < 100 ) ? $int : 10;
-
-		return $this;
-	}
-
-	/**
-	 * Page is correct?
-	 *
-	 * @return 		bool
-	 */
-	public function isSuccess() {
-
-		return ( $this->request()->isSuccess() OR $this->cached ) ? TRUE : FALSE;
-	}
-
-	/**
-	 * Send request to the page or get data from cache
-	 *
-	 * @return 		void
-	 */
-	public function sendRequestOrGetData() {
-
-		if ( $this->config()::isOnCache() AND $this->checkCache() ) {
-
-			$this->cached = TRUE;
-			$this->_data  = $this->getFileContent();
-		}
-
-		if ( ( empty( $this->_data ) OR !$this->cached ) ) {
-
-			$this->request()->send( $this->config()->curlSettings() );
-		}
-	}
-
-	/**
-	 * File change time
-	 *
-	 * @return 		unix
-	 */
-	public function editedTime() {
-
-		if ( $this->config()::isOnCache() AND $this->edited == 0 ) $this->edited = time();
-
-		return $this->edited;
-	}
-
-	/**
-	 * Elapsed time
-	 *
-	 * @return 		unix
-	 */
-	public function elapsedTime() {
-
-		return $this->elapsed;
-	}
-
-	/**
-	 * Can the cache file be used?
-	 *
-	 * @return 		bool|null
-	 */
-	public function checkCache() {
-
-		$timeFile = $this->getFileName() . '_time';
-
-		if ( $this->cache()->hasFile( $timeFile ) ) {
-
-			$this->edited = $this->cache()->readFile( $timeFile );
-
-			return $this->expired( $this->edited );
-		}
-
-		return NULL;
-	}
 
 	/**
 	 * File name for cache
@@ -172,9 +99,9 @@ abstract class AbstractBuilder {
 	 */
 	protected function expired( $time ) {
 
-		if ( $this->config()->getExpiredDay() == 0 ) return FALSE;
+		if ( $this->config()->expiredbyday == 0 ) return FALSE;
 
-		$expDay  = ( $this->config()->getExpiredDay() > 0 ) ? $this->config()->getExpiredDay() : 1;
+		$expDay  = ( $this->config()->expiredbyday > 0 ) ? $this->config()->expiredbyday : 1;
 		$expTime = strtotime( "-{$expDay} days" );
 
 		if ( $expTime < $time ) {
@@ -225,8 +152,8 @@ abstract class AbstractBuilder {
 	 */
 	public function __construct( \MyAnimeList\Cache\CacheInterface $cache=NULL ) {
 
-		$this->elapsed = time();
-		$this->cache   = $cache;
+		static::$type = mb_strtolower( explode( '\\', get_called_class() )[ 2 ] );
+		$this->cache  = $cache;
 
 		if ( $this->cache == NULL ) $this->cache = new Cache( static::$type, static::$folders );
 
@@ -333,7 +260,7 @@ abstract class AbstractBuilder {
 	 */
 	public function __destruct() {
 
-		if ( $this->config()::isOnCache() AND !empty( $this->_data ) AND ( $this->changed OR $this->request()->isSuccess() ) ) {
+		if ( $this->config()->enablecache AND !empty( $this->_data ) AND ( $this->changed OR $this->request()->isSuccess() ) ) {
 
 			$fileName = $this->getFileName();
 
@@ -407,28 +334,6 @@ abstract class AbstractBuilder {
 	}
 
 	/**
-	 * Return the data
-	 *
-	 * @return 		array
-	 */
-	public function output() {
-
-		return $this->_data;
-	}
-
-	/**
-	 * Create mal link from given query string
-	 *
-	 * @param 		string 			$group 			Key of $externalLinks
-	 * @param 		string 			$s 				Page id
-	 * @return 		string
-	 */
-	public function externalLink( $group, $s ) {
-
-		return $this->request()::SITE . str_replace( '{s}', $s, static::$externalLinks[ $group ] );
-	}
-
-	/**
 	 * Assign a value to static::data
 	 *
 	 * @param 		string 			$prefix 			First key of data
@@ -472,6 +377,132 @@ abstract class AbstractBuilder {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Set limit
+	 *
+	 * @param 		int 			$int 				Limit number for values returned array
+	 * @return 		instance
+	 */
+	public function setLimit( $int ) {
+
+		static::$limit = ( $int > 0 OR $int < 100 ) ? $int : 10;
+
+		return $this;
+	}
+
+	/**
+	 * Page is correct?
+	 *
+	 * @return 		bool
+	 */
+	public function isSuccess() {
+
+		return ( $this->request()->isSuccess() OR $this->cached ) ? TRUE : FALSE;
+	}
+
+	/**
+	 * Send request to the page or get data from cache
+	 *
+	 * @return 		void
+	 */
+	public function sendRequestOrGetData() {
+
+		if ( $this->config()->enablecache AND $this->checkCache() ) {
+
+			$this->cached = TRUE;
+			$this->_data  = $this->getFileContent();
+		}
+
+		if ( ( empty( $this->_data ) OR !$this->cached ) ) {
+
+			$this->request()->send( $this->config()->curlSettings() );
+		}
+	}
+
+	/**
+	 * File change time
+	 *
+	 * @return 		unix
+	 */
+	public function editedTime() {
+
+		if ( $this->config()->enablecache AND $this->edited == 0 ) $this->edited = time();
+
+		return $this->edited;
+	}
+
+	/**
+	 * Can the cache file be used?
+	 *
+	 * @return 		bool|null
+	 */
+	public function checkCache() {
+
+		$timeFile = $this->getFileName() . '_time';
+
+		if ( $this->cache()->hasFile( $timeFile ) ) {
+
+			$this->edited = $this->cache()->readFile( $timeFile );
+
+			return $this->expired( $this->edited );
+		}
+
+		return NULL;
+	}
+
+	/**
+	 * Return the data
+	 *
+	 * @return 		array
+	 */
+	public function output() {
+
+		return $this->_data;
+	}
+
+	/**
+	 * Get statuses of all data, in other words get all data
+	 *
+	 * @param 		$limitation 				Limit point to be put before the value you want
+	 * @param 		$defaultLimit 				Limit to be set after limit point
+	 * @return 		array
+	 */
+	public function scanAvailableValues( $limitation=[], $defaultLimit=10 ) {
+
+		$success = [];
+		$fail    = [];
+
+		foreach ( $this->keyList as $key ) {
+
+			$this->setLimit( $defaultLimit );
+
+			if ( isset( $limitation[ $key ] ) ) $this->setLimit( $limitation[ $key ] );
+
+			if ( isset( $this->$key ) ) {
+
+				$success[] = $key;
+			}
+			else {
+
+				$fail[] = $key;
+			}
+		}
+
+		return [ 'success' => $success, 'fail' => $fail ];
+	}
+
+	/**
+	 * Create mal link from given query string
+	 *
+	 * @param 		string 			$group 			Key of $externalLinks
+	 * @param 		string 			$s 				Page id
+	 * @return 		string
+	 */
+	public function externalLink( $group, $s ) {
+
+		return $this->request()::SITE . str_replace( '{s}', $s, static::$externalLinks[ $group ] );
 	}
 
 	/**
