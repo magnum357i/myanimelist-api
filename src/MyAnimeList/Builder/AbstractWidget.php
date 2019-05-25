@@ -5,13 +5,13 @@ namespace MyAnimeList\Builder;
 abstract class AbstractWidget extends AbstractBuilder {
 
 	/**
-	 * Saving directories
+	 * Saving folders
 	 */
 	public static $folders = [
 
 		'main'  => 'widget',
 		'file'  => 'json',
-		'image' => 'cover'
+		'image' => NULL
 	];
 
 	/**

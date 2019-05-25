@@ -10,13 +10,13 @@ abstract class AbstractSearch extends AbstractBuilder {
 	public static $query = NULL;
 
 	/**
-	 * Saving directories
+	 * Saving folders
 	 */
 	public static $folders = [
 
 		'main'  => 'search',
 		'file'  => 'json',
-		'image' => 'cover'
+		'image' => NULL
 	];
 
 	/**

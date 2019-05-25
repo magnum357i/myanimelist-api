@@ -41,7 +41,7 @@ abstract class AbstractBuilder {
 	protected $_data = [];
 
 	/**
-	 * Saving directories
+	 * Saving folders
 	 */
 	public static $folders = [ 'main' => NULL, 'file' => NULL, 'image' => NULL ];
 

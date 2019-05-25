@@ -10,7 +10,7 @@ abstract class AbstractPage extends AbstractBuilder {
 	public static $id = NULL;
 
 	/**
-	 * Saving directories
+	 * Saving folders
 	 */
 	public static $folders = [
 
