@@ -13,14 +13,33 @@ This is an api developed to get information from MyAnimelist. It works by scanni
 * PHP 7
 
 # Supported Pages
-* Page (anime, manga, character, people)
-* Search (anime, manga, character, people)
-* Widget (new anime, anime calendar, upcoming anime)
+* Page
+	* anime
+	* manga
+	* character
+	* people
+* Search
+	* anime
+	* manga
+	* character
+	* people
+* Widget
+	* new anime
+	* upcoming anime
+	* anime calendar
 
 # How to Install?
 
+### Via composer
+
 ```bash
 $ composer require magnum357i/myanimelist-api
+```
+
+### Via git
+
+```bash
+$ git clone --depth=50 --branch=master https://github.com/magnum357i/myanimelist-api.git magnum357i/myanimelist-api
 ```
 
 # How to Use?
@@ -491,7 +510,7 @@ echo $mal->poster;
 // Please don't forget this.
 ```
 
-### Capture all data at once
+### Capture All Data at Once
 
 ```php
 // Create object
@@ -504,7 +523,7 @@ $mal->sendRequestOrGetData();
 $mal->scanAvailableValues();
 
 // Print data
-var_dump( $mal->output() )
+var_dump( $mal->output() );
 ```
 
 ### cURL Settings

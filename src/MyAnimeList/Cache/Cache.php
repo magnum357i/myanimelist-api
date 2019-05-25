@@ -16,6 +16,7 @@ use \MyAnimeList\Cache\CacheInterface;
 class Cache implements CacheInterface {
 
 	/**
+	 * Permissions
 	 */
 	const FOLDER_PERM = 0755;
 	const FILE_PERM   = 0666;
