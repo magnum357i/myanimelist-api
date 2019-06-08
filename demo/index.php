@@ -58,83 +58,118 @@ ini_set( 'display_errors', 1 );
 
 <br>
 
-<div class="border p-3 rounded bg-light mx-auto" style="width: 500px;">
+<div class="border p-3 rounded bg-light mx-auto" style="width: 800px;">
 	<h5>Get anime, manga, character or people data</h5>
 	<hr>
 	<form class="mb-0" action="submit.php" method="POST" id="malSearch">
-		<div class="form-group">
-			<div>
-				<div class="mb-2"><strong>TYPE</strong></div>
-				<div class="custom-control custom-radio">
-					<input
-					data-toggleformelement
-					data-toggleformelement-groups="malType"
-					data-toggleformelement-target="#selectMalTypePage"
-					checked
-					type="radio"
-					name="malType"
-					class="custom-control-input"
-					value="p"
-					id="malTypePage">
-  					<label class="custom-control-label" for="malTypePage">Page</label>
+		<div class="row">
+			<div class="col-sm form-group">
+				<div>
+					<div class="mb-2"><strong>TYPE</strong></div>
+					<div class="custom-control custom-radio">
+						<input
+						data-toggleformelement
+						data-toggleformelement-groups="malType"
+						data-toggleformelement-target="#selectMalTypePage,#broadcastSetting"
+						checked
+						type="radio"
+						name="malType"
+						class="custom-control-input"
+						value="p"
+						id="malTypePage">
+	 					<label class="custom-control-label" for="malTypePage">Page</label>
+					</div>
+					<div class="custom-control custom-radio">
+						<input
+						data-toggleformelement
+						data-toggleformelement-groups="malType"
+						data-toggleformelement-target="#selectMalTypeSearch"
+						type="radio"
+						name="malType"
+						class="custom-control-input"
+						value="q"
+						id="malTypeSearch">
+	 					<label class="custom-control-label" for="malTypeSearch">Search</label>
+					</div>
+					<div class="custom-control custom-radio">
+						<input
+						data-toggleformelement
+						data-toggleformelement-groups="malType"
+						data-toggleformelement-target="#selectMalTypeWidget"
+						type="radio"
+						name="malType"
+						class="custom-control-input"
+						value="w"
+						id="malTypeWidget">
+	 					<label class="custom-control-label" for="malTypeWidget">Widget</label>
+					</div>
 				</div>
-				<div class="custom-control custom-radio">
-					<input
-					data-toggleformelement
-					data-toggleformelement-groups="malType"
-					data-toggleformelement-target="#selectMalTypeSearch"
-					type="radio"
-					name="malType"
-					class="custom-control-input"
-					value="q"
-					id="malTypeSearch">
-  					<label class="custom-control-label" for="malTypeSearch">Search</label>
-				</div>
-				<div class="custom-control custom-radio">
-					<input
-					data-toggleformelement
-					data-toggleformelement-groups="malType"
-					data-toggleformelement-target="#selectMalTypeWidget"
-					type="radio"
-					name="malType"
-					class="custom-control-input"
-					value="w"
-					id="malTypeWidget">
-  					<label class="custom-control-label" for="malTypeWidget">Widget</label>
-				</div>
-			</div>
-			<br>
-			<div id="selectMalTypePage">
-				<div class="mb-2"><strong>ID</strong></div>
-				<input type="number" min="1" class="form-control" name="malId" id="malId" required>
 				<br>
-				<div class="mb-2"><strong>CATEGORY</strong></div>
-				<select class="form-control" name="malCategory1" id="malCategory1">
-					<option value="a">Anime</option>
-					<option value="m">Manga</option>
-					<option value="c">Character</option>
-					<option value="p">People</option>
-				</select>
+				<div id="selectMalTypePage">
+					<div class="mb-2"><strong>CATEGORY</strong></div>
+					<select class="form-control" name="malCategory1" id="malCategory1">
+						<option value="a">Anime</option>
+						<option value="m">Manga</option>
+						<option value="c">Character</option>
+						<option value="p">People</option>
+					</select>
+					<br>
+					<div class="mb-2"><strong>ID</strong></div>
+					<input type="number" min="1" class="form-control" name="malId" id="malId" required>
+				</div>
+				<div id="selectMalTypeSearch">
+					<div class="mb-2"><strong>CATEGORY</strong></div>
+					<select class="form-control" name="malCategory2" id="malCategory2">
+						<option value="a">Anime</option>
+						<option value="m">Manga</option>
+						<option value="c">Character</option>
+						<option value="p">People</option>
+					</select>
+					<br>
+					<div class="mb-2"><strong>TEXT</strong></div>
+					<input type="text" class="form-control" name="malQuery" id="malQuery" required>
+				</div>
+				<div id="selectMalTypeWidget">
+					<div class="mb-2"><strong>TYPE</strong></div>
+					<select class="form-control" name="malCategory3" id="malCategory3">
+						<option value="n">New Anime</option>
+						<option value="u">Upcoming Anime</option>
+						<option value="c">Anime Calendar</option>
+					</select>
+				</div>
 			</div>
-			<div id="selectMalTypeSearch">
-				<div class="mb-2"><strong>TEXT</strong></div>
-				<input type="text" class="form-control" name="malQuery" id="malQuery" required>
-				<br>
-				<div class="mb-2"><strong>CATEGORY</strong></div>
-				<select class="form-control" name="malCategory2" id="malCategory2">
-					<option value="a">Anime</option>
-					<option value="m">Manga</option>
-					<option value="c">Character</option>
-					<option value="p">People</option>
-				</select>
-			</div>
-			<div id="selectMalTypeWidget">
-				<div class="mb-2"><strong>TYPE</strong></div>
-				<select class="form-control" name="malCategory3" id="malCategory3">
-					<option value="n">New Anime</option>
-					<option value="u">Upcoming Anime</option>
-					<option value="c">Anime Calendar</option>
-				</select>
+			<div class="col-sm">
+				<div>
+					<div class="mb-2"><strong>SETTINGS</strong></div>
+					<div class="custom-control custom-checkbox">
+	 					<input type="checkbox" name="reversename" class="custom-control-input" id="reverseName" checked>
+	 					<label class="custom-control-label" for="reverseName">Reverse name</label>
+					</div>
+					<div class="custom-control custom-checkbox">
+	 					<input type="checkbox" name="bigimages" class="custom-control-input" id="bigImages" checked>
+	 					<label class="custom-control-label" for="bigImages">Use big images</label>
+					</div>
+					<div class="custom-control custom-checkbox">
+	 					<input type="checkbox" name="enablecache" class="custom-control-input" id="enableCache" checked>
+	 					<label class="custom-control-label" for="enableCache">Enable cache</label>
+					</div>
+					<div class="form-group row mb-0">
+						<div class="col-sm-auto col-form-label">
+							Expired time
+						</div>
+						<div class="col-sm">
+							<input type="number" min="0" value="2" class="form-control" name="expiredtime" id="expiredTime">
+						</div>
+					</div>
+					<div id="broadcastSetting" class="form-group row mb-0 mt-2">
+						<div class="col-sm-auto col-form-label">
+							Timezone for broadcast
+						</div>
+						<div class="col-sm">
+							<input type="text" class="form-control" value="America/Los_Angeles" name="timezone" id="timeZone">
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div id="submitButton" class="mb-0"></div>

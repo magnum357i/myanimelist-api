@@ -3,55 +3,49 @@
 namespace MyAnimeList\Builder;
 
 use \MyAnimeList\Cache\CacheInterface;
-use \MyAnimeList\Cache\Cache;
+use \MyAnimeList\Cache\CacheAdapter;
 use \MyAnimeList\Helper\Request;
 use \MyAnimeList\Helper\Config;
-use \MyAnimeList\Helper\Text;
 
 abstract class AbstractBuilder {
 
-	/**
-	 * Software version
-	 */
-	const VERSION = '1.0.0.1';
+    /**
+     * @var 		string 			Software version
+     */
+	const VERSION = '1.0.0.2';
 
-	/**
-	 * Set type
-	 */
-	public static $type = '';
+    /**
+     * @var 		string 			MAL Type
+     */
+	protected static $type = '';
 
-	/**
-	 * Key list for all purposes
-	 */
+    /**
+     * @var 		string 			Key list for all purposes
+     */
 	public $keyList = [];
 
-	/**
-	 * Are the values changed?
-	 */
+    /**
+     * @var 		bool 			Are the values changed?
+     */
 	protected $changed = FALSE;
 
 	/**
-	 * Does data come from the cache?
+	 * @var 		bool 			Does data come from the cache?
 	 */
 	protected $cached = FALSE;
 
 	/**
-	 * Data Store
+	 * @var 		array 			Data Store
 	 */
 	protected $_data = [];
 
 	/**
-	 * Saving folders
+	 * @var 		array 			Saving folders
 	 */
 	public static $folders = [ 'main' => NULL, 'file' => NULL, 'image' => NULL ];
 
 	/**
-	 * base_url/?
-	 */
-	protected $urlPatterns = [];
-
-	/**
-	 * Patterns for externalLink
+	 * @var 		array 			Patterns for externalLink
 	 */
 	protected static $externalLinks = [
 
@@ -61,12 +55,12 @@ abstract class AbstractBuilder {
 	];
 
 	/**
-	 * Limit for voice, staff, related etc.
+	 * @var 		int 			Limit for voice, staff, related etc.
 	 */
 	protected static $limit = 10;
 
 	/**
-	 * Edited Time
+	 * @var 		int 			Edited Time
 	 */
 	protected $edited = 0;
 
@@ -155,7 +149,7 @@ abstract class AbstractBuilder {
 		static::$type = mb_strtolower( explode( '\\', get_called_class() )[ 2 ] );
 		$this->cache  = $cache;
 
-		if ( $this->cache == NULL ) $this->cache = new Cache( static::$type, static::$folders );
+		if ( $this->cache == NULL ) $this->cache = new CacheAdapter( static::$type, static::$folders );
 
 		$this->request()->createUrl( $this->url() );
 	}
@@ -167,8 +161,8 @@ abstract class AbstractBuilder {
 	 */
 	public function __get( $key ) {
 
-		$dataParams = $this->keySplitter( $key );
-		$value      = $this->getValue( $dataParams[ 'prefix' ], $dataParams[ 'key' ] );
+		$dataParams    = $this->keySplitter( $key );
+		$value         = $this->getValue( $dataParams[ 'prefix' ], $dataParams[ 'key' ] );
 
 		if ( $value !== FALSE ) {
 
@@ -300,22 +294,9 @@ abstract class AbstractBuilder {
 
 	public function config() {
 
-		if ( $this->config == NULL ) 	$this->config = new Config();
-
+		if ( $this->config == NULL ) $this->config = new Config;
 
 		return $this->config;
-	}
-
-	/**
-	 * Text class
-	 */
-	protected $text = NULL;
-
-	public function text() {
-
-		if ( $this->text == NULL ) $this->text = new Text();
-
-		return $this->text;
 	}
 
 	/**
@@ -325,10 +306,7 @@ abstract class AbstractBuilder {
 
 	public function request() {
 
-		if ( $this->request == NULL ) {
-
-			$this->request = new Request();
-		}
+		if ( $this->request == NULL ) $this->request = new Request;
 
 		return $this->request;
 	}
@@ -338,7 +316,7 @@ abstract class AbstractBuilder {
 	 *
 	 * @param 		string 			$prefix 			First key of data
 	 * @param 		string 			$key 				Data key (If $prefix has, it's second key of data)
-	 * @param 		mixed 			$value 			Data value
+	 * @param 		mixed 			$value 				Data value
 	 * @return 		void
 	 */
 	protected function setValue( $prefix, $key, $value ) {
@@ -411,8 +389,8 @@ abstract class AbstractBuilder {
 
 		if ( $this->config()->enablecache AND $this->checkCache() ) {
 
-			$this->cached = TRUE;
-			$this->_data  = $this->getFileContent();
+			$this->cached  = TRUE;
+			$this->_data = $this->getFileContent();
 		}
 
 		if ( ( empty( $this->_data ) OR !$this->cached ) ) {

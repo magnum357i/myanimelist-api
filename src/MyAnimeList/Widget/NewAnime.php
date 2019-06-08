@@ -16,7 +16,7 @@ use MyAnimeList\Builder\AbstractWidget;
 class NewAnime extends AbstractWidget {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [ 'tvnew', 'tvcontinuing', 'ona', 'ova', 'movie', 'special' ];
 
@@ -28,7 +28,7 @@ class NewAnime extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*tv\s*\(new\)\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -52,7 +52,7 @@ class NewAnime extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*tv\s*\(continuing\)\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -75,7 +75,7 @@ class NewAnime extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*ona\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -98,7 +98,7 @@ class NewAnime extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*ova\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -121,7 +121,7 @@ class NewAnime extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*movie\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -144,7 +144,7 @@ class NewAnime extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*special\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)\s*</div>\s*</div>',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[

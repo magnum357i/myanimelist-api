@@ -13,20 +13,20 @@ This is an api developed to get information from MyAnimelist. It works by scanni
 * PHP 7
 
 # Supported Pages
-* Page
-	* anime
-	* manga
-	* character
-	* people
-* Search
-	* anime
-	* manga
-	* character
-	* people
-* Widget
-	* new anime
-	* upcoming anime
-	* anime calendar
+- Page
+	- [**anime**](#anime-page)
+	- [**manga**](#manga-page)
+	- [**character**](#character-page)
+	- [**people**](#people-page)
+- Search
+	- [**anime**](#anime-search)
+	- [**manga**](#manga-search)
+	- [**character**](#character-search)
+	- [**people**](#people-search)
+- Widget
+	- [**new anime**](#new-anime-widget)
+	- [**upcoming anime**](#upcoming-anime-widget)
+	- [**anime calendar**](#anime-calendar-widget)
 
 # How to Install?
 
@@ -99,6 +99,8 @@ if ( $mal->isSuccess() ) {
    echo $mal->relatedSpinoff;
    echo $mal->relatedAlternativeversion;
    echo $mal->relatedOther;
+   echo $mal->relatedSummary;
+   echo $mal->relatedAlternativesetting;
    echo $mal->trailer;
    echo $mal->tabBase;
    echo $mal->tabItems;
@@ -158,6 +160,8 @@ if ( $mal->isSuccess() ) {
    echo $mal->relatedOther;
    echo $mal->relatedSpinoff;
    echo $mal->relatedAlternativeversion;
+   echo $mal->relatedSummary;
+   echo $mal->relatedAlternativesetting;
    echo $mal->tabBase;
    echo $mal->tabItems;
    echo $mal->link();
@@ -551,4 +555,26 @@ $mal->sendRequestOrGetData();
 $mal->setLimit( 3 ); // works for all indexed arrays
 
 var_dump( $mal->voice );
+```
+
+### Timezone for Broadcast
+
+```php
+// Create object
+$mal = new \MyAnimeList\Page\Anime( 34134 );
+
+// Send request
+$mal->sendRequestOrGetData();
+
+// Print untoched broadcast
+var_dump( $mal->broadcast ); // [ "timezone" => "Asia/Tokyo", "dayIndex" => "3", "dayTitle" => "Wednesdays", "hour" => "01", "minute" => "35"
+
+// Print broadcast with default timezone
+// my default timezone: 'Europe/Berlin'
+$mal->timezone();
+var_dump( $mal->broadcast ); // [ "timezone" => "Europe/Berlin", "dayIndex" => "2", "dayTitle" => "Tuesdays", "hour" => "18", "minute" => "35"
+
+// Print broadcast with custom timezone
+$mal->timezone( 'America/Los_Angeles' );
+var_dump( $mal->broadcast ); // [ "timezone" => "America/Los_Angeles", "dayIndex" => "2", "dayTitle" => "Tuesdays", "hour" => "09", "minute" => "35"
 ```

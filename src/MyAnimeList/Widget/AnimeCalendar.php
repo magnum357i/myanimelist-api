@@ -16,7 +16,7 @@ use MyAnimeList\Builder\AbstractWidget;
 class AnimeCalendar extends AbstractWidget {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [ 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ];
 
@@ -28,7 +28,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*monday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -51,7 +51,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*tuesday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -74,7 +74,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*wednesday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -97,7 +97,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*thursday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -120,7 +120,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*friday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -143,7 +143,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*saturday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[
@@ -166,7 +166,7 @@ class AnimeCalendar extends AbstractWidget {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="anime-header">\s*sunday\s*</div>(.+?<div class="information">.*?</div>[^<>]*</div>[^<>]*</div>)<div class="seasonal-anime-list js-seasonal-anime-list js-seasonal-anime-list-key-[^"]+">',
 		'<div [^>]+data-genre[^>]+>(.*?<div class="information">.*?</div>)[^<>]*</div>',
 		[

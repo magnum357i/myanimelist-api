@@ -12,11 +12,12 @@
 namespace MyAnimeList\Page;
 
 use MyAnimeList\Builder\AbstractPage;
+use \MyAnimeList\Helper\Text;
 
 class Anime extends AbstractPage {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [
 
@@ -24,8 +25,21 @@ class Anime extends AbstractPage {
 		'scoreVote', 'scorePoint', 'genres', 'source', 'airedFirst', 'airedLast', 'episode', 'studios', 'duration', 'premiered',
 		'statisticRank', 'statisticPopularity', 'statisticMember', 'statisticFavorite', 'status', 'broadcast', 'year', 'voice', 'staff',
 		'songOpening', 'songEnding', 'relatedAdaptation', 'relatedSequel', 'relatedPrequel', 'relatedParentstory', 'relatedSidestory',
-		'relatedOther', 'relatedSpinoff', 'relatedAlternativeversion', 'trailer', 'tabItems', 'tabBase'
+		'relatedOther', 'relatedSpinoff', 'relatedAlternativeversion', 'relatedSummary', 'relatedAlternativesetting', 'trailer', 'tabItems', 'tabBase'
 	];
+
+	/**
+	 * Enable timezone conversion
+	 *
+	 * @param 		string 				$timezone 				'default' or Timezone
+	 * @return 		bool
+	 */
+	public function timezone( $timezone='default' ) {
+
+		if ( $this->broadcast[ 'timezone' ] != $timezone ) $this->broadcast = Text::convertTimezone( $timezone, $this->airedFirst, $this->broadcast );
+
+		return $this;
+	}
 
 	/**
 	 * @return 		string
@@ -37,7 +51,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->replace( '\s*\(.+\)', '', $data, 'si' );
+		return Text::replace( '\s*\(.+\)', '', $data, 'si' );
 	}
 
 	/**
@@ -97,7 +111,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->descCleaner( $data );
+		return Text::descCleaner( $data );
 	}
 
 	/**
@@ -108,7 +122,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span itemprop="description">.*?</span><h2[^>]*>.*?</h2>(.*?)<div[^>]*>', '<br>' );
 
-		if ( $data === FALSE OR $this->text()->validate( 'regex', [ 'match' => 'no background information', 'flags' => 'si' ], $data ) ) return FALSE;
+		if ( $data === FALSE OR Text::validate( $data, 'string', [ 'regex' => 'no background information', 'flags' => 'si' ] ) ) return FALSE;
 
 		return $data;
 	}
@@ -132,9 +146,9 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->text()->validate( 'regex', [ 'match' => 'none', 'flags' => 'si' ], $data ) ) return FALSE;
+		if ( Text::validate( $data, 'string', [ 'regex' => 'none', 'flags' => 'si' ], $data ) ) return FALSE;
 
-		$data = str_replace( [ '- Teens 13 or older', '(violence & profanity)', '- Mild Nudity', ' ' ], '', $data );
+		$data = str_replace( [ '- Teens 13 or older', '(violence & profanity)', '- Mild Nudity', ' - All Ages', ' ' ], '', $data );
 		$data = trim( $data );
 
 		return $data;
@@ -148,7 +162,7 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<span class="dark_text">licensors:</span>(.*?)</div>', '(<a href=[^>]+>.*?</a>)',
 		[ '<a href="[^"]+producer/(\d+)[^"]+"[^>]+>.*?</a>', '<a href="[^"]+"[^>]+>(.*?)</a>' ],
 		[ 'id', 'title' ],
@@ -164,7 +178,7 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<span class="dark_text">producers:</span>(.*?)</div>', '(<a href=[^>]+>.*?</a>)',
 		[ '<a href="[^"]+producer/(\d+)[^"]+"[^>]+>.*?</a>', '<a href="[^"]+"[^>]+>(.*?)</a>' ],
 		[ 'id', 'title' ],
@@ -182,7 +196,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->formatK( $data );
+		return Text::formatK( $data );
 	}
 
 	/**
@@ -195,7 +209,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->replace( '[^0-9]+', '', $data );
+		return Text::replace( '[^0-9]+', '', $data );
 	}
 
 	/**
@@ -208,9 +222,9 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = $this->text()->replace( '[^0-9]+', '', $data );
+		$data = Text::replace( '[^0-9]+', '', $data );
 
-		if ( !$this->text()->validate( 'number', [], $data ) ) return FALSE;
+		if ( !Text::validate( $data, 'number' ) ) return FALSE;
 
 		$data = mb_substr( $data, 0, 2 );
 		$data = mb_substr( $data, 0, 1 ) . '.' . mb_substr( $data, 1, 2 );
@@ -226,12 +240,11 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<span class="dark_text">genres:</span>(.*?)</div>', 	'(<a href=[^>]+>.*?</a>)',
 		[ '<a href="[^"]+genre/(\d+)[^"]+"[^>]+>.*?</a>', '<a href="[^"]+"[^>]+>(.*?)</a>' ],
 		[ 'id', 'title' ],
-		static::$limit
-		);
+		static::$limit );
 	}
 
 	/**
@@ -242,7 +255,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">source:</span>(.*?)</div>' );
 
-		if ( $data == FALSE OR $this->text()->validate( 'regex', [ 'match' => 'unknown', 'flags' => 'si' ], $data ) ) return FALSE;
+		if ( $data == FALSE OR Text::validate( $data, 'string', [ 'regex' => 'unknown', 'flags' => 'si' ] ) ) return FALSE;
 
 		return $data;
 	}
@@ -257,9 +270,13 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)/', $data, $out );
+		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d{1,2}),\s*(\d{4})/', $data, $out );
 
-		if ( !empty( $out ) ) return $this->text()->originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+
+		preg_match( '/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec),?\s*(\d{4})/', $data, $out );
+
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], '01', $out[ 2 ] );
 
 		return FALSE;
 	}
@@ -274,9 +291,9 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		preg_match( '/to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d+),\s*(\d+)/', $data, $out );
+		preg_match( '/to\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d{1,2}),\s*(\d{4})/', $data, $out );
 
-		if ( !empty( $out ) ) return $this->text()->originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
 
 		preg_match( '/to\s*\?/', $data, $out );
 
@@ -293,7 +310,7 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">episodes:</span>(.*?)</div>' );
 
-		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
+		return Text::validate( $data, 'number' ) ? $data : FALSE;
 	}
 
 	/**
@@ -304,7 +321,7 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<span class="dark_text">studios:</span>(.*?)</div>', '(<a href=[^>]+>.*?</a>)',
 		[ '<a href="[^"]+producer/(\d+)[^"]+"[^>]+>.*?</a>', '<a href="[^"]+"[^>]+>(.*?)</a>' ],
 		[ 'id', 'title' ],
@@ -320,13 +337,17 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">duration:</span>(.*?)</div>' );
 
+		if ( $data == FALSE ) return FALSE;
+
 		preg_match( '/(\d+) hr\. (\d+) min\./', $data, $out );
 
-		if ( !empty( $out ) ) return [ 'hour' => $out[ 1 ], 'minute' => $out[ 2 ] ];
+		if ( !empty( $out ) ) return [ 'hour' => $out[ 1 ], 'minute' => $out[ 2 ], 'total' => (string) ( $out[ 1 ] * 60 + $out[ 2 ] ) ];
 
 		preg_match( '/(\d+) min\./', $data, $out );
 
-		if ( !empty( $out ) ) return [ 'hour' => '0', 'minute' => $out[ 1 ] ];
+		if ( !empty( $out ) ) return [ 'hour' => '0', 'minute' => $out[ 1 ], 'total' => $out[ 1 ] ];
+
+		return FALSE;
 	}
 
 	/**
@@ -337,13 +358,13 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">premiered:</span>(.*?)</div>' );
 
-		preg_match( '/^(\w+) (\d+)$/', $data, $out );
+		if ( $data == FALSE ) return FALSE;
+
+		preg_match( '/^(Spring|Summer|Fall|Winter) (\d+)$/', $data, $out );
 
 		if ( empty( $out ) ) return FALSE;
 
-		$seasons = [ 'Spring', '1', 'Summer' => '2', 'Fall' => '3', 'Winter' => '4' ];
-
-		if ( !isset( $seasons[ $out[ 1 ] ] ) ) return FALSE;
+		$seasons = [ 'Spring' => '1', 'Summer' => '2', 'Fall' => '3', 'Winter' => '4' ];
 
 		return [ 'seasonIndex' => $seasons[ $out[ 1 ] ], 'seasonTitle' => $out[ 1 ], 'year' => $out[ 2 ] ];
 	}
@@ -360,7 +381,7 @@ class Anime extends AbstractPage {
 
 		$data = str_replace( '#', '', $data );
 
-		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
+		return Text::validate( $data, 'number' ) ? $data : FALSE;
 	}
 
 	/**
@@ -375,7 +396,7 @@ class Anime extends AbstractPage {
 
 		$data = str_replace( '#', '', $data );
 
-		return $this->text()->validate( 'number', [], $data ) ? $data : FALSE;
+		return Text::validate( $data, 'number' ) ? $data : FALSE;
 	}
 
 	/**
@@ -388,7 +409,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->formatK( $data );
+		return Text::formatK( $data );
 	}
 
 	/**
@@ -401,7 +422,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->replace( '[^0-9]+', '', $data );
+		return Text::replace( '[^0-9]+', '', $data );
 	}
 
 	/**
@@ -414,7 +435,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->formatK( $data );
+		return Text::formatK( $data );
 	}
 
 	/**
@@ -427,7 +448,7 @@ class Anime extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->replace( '[^0-9]+', '', $data );
+		return Text::replace( '[^0-9]+', '', $data );
 	}
 
 	/**
@@ -447,15 +468,17 @@ class Anime extends AbstractPage {
 
 		$data = $this->request()::match( '<span class="dark_text">broadcast:</span>(.*?)</div>' );
 
+		if ( $data == FALSE ) return FALSE;
+
 		preg_match( '/(\w+) at (\d+):(\d+) \(\w+\)/', $data, $out );
 
 		if ( !isset( $out[ 1 ] ) ) return FALSE;
 
-		$days = [ 'Mondays' => '1', 'Tuesdays' => '2', 'Wednesdays' => '3', 'Thursdays' => '4', 'Fridays' => '5', 'Saturdays' => '6', 'Sundays' => '7' ];
+		$days = [ 'Mondays' => 1, 'Tuesdays' => 2, 'Wednesdays' => 3, 'Thursdays' => 4, 'Fridays' => 5, 'Saturdays' => 6, 'Sundays' => 7 ];
 
 		if ( !isset( $days[ $out[ 1 ] ] ) ) return FALSE;
 
-		return !empty( $out ) ? [ 'dayIndex' => $days[ $out[ 1 ] ], 'dayTitle' => $out[ 1 ], 'hour' => $out[ 2 ], 'minute' => $out[ 3 ] ] : FALSE;
+		return [ 'timezone' => 'Asia/Tokyo', 'dayIndex' => (string) $days[ $out[ 1 ] ], 'dayTitle' => $out[ 1 ], 'hour' => $out[ 2 ], 'minute' => $out[ 3 ] ];
 	}
 
 	/**
@@ -465,6 +488,8 @@ class Anime extends AbstractPage {
 	protected function getYearFromData() {
 
 		$data = $this->request()::match( '<span class="dark_text">aired:</span>(.*?)</div>' );
+
+		if ( $data == FALSE ) return FALSE;
 
 		preg_match( '/(\d{4})/', $data, $out );
 
@@ -479,7 +504,7 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'</div>characters & voice actors</h2>(.*?)<a name="staff">', '<tr>(.*?)</tr>',
 		[
 		'<a href="[^"]+/character/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/character/.*?/.*?">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/characters/\d+/\d+\.jpg[^"]+)"',
@@ -501,7 +526,7 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'</div>.*?staff[^<]*?</h2>(.*?)<h2>', '<table.*?>(.*?)</table>',
 		[
 		'<a href="[^"]+/people/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/people/.*?/.*?">([^<]+)</a>',
@@ -513,19 +538,36 @@ class Anime extends AbstractPage {
 	}
 
 	/**
+	 * Get song data
+	 *
+	 * @param 		string 			Container div
+	 * @return 		array
+	 */
+	protected function songTable( $container ) {
+
+		$custom_removeJapanese = function( $value ) {
+
+			return $this->request()->reflection( $this->config(), Text::removeJapChars( $value ), 'japanese' );
+		};
+
+		return
+		$this->request()::matchTable(
+		$this->config(),
+		$container, '<span class="theme-song">(.*?)</span>',
+		[ '[\'"]([^\'"]+)[\'"],? by', [ '[\'"\)],? by (.+) \(eps?', '[\'"\)],? by (.+)' ], 'eps? (\d+)', 'eps [\d\s\-,]+[\s\-,](\d+)' ],
+		[ 'title', 'singer', 'start', 'end' ],
+		static::$limit,
+		[ 'title' => $custom_removeJapanese, 'singer' => $custom_removeJapanese ]
+		);
+	}
+
+	/**
 	 * @return 		array
 	 * @usage 		songOpening
 	 */
 	protected function getOpeningWithSongFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<div class="theme-songs js-theme-songs opnening">(.*?)<br></div>', '<span class="theme-song">(.*?)</span>',
-		[ '"(.*?)["\(]', 'by ([^\(]+)', 'eps (\d+)\-', 'eps \d+\-(\d+)' ],
-		[ 'title', 'singer', 'start', 'end' ],
-		static::$limit
-		);
+		return $this->songTable( '<div class="theme-songs js-theme-songs opnening">(.*?)</div>' );
 	}
 
 	/**
@@ -534,12 +576,23 @@ class Anime extends AbstractPage {
 	 */
 	protected function getEndingWithSongFromData() {
 
+		return $this->songTable( '<div class="theme-songs js-theme-songs ending">(.*?)</div>' );
+	}
+
+	/**
+	 * Get related table
+	 *
+	 * @param 		$title 			Row title
+	 * @return 		array
+	 */
+	protected function relatedTable( $title ) {
+
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<div class="theme-songs js-theme-songs ending">(.*?)<br></div>', '<span class="theme-song">(.*?)</span>',
-		[ '"(.*?)["\(]', 'by ([^\(]+)', 'eps (\d+)\-\d+', 'eps (\d+)\-?', 'eps \d+\-(\d+)' ],
-		[ 'title', 'singer', 'start', 'start', 'end' ],
+		$this->config(),
+		'<td.*?>' . $title . ':</td>.*?(<td.*?>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
+		[ '<a href="[^"]*/(?:anime|manga)/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
+		[ 'id', 'title' ],
 		static::$limit
 		);
 	}
@@ -550,14 +603,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getAdaptationWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>adaptation:</td>.*?(<td.*?>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/manga/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'adaptation' );
 	}
 
 	/**
@@ -566,14 +612,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getSequelWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>sequel:</td>.*?(<td.*?>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'sequel' );
 	}
 
 	/**
@@ -582,14 +621,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getPrequelWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>prequel:</td>.*?(<td.*?>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'prequel' );
 	}
 
 	/**
@@ -598,14 +630,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getParentstoryWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>parent story:</td>.*?(<td.*?>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'parent story' );
 	}
 
 	/**
@@ -614,14 +639,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getSidestoryWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>side story:</td>.*?(<td[^>]*>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'side story' );
 	}
 
 	/**
@@ -630,14 +648,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getOtherWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>other:</td>.*?(<td[^>]*>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'other' );
 	}
 
 	/**
@@ -646,14 +657,16 @@ class Anime extends AbstractPage {
 	 */
 	protected function getSpinoffWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>spin\-off:</td>.*?(<td[^>]*>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'spin\-off' );
+	}
+
+	/**
+	 * @return 		array
+	 * @usage 		relatedSummary
+	 */
+	protected function getSummaryWithRelatedFromData() {
+
+		return $this->relatedTable( 'summary' );
 	}
 
 	/**
@@ -662,14 +675,16 @@ class Anime extends AbstractPage {
 	 */
 	protected function getAlternativeversionWithRelatedFromData() {
 
-		return
-		$this->request()::matchTable(
-		$this->config(), $this->text(),
-		'<td.*?>alternative version:</td>.*?(<td[^>]*>.*?</td>)', '(<a href=[^>]+>.*?</a>)',
-		[ '<a href="[^"]*/anime/(\d+)[^"]*">.*?</a>', '<a href="[^"]+">(.*?)</a>' ],
-		[ 'id', 'title' ],
-		static::$limit
-		);
+		return $this->relatedTable( 'alternative version' );
+	}
+
+	/**
+	 * @return 		array
+	 * @usage 		relatedAlternativesetting
+	 */
+	protected function getAlternativesettingWithRelatedFromData() {
+
+		return $this->relatedTable( 'alternative setting' );
 	}
 
 	/**
@@ -696,7 +711,7 @@ class Anime extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div id="horiznav_nav"[^>]*>(.*?)</div>', '<li>(.*?)</li>',
 		[ '<a\s*href="[^"]+/([^"/]+)">[^<>]+</a>', '<a\s*href="[^"]+/[^"/]+">([^<>]+)</a>' ],
 		[ 'href', 'title' ],

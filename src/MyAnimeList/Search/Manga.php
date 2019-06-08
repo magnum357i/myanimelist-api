@@ -16,7 +16,7 @@ use MyAnimeList\Builder\AbstractSearch;
 class Manga extends AbstractSearch {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [ 'results' ];
 
@@ -28,7 +28,7 @@ class Manga extends AbstractSearch {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'search results(.*?</table>)', '<tr>(.*?)</tr>',
 		[ '<a[^>]+href="[^"]+manga/(\d+)[^"]+"[^>]+>.*?<strong>', '<strong>(.*?)</strong>', '<img[^>]+src="([^"]+images/manga[^"]+)"[^>]+>' ],
 		[ 'id', 'title', 'poster' ],

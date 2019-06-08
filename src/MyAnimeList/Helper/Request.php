@@ -11,22 +11,29 @@
 
 namespace MyAnimeList\Helper;
 
+use \MyAnimeList\Helper\Text;
+
 class Request {
 
 	/**
-	 * Request url
+	 * @var 		string 			Request url
 	 */
-	protected $url = NULL;
+	protected $url = '';
 
 	/**
-	 * Website url
+	 * @var 		string 			Website url
 	 */
 	const SITE = 'https://myanimelist.net/';
 
 	/**
-	 * Here will load the raw html
+	 * @var 		string 			Here will load the raw html
 	 */
 	protected static $content = '';
+
+	/**
+	 * @var 		array 			Request Info
+	 */
+	protected static $info = [];
 
 	/**
 	 *
@@ -34,19 +41,8 @@ class Request {
 	 */
 	public function __construct() {
 
-		static::$sent    = FALSE;
-		static::$content = '';
+		static::$info = NULL;
 	}
-
-	/**
-	 * Status of send
-	 */
-	protected static $sent = NULL;
-
-	/**
-	 * Request Info
-	 */
-	protected $requestInfo = NULL;
 
 	/**
 	 * Is the request sent
@@ -55,13 +51,8 @@ class Request {
 	 */
 	public static function isSent() {
 
-		return static::$sent;
+		return ( static::$info != NULL ) ? TRUE : FALSE;
 	}
-
-	/**
-	 * Status of send
-	 */
-	protected $success = FALSE;
 
 	/**
 	 * Is the request successfully?
@@ -70,17 +61,17 @@ class Request {
 	 */
 	public function isSuccess() {
 
-		return $this->success;
+		return ( isset( static::$info[ 'http_code' ] ) AND static::$info[ 'http_code' ] == 200 ) ? TRUE : FALSE;
 	}
 
 	/**
 	 * Request info
 	 *
-	 * @return 		unix
+	 * @return 		array
 	 */
 	public function info() {
 
-		return $this->requestInfo;
+		return static::$info;
 	}
 
 	/**
@@ -104,14 +95,7 @@ class Request {
 
 			static::$content = curl_exec( $cSession );
 			static::$content = html_entity_decode( static::$content, ENT_QUOTES );
-
-			if ( curl_getinfo( $cSession, CURLINFO_HTTP_CODE ) == 200 ) {
-
-				$this->success = TRUE;
-			}
-
-			$this->requestInfo = curl_getinfo( $cSession );
-			static::$sent      = TRUE;
+			static::$info    = curl_getinfo( $cSession );
 
 			curl_close( $cSession );
 		}
@@ -174,15 +158,14 @@ class Request {
 	}
 
 	/**
-	 * Makes the value simple
+	 * Simplify the value
 	 *
 	 * @param 		object 				$config 			Config object
-	 * @param 		object 				$text 				Text object
 	 * @param 		string 				$value 				A value
 	 * @param 		string 				$key 				A key
-	 * @return 		array
+	 * @return 		mixed
 	 */
-	public static function reflection( \MyAnimeList\Helper\Config $config, \MyAnimeList\Helper\Text $text, $value, $key ) {
+	public static function reflection( \MyAnimeList\Helper\Config $config, $value, $key ) {
 
 		if ( $value == NULL ) return NULL;
 
@@ -190,17 +173,13 @@ class Request {
 
 		$key = ( isset( $out[ 1 ] ) ) ? $out[ 1 ] : $key;
 
-		if ( $key != 'studios' AND $key != 'genres' ) {
-
-			$value = strip_tags( $value );
-			$value = trim( $value );
-		}
+		if ( $key != 'studios' AND $key != 'genres' ) $value = trim( strip_tags( $value ) );
 
 		switch ( $key ) {
 
 			case 'link': $value = static::SITE . $value; break;
-			case 'name': if ( $config->reversename ) $value = $text->reverseName( $value ); break;
-			case 'list': $value = $text->listValue( $value, ',' ); break;
+			case 'name': if ( $config->reversename ) $value = Text::reverseName( $value ); break;
+			case 'list': $value = Text::listValue( $value, ',' ); break;
 			case 'poster':
 
 				if ( $config->bigimages ) {
@@ -256,7 +235,6 @@ class Request {
 	 * Get data as table
 	 *
 	 * @param 		object 			$config 			Config object
-	 * @param 		object 			$text 				Text object
 	 * @param 		string 			$tableQuery 		A regex code to match a table
 	 * @param 		string 			$rowQuery 			A regex code to match a row in the table
 	 * @param 		array 			$queryList 			A regex code to match a value in the row
@@ -267,7 +245,7 @@ class Request {
 	 * @param 		string 			$sortKey 			Sort by key
 	 * @return 		array
 	 */
-	public static function matchTable( \MyAnimeList\Helper\Config $config, \MyAnimeList\Helper\Text $text, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $customChanges=NULL, $last=FALSE, $sortKey='' ) {
+	public static function matchTable( \MyAnimeList\Helper\Config $config, $tableQuery='', $rowQuery='', $queryList=[], $keyList=[], $limit=0, $customChanges=NULL, $last=FALSE, $sortKey='' ) {
 
 		preg_match( "@{$tableQuery}@si", static::$content, $table );
 
@@ -299,7 +277,7 @@ class Request {
 					}
 					else {
 
-						$rowValue = static::reflection( $config, $text, $rowValue, $keyList[ $k ] );
+						$rowValue = static::reflection( $config, $rowValue, $keyList[ $k ] );
 					}
 
 					if ( $rowValue != NULL AND !empty( $rowValue ) ) {

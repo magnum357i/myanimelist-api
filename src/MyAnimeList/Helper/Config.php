@@ -11,10 +11,12 @@
 
 namespace MyAnimeList\Helper;
 
+use \MyAnimeList\Helper\Text;
+
 class Config {
 
 	/**
-	 * Curl options
+	 * @var 		array 			Curl options
 	 */
 	protected $curl = [
 
@@ -33,6 +35,8 @@ class Config {
 	 * cache: If true, cache system of file system runs, so data to be taken is saved to a json file
 	 * bigimages: Real image sizes on staff, characters etc.
 	 * expiredbyday: Cache expired time by day
+	 *
+	 * @var 		array
 	 */
 	protected static $settings = [];
 
@@ -65,7 +69,18 @@ class Config {
 	public function __set( $key, $value ) {
 
 		if ( !isset( static::$settings[ $key ] ) ) throw new \Exception( "[MyAnimeList Config Error] Undefined setting: {$key}" );
-		if ( ( $key == 'expiredbyday' AND !is_numeric( $value ) ) OR ( $key != 'expiredbyday' AND !is_bool( $value ) ) ) throw new \Exception( "[MyAnimeList Config Error] Invalid value for {$key}" );
+
+		$success = FALSE;
+
+		switch ( $key ) {
+
+			case 'reversename':  $success = Text::validate( $value, 'bool' );                   break;
+			case 'enablecache':  $success = Text::validate( $value, 'bool' );                   break;
+			case 'bigimages':    $success = Text::validate( $value, 'bool' );                   break;
+			case 'expiredbyday': $success = Text::validate( $value, 'number', [ 'min' => 0 ] ); break;
+		}
+
+		if ( !$success ) throw new \Exception( "[MyAnimeList Config Error] Invalid value for {$key}" );
 
 		static::$settings[ $key ] = $value;
 	}
@@ -73,21 +88,11 @@ class Config {
 	/**
 	 * Curl Settings
 	 *
-	 * @return 		bool
+	 * @return 		array
 	 */
 	public function curlSettings() {
 
 		return $this->curl;
-	}
-
-	/**
-	 * Get the number of the expired day
-	 *
-	 * @return 		int
-	 */
-	public function getExpiredDay() {
-
-		return $this->expiredByDay;
 	}
 
 	/**

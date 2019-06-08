@@ -12,11 +12,12 @@
 namespace MyAnimeList\Page;
 
 use MyAnimeList\Builder\AbstractPage;
+use \MyAnimeList\Helper\Text;
 
 class Character extends AbstractPage {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [ 'titleSelf', 'titleNickname', 'category', 'poster', 'age', 'height', 'weight', 'statisticFavorite', 'recentAnime', 'recentManga', 'voiceactors', 'tabItems', 'tabBase', 'bloodtype' ];
 
@@ -30,9 +31,9 @@ class Character extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->reversename ) $data = $this->text()->reverseName( $data, 3 );
+		if ( $this->config()->reversename ) $data = Text::reverseName( $data, 3 );
 
-		$data = $this->text()->replace( '\s*".+"\s*', ' ', $data );
+		$data = Text::replace( '\s*".+"\s*', ' ', $data );
 
 		return $data;
 	}
@@ -74,14 +75,17 @@ class Character extends AbstractPage {
 		return $data;
 	}
 
-	protected $fullDescription = NULL;
+	/**
+	 * @var 	string
+	 */
+	protected $fullDescription = '';
 
 	/**
 	 * @return 		string
 	 */
 	protected function fullDescription() {
 
-		if ( $this->fullDescription != NULL ) return $this->fullDescription;
+		if ( $this->fullDescription != '' ) return $this->fullDescription;
 
 		$this->fullDescription = $this->request()::match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?<div.*?>.*?</div>(.*?)<div[^>]*>voice actors</div>', "<br><span><input>" );
 
@@ -99,10 +103,10 @@ class Character extends AbstractPage {
 		if ( $description == FALSE ) return FALSE;
 
 		$data = $description;
-		$data = $this->text()->replace( '<span class="spoiler_content"[^>]+>\s*<input[^>]+>\s*<br>(.*?)<\/span>',  '[spoiler]$1[/spoiler]', $data, 'si' );
-		$data = $this->text()->replace( '\(deployads = window.deployads \|\| \[\]\).push\(\{\}\);',                                     '', $data, 'si' );
-		$data = $this->text()->replace( '[^\n]+:[^\n]+',                                                                                '', $data, 'si' );
-		$data = $this->text()->descCleaner( $data );
+		$data = Text::replace( '<span class="spoiler_content"[^>]+>\s*<input[^>]+>\s*<br>(.*?)<\/span>',  '[spoiler]$1[/spoiler]', $data, 'si' );
+		$data = Text::replace( '\(deployads = window.deployads \|\| \[\]\).push\(\{\}\);',                                     '', $data, 'si' );
+		$data = Text::replace( '[^\n]+:[^\n]+',                                                                                '', $data, 'si' );
+		$data = Text::descCleaner( $data );
 		$data = strip_tags( $data );
 		$data = trim( $data );
 
@@ -124,7 +128,7 @@ class Character extends AbstractPage {
 		if ( !isset( $out[ 1 ] ) ) return FALSE;
 
 		$data = 'lorem' . $out[ 1 ];
-		$data = $this->text()->replace( '\(.*?\)', '', $data, 'si' );
+		$data = Text::replace( '\(.*?\)', '', $data, 'si' );
 
 		preg_match( '@.+[^\d](\d+)@', $data, $out );
 
@@ -146,11 +150,11 @@ class Character extends AbstractPage {
 		if ( !isset( $out[ 1 ] ) ) return FALSE;
 
 		$data = 'lorem' . $out[ 1 ];
-		$data = $this->text()->replace( '\(.*?\)', '', $data, 'si' );
+		$data = Text::replace( '\(.*?\)', '', $data, 'si' );
 
 		preg_match( '@.+[^\d\.,]+([\d\.,]+)\s*cm@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
+		if ( !empty( $out[ 1 ] ) ) return Text::roundNumber( $out[ 1 ] );
 
 		preg_match( '@.+[^\d]([\d\.,]+)[\'"]\s*([\d\.,]+)[\'"]@', $data, $out );
 
@@ -159,7 +163,7 @@ class Character extends AbstractPage {
 			$feet = $out[ 1 ];
 			$inc  = $out[ 2 ];
 
-			return $this->text()->roundNumber( ( $feet * 30.48 ) + ( $inc * 2.54 ) );
+			return Text::roundNumber( ( $feet * 30.48 ) + ( $inc * 2.54 ) );
 		}
 
 		return FALSE;
@@ -180,15 +184,15 @@ class Character extends AbstractPage {
 		if ( !isset( $out[ 1 ] ) ) return FALSE;
 
 		$data = 'lorem' . $out[ 1 ];
-		$data = $this->text()->replace( '\(.*?\)', '', $data, 'si' );
+		$data = Text::replace( '\(.*?\)', '', $data, 'si' );
 
 		preg_match( '@.+[^\d\.,]([\d\.,]+)\s*kg@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
+		if ( !empty( $out[ 1 ] ) ) return Text::roundNumber( $out[ 1 ] );
 
 		preg_match( '@.+[^\d\.,]([\d\.,]+)\s*lbs?@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] / 2.2046 );
+		if ( !empty( $out[ 1 ] ) ) return Text::roundNumber( $out[ 1 ] / 2.2046 );
 
 		return FALSE;
 	}
@@ -218,7 +222,7 @@ class Character extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->formatK( $data );
+		return Text::formatK( $data );
 	}
 
 	/**
@@ -231,7 +235,7 @@ class Character extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->replace( '[^0-9]+', '', $data );
+		return Text::replace( '[^0-9]+', '', $data );
 	}
 
 	/**
@@ -242,7 +246,7 @@ class Character extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="normal_header">animeography</div>.*?<table.*?(.*?)</table>', '<tr>(.*?)</tr>',
 		[ '<a href="[^"]+anime/(\d+)[^"]+">[^<>]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<>]+)</a>', '<small>([^<]+)</small>' ],
 		[ 'id', 'title', 'role' ],
@@ -258,7 +262,7 @@ class Character extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div class="normal_header">mangaography</div>.*?<table.*?(.*?)</table>', '<tr>(.*?)</tr>',
 		[ '<a href="[^"]+manga/(\d+)[^"]+">[^<>]+</a>', '<a href="[^"]+manga/\d+[^"]+">([^<>]+)</a>', '<small>([^<]+)</small>' ],
 		[ 'id', 'title', 'role' ],
@@ -276,7 +280,7 @@ class Character extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'voice actors</div>(.+</table>.*<br>)', '<tr>(.*?)</tr>',
 		[
 		'<a href="[^"]+people/(\d+)[^"]+">[^<]+</a>.*?<div[^>]+><small>' . $lang . '</small>',
@@ -297,7 +301,7 @@ class Character extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div id="horiznav_nav"[^>]*>(.*?)</div>', '<li>(.*?)</li>',
 		[ '<a\s*href="[^"]+/([^"/]+)">[^<>]+</a>', '<a\s*href="[^"]+/[^"/]+">([^<>]+)</a>' ],
 		[ 'href', 'title' ],

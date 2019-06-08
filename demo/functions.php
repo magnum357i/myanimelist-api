@@ -84,7 +84,7 @@ function statisticDashboard( $fileName, $isPoster ) {
 
 				echo '<div class="col-sm">';
 					echo '<div class="h6">REQUEST TIME</div>';
-					echo '<span class="display-4">' . $mal->text()->roundNumber( $mal->request()->info()[ 'total_time' ], 2 ) . 'S</span>';
+					echo '<span class="display-4">' . \MyAnimeList\Helper\Text::roundNumber( $mal->request()->info()[ 'total_time' ], 2 ) . 'S</span>';
 				echo '</div>';
 				echo '<div class="col-sm">';
 					echo '<div class="h6">PAGE SIZE</div>';

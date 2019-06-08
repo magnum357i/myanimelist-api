@@ -5,7 +5,7 @@ namespace MyAnimeList\Builder;
 abstract class AbstractWidget extends AbstractBuilder {
 
 	/**
-	 * Saving folders
+	 * @var 		array 			Saving folders
 	 */
 	public static $folders = [
 
@@ -15,7 +15,7 @@ abstract class AbstractWidget extends AbstractBuilder {
 	];
 
 	/**
-	 * base_url/?
+	 * @var 		array 			base_url/?
 	 */
 	protected $urlPatterns = [
 

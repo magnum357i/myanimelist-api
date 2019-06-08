@@ -5,7 +5,7 @@ require_once( __DIR__ . '/src/MyAnimeList/Helper/Config.php' );
 require_once( __DIR__ . '/src/MyAnimeList/Helper/Request.php' );
 
 require_once( __DIR__ . '/src/MyAnimeList/Cache/CacheInterface.php' );
-require_once( __DIR__ . '/src/MyAnimeList/Cache/Cache.php' );
+require_once( __DIR__ . '/src/MyAnimeList/Cache/CacheAdapter.php' );
 
 require_once( __DIR__ . '/src/MyAnimeList/Builder/AbstractBuilder.php' );
 require_once( __DIR__ . '/src/MyAnimeList/Builder/AbstractPage.php' );

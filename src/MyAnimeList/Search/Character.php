@@ -16,7 +16,7 @@ use MyAnimeList\Builder\AbstractSearch;
 class Character extends AbstractSearch {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [ 'results' ];
 
@@ -39,7 +39,7 @@ class Character extends AbstractSearch {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'search results(.*?</table>)', '<tr>(.*?)</tr>',
 		[
 		'<a[^>]+href="[^"]+character/\d+[^"]+">([^<]+)</a>', '<a[^>]+href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<img[^>]+src="([^"]+images/characters[^"]+)"[^>]+>',

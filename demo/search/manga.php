@@ -8,10 +8,10 @@ $time = microtime( TRUE );
 
 $mal = new \MyAnimeList\Search\Manga( $query );
 
-$mal->config()->enablecache  = TRUE;
-$mal->config()->reversename  = TRUE;
-$mal->config()->bigimages    = TRUE;
-$mal->config()->expiredbyday = 2;
+$mal->config()->enablecache  = ( isset( $_POST[ 'enablecache' ] ) AND $_POST[ 'enablecache' ] == TRUE ) ? TRUE : FALSE;
+$mal->config()->reversename  = ( isset( $_POST[ 'reversename' ] ) AND $_POST[ 'reversename' ] == TRUE ) ? TRUE : FALSE;
+$mal->config()->bigimages    = ( isset( $_POST[ 'bigimages' ] ) AND $_POST[ 'bigimages' ] == TRUE ) ? TRUE : FALSE;
+$mal->config()->expiredbyday = ( isset( $_POST[ 'expiredtime' ] ) ) ? $_POST[ 'expiredtime' ] : 2;
 
 // If required
 // $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0', 'USERAGENT' );

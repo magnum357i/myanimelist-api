@@ -8,10 +8,10 @@ $time = microtime( TRUE );
 
 $mal = new \MyAnimeList\Page\Manga( $id );
 
-$mal->config()->enablecache  = TRUE;
-$mal->config()->reversename  = TRUE;
-$mal->config()->bigimages    = TRUE;
-$mal->config()->expiredbyday = 2;
+$mal->config()->enablecache  = ( isset( $_POST[ 'enablecache' ] ) AND $_POST[ 'enablecache' ] == TRUE ) ? TRUE : FALSE;
+$mal->config()->reversename  = ( isset( $_POST[ 'reversename' ] ) AND $_POST[ 'reversename' ] == TRUE ) ? TRUE : FALSE;
+$mal->config()->bigimages    = ( isset( $_POST[ 'bigimages' ] ) AND $_POST[ 'bigimages' ] == TRUE ) ? TRUE : FALSE;
+$mal->config()->expiredbyday = ( isset( $_POST[ 'expiredtime' ] ) ) ? $_POST[ 'expiredtime' ] : 2;
 
 // If required
 // $mal->config()->setCurlOption( 'Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0', 'USERAGENT' );
@@ -929,6 +929,38 @@ if ( isset( \$mal->relatedAlternativeversion ) ) {
 	echo '<ul class="commaList">';
 
 	foreach ( \$mal->relatedAlternativeversion as \$r ) {
+
+		echo "<li><a href=\"" . \$mal->externalLink( 'manga', \$r[ 'id' ] ) . "\" target=\"_blank\">{\$r[ 'title' ]}</a></li>";
+	}
+
+	echo '</ul>';
+}
+else {
+
+	echo '<span class="text-danger">Not found.</span>';
+}
+EX;
+
+	eval( $output );
+	echo '</td>';
+	echo '<td class="align-middle text-center">';
+	echo '<button type="button" class="btn btn-sm btn-outline-dark btn-block" data-html="true" data-toggle="popover" data-placement="left" data-content="' . outputFormatter( $output ) . '"><i class="fas fa-question-circle"></i></button>';
+	echo '</td>';
+	echo '</tr>';
+	echo '<tr>';
+	echo '<td class="align-middle text-light"><span class="bg-secondary py-0 px-2 shadow-sm small">relatedAlternativesetting</span></td>';
+	echo '<td class="align-middle"><span class="badge badge-warning">array</span></td>';
+	echo '<td class="align-middle">';
+
+	$output = <<<EX
+
+\$mal->setLimit( 2 );
+
+if ( isset( \$mal->relatedAlternativesetting ) ) {
+
+	echo '<ul class="commaList">';
+
+	foreach ( \$mal->relatedAlternativesetting as \$r ) {
 
 		echo "<li><a href=\"" . \$mal->externalLink( 'manga', \$r[ 'id' ] ) . "\" target=\"_blank\">{\$r[ 'title' ]}</a></li>";
 	}

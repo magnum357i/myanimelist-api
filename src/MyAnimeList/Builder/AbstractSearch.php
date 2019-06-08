@@ -5,12 +5,12 @@ namespace MyAnimeList\Builder;
 abstract class AbstractSearch extends AbstractBuilder {
 
 	/**
-	 * MAL query
+	 * @var 		string 			MAL query
 	 */
-	public static $query = NULL;
+	protected static $query = NULL;
 
 	/**
-	 * Saving folders
+	 * @var 		array 			Saving folders
 	 */
 	public static $folders = [
 
@@ -20,7 +20,7 @@ abstract class AbstractSearch extends AbstractBuilder {
 	];
 
 	/**
-	 * base_url/?
+	 * @var 		array 			base_url/?
 	 */
 	protected $urlPatterns = [
 
@@ -37,7 +37,7 @@ abstract class AbstractSearch extends AbstractBuilder {
 	 * @param 		object 				$cache 			Cache class
 	 * @return 		void
 	 */
-	public function __construct( $s, \MyAnimeList\Cache\CacheInterface $cache=NULL ) {
+	public function __construct( string $s, \MyAnimeList\Cache\CacheInterface $cache=NULL ) {
 
 		static::$query = $s;
 

@@ -12,11 +12,12 @@
 namespace MyAnimeList\Page;
 
 use MyAnimeList\Builder\AbstractPage;
+use \MyAnimeList\Helper\Text;
 
 class People extends AbstractPage {
 
 	/**
-	 * Key list for all purposes
+	 * @var 		array 			Key list for all purposes
 	 */
 	public $keyList = [ 'name', 'poster', 'description', 'socialFacebook', 'socialTwitter', 'socialWebsite', 'height', 'weight', 'birth', 'death', 'category', 'age', 'statisticFavorite', 'recentVoice', 'recentWork', 'tabItems', 'tabBase', 'bloodtype', 'city', 'country' ];
 
@@ -30,7 +31,7 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		if ( $this->config()->reversename ) $data = $this->text()->reverseName( $data );
+		if ( $this->config()->reversename ) $data = Text::reverseName( $data );
 
 		return $data;
 	}
@@ -64,10 +65,10 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = $this->text()->replace( '\(deployads = window.deployads \|\| \[\]\).push\(\{\}\);', '', $data, 'si' );
-		$data = $this->text()->replace( '[^\n]+:[^\n]+',                                            '', $data, 'si' );
+		$data = Text::replace( '\(deployads = window.deployads \|\| \[\]\).push\(\{\}\);', '', $data, 'si' );
+		$data = Text::replace( '[^\n]+:[^\n]+',                                            '', $data, 'si' );
 
-		return $this->text()->descCleaner( $data );
+		return Text::descCleaner( $data );
 	}
 
 	/**
@@ -96,6 +97,8 @@ class People extends AbstractPage {
 
 		$data = $this->request()::match( 'website:\s*</span>\s*<a href="([^"]+)">' );
 
+		if ( $data == FALSE ) return FALSE;
+
 		return ( $data != 'http://' ) ? $data : FALSE;
 	}
 
@@ -111,7 +114,7 @@ class People extends AbstractPage {
 
 		preg_match( '@([\d\.,]+)\s+cm@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
+		if ( !empty( $out[ 1 ] ) ) return Text::roundNumber( $out[ 1 ] );
 
 		preg_match( '@([\d\.,]+)[\'"]\s*([\d\.,]+)[\'"]@', $data, $out );
 
@@ -120,7 +123,7 @@ class People extends AbstractPage {
 			$feet = $out[ 1 ];
 			$inc  = $out[ 2 ];
 
-			return $this->text()->roundNumber( ( $feet * 30.48 ) + ( $inc * 2.54 ) );
+			return Text::roundNumber( ( $feet * 30.48 ) + ( $inc * 2.54 ) );
 		}
 
 		return FALSE;
@@ -138,11 +141,11 @@ class People extends AbstractPage {
 
 		preg_match( '@([\d\.,]+)\s*kg@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] );
+		if ( !empty( $out[ 1 ] ) ) return Text::roundNumber( $out[ 1 ] );
 
 		preg_match( '@([\d\.,]+)\s*lbs@', $data, $out );
 
-		if ( !empty( $out[ 1 ] ) ) return $this->text()->roundNumber( $out[ 1 ] / 2.2046 );
+		if ( !empty( $out[ 1 ] ) ) return Text::roundNumber( $out[ 1 ] / 2.2046 );
 
 		return FALSE;
 	}
@@ -159,7 +162,7 @@ class People extends AbstractPage {
 
 		preg_match( '@(\w+)\s+(\d+),\s+(\d{4})@si', $data, $out );
 
-		if ( !empty( $out ) ) return $this->text()->originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
 
 		return FALSE;
 	}
@@ -176,15 +179,15 @@ class People extends AbstractPage {
 
 		preg_match( '/passed\s+away\s+on\s+(\w+)\s+(\d+)[^,]*,\s+(\d+)/si', $data, $out );
 
-		if ( !empty( $out ) ) return $this->text()->originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
 
 		preg_match( '/died.*?(\w+)\s+(\d+)[^,]*,\s+(\d+)/si', $data, $out );
 
-		if ( !empty( $out ) ) return $this->text()->originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
 
 		preg_match( '/death.*?(\w+)\s+(\d+)[^,]*,\s+(\d+)/si', $data, $out );
 
-		if ( !empty( $out ) ) return $this->text()->originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
+		if ( !empty( $out ) ) return Text::originalDate( $out[ 1 ], $out[ 2 ], $out[ 3 ] );
 
 		return FALSE;
 	}
@@ -234,14 +237,17 @@ class People extends AbstractPage {
 		return $this->request()::match( 'blood\s*type[^:]*:([^<]+)<br />' );
 	}
 
-	protected $whereFrom = NULL;
+	/**
+	 * @var 	string
+	 */
+	protected $whereFrom = '';
 
 	/**
 	 * @return 		string
 	 */
 	protected function whereFrom() {
 
-		if ( $this->whereFrom != NULL ) return $this->whereFrom;
+		if ( $this->whereFrom != '' ) return $this->whereFrom;
 
 		$this->whereFrom = $this->request()::match( [
 
@@ -262,7 +268,7 @@ class People extends AbstractPage {
 
 		if ( $whereFrom == FALSE ) return FALSE;
 
-		$whereFrom = $this->text()->listValue( $whereFrom, ',' );
+		$whereFrom = Text::listValue( $whereFrom, ',' );
 
 		return ( !empty( $whereFrom ) ) ? $whereFrom[ 0 ] : FALSE;
 	}
@@ -277,7 +283,7 @@ class People extends AbstractPage {
 
 		if ( $whereFrom != FALSE ) {
 
-			$whereFrom = $this->text()->listValue( $whereFrom, ',' );
+			$whereFrom = Text::listValue( $whereFrom, ',' );
 
 			$allowedCountries = [ 'Japan', 'USA', 'Italy', 'Germany', 'China', 'Belgium', 'United States', 'U.S.A.' ];
 			$country          = end( $whereFrom );
@@ -313,7 +319,7 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->formatK( $data );
+		return Text::formatK( $data );
 	}
 
 	/**
@@ -326,7 +332,7 @@ class People extends AbstractPage {
 
 		if ( $data == FALSE ) return FALSE;
 
-		return $this->text()->replace( '[^0-9]+', '', $data );
+		return Text::replace( '[^0-9]+', '', $data );
 	}
 
 	/**
@@ -337,7 +343,7 @@ class People extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'voice acting roles</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
 		[
 		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/anime/\d+/\d+\.jpg[^"]+)"',
@@ -356,7 +362,7 @@ class People extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'anime staff positions</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
 		[ '<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', '<small>([^<]+)</small>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/anime/\d+/\d+\.jpg[^"]+)"' ],
 		[ 'id', 'title', 'work', 'poster' ],
@@ -373,7 +379,7 @@ class People extends AbstractPage {
 
 		return
 		$this->request()::matchTable(
-		$this->config(), $this->text(),
+		$this->config(),
 		'<div id="horiznav_nav"[^>]*>(.*?)</div>', '<li>(.*?)</li>',
 		[ '<a\s*href="[^"]+/([^"/]+)">[^<>]+</a>', '<a\s*href="[^"]+/[^"/]+">([^<>]+)</a>' ],
 		[ 'href', 'title' ],
