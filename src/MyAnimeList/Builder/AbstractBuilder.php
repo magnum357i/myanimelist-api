@@ -9,24 +9,24 @@ use \MyAnimeList\Helper\Config;
 
 abstract class AbstractBuilder {
 
-    /**
-     * @var 		string 			Software version
-     */
-	const VERSION = '1.0.0.2';
+	/**
+	 * @var 		string 			Software version
+	 */
+	const VERSION = '1.0.0.3';
 
-    /**
-     * @var 		string 			MAL Type
-     */
+	/**
+	 * @var 		string 			MAL Type
+	 */
 	protected static $type = '';
 
-    /**
-     * @var 		string 			Key list for all purposes
-     */
+	/**
+	 * @var 		string 			Key list for all purposes
+	 */
 	public $keyList = [];
 
-    /**
-     * @var 		bool 			Are the values changed?
-     */
+	/**
+	 * @var 		bool 			Are the values changed?
+	 */
 	protected $changed = FALSE;
 
 	/**

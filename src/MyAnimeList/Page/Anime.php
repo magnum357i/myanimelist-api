@@ -205,11 +205,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getVoterawWithScoreFromData() {
 
-		$data = $this->request()::match( 'scored by <span itemprop="ratingCount">(.*?)</span> users' );
-
-		if ( $data == FALSE ) return FALSE;
-
-		return Text::replace( '[^0-9]+', '', $data );
+		return $this->request()::match( 'scored by <span itemprop="ratingCount"[^>]*>(\d+)</span>' );
 	}
 
 	/**
