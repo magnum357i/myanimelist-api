@@ -47,11 +47,14 @@ class Anime extends AbstractPage {
 	 */
 	protected function getOriginalWithTitleFromData() {
 
-		$data = $this->request()::match( '<span itemprop="name">(.*?)</span>' );
+		$data = $this->request()::match( '<span itemprop="name">(.*?)</span>', '<span>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		return Text::replace( '\s*\(.+\)', '', $data, 'si' );
+		$data = Text::replace( '<span[^>]+>.+', '', $data, 'si' );
+		$data = Text::replace( '\s*\(.+\)', '', $data, 'si' );
+
+		return $data;
 	}
 
 	/**

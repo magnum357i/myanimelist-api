@@ -27,7 +27,7 @@ class People extends AbstractPage {
 	 */
 	protected function getNameFromData() {
 
-		$data = $this->request()::match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
+		$data = $this->request()::match( '<span class="h1-title">(.*?)</span>' );
 
 		if ( $data == FALSE ) return FALSE;
 

@@ -27,7 +27,7 @@ class Character extends AbstractPage {
 	 */
 	protected function getSelfWithTitleFromData() {
 
-		$data = $this->request()::match( '</div><h1.*?>(.*?)</h1></div><div id="content" ?>' );
+		$data = $this->request()::match( '<span class="h1-title">(.*?)</span>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -44,7 +44,13 @@ class Character extends AbstractPage {
 	 */
 	protected function getNicknameWithTitleFromData() {
 
-		return $this->request()::match( '</div><h1.*?>.*?"(.*?)".*?</h1></div><div id="content" ?>' );
+		$data = $this->request()::match( '<span class="h1-title">(.*?)</span>' );
+
+		if ( $data == FALSE ) return FALSE;
+
+		preg_match( '@"([^"]+)"@i', $data, $out );
+
+		return ( isset( $out[ 1 ] ) ) ? $out[1] : FALSE;
 	}
 
 	/**

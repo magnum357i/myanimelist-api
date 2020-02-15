@@ -12,7 +12,7 @@ abstract class AbstractBuilder {
 	/**
 	 * @var 		string 			Software version
 	 */
-	const VERSION = '1.0.0.3';
+	const VERSION = '1.0.0.4';
 
 	/**
 	 * @var 		string 			MAL Type

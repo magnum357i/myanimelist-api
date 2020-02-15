@@ -34,7 +34,14 @@ class Manga extends AbstractPage {
 	 */
 	protected function getOriginalWithTitleFromData() {
 
-		return $this->request()::match( '<span itemprop="name">(.*?)</span>' );
+		$data = $this->request()::match( '<span itemprop="name">(.*?)</span>', '<span>' );
+
+		if ( $data == FALSE ) return FALSE;
+
+		$data = Text::replace( '<span[^>]+>.+', '', $data, 'si' );
+		$data = Text::replace( '\s*\(.+\)', '', $data, 'si' );
+
+		return $data;
 	}
 
 	/**
