@@ -47,11 +47,10 @@ class Anime extends AbstractPage {
 	 */
 	protected function getOriginalWithTitleFromData() {
 
-		$data = $this->request()::match( '<span itemprop="name">(.*?)</span>', '<span>' );
+		$data = $this->request()::match( '<h1 class="title-name">(.*?)</h1>' );
 
 		if ( $data == FALSE ) return FALSE;
 
-		$data = Text::replace( '<span[^>]+>.+', '', $data, 'si' );
 		$data = Text::replace( '\s*\(.+\)', '', $data, 'si' );
 
 		return $data;
@@ -110,7 +109,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getDescriptionFromData() {
 
-		$data = $this->request()::match( '<span itemprop="description">(.*?)</span>', '<br>' );
+		$data = $this->request()::match( '<p itemprop="description">(.*?)</p>', '<br>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -123,7 +122,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getBackgroundFromData() {
 
-		$data = $this->request()::match( '<span itemprop="description">.*?</span><h2[^>]*>.*?</h2>(.*?)<div[^>]*>', '<br>' );
+		$data = $this->request()::match( '<h2>background</h2></div>(.*?)<div[^>]*>' );
 
 		if ( $data === FALSE OR Text::validate( $data, 'string', [ 'regex' => 'no background information', 'flags' => 'si' ] ) ) return FALSE;
 
@@ -504,7 +503,7 @@ class Anime extends AbstractPage {
 		return
 		$this->request()::matchTable(
 		$this->config(),
-		'</div>characters & voice actors</h2>(.*?)<a name="staff">', '<tr>(.*?)</tr>',
+		'</div><h2>characters & voice actors</h2>(.*?)<a name="staff">', '<tr>(.*?)</tr>',
 		[
 		'<a href="[^"]+/character/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/character/.*?/.*?">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/characters/\d+/\d+\.jpg[^"]+)"',
 		'<a href="[^"]+/people/(\d+)/[^"]+">[^<]+</a>', '<a href="[^"]+/people/.*?/.*?">([^<]+)</a>', '<a href="[^"]+/people/.*?/.*?">[^<]+</a>.*?<small>(.*?)</small>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/voiceactors/\d+/\d+\.jpg[^"]+)"'
