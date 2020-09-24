@@ -47,7 +47,7 @@ class Anime extends AbstractPage {
 	 */
 	protected function getOriginalWithTitleFromData() {
 
-		$data = $this->request()::match( '<h1 class="title-name">(.*?)</h1>' );
+		$data = $this->request()::match( '<h1 class="title-name[^"]*">(.*?)</h1>' );
 
 		if ( $data == FALSE ) return FALSE;
 

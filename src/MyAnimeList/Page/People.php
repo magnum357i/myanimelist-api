@@ -27,7 +27,7 @@ class People extends AbstractPage {
 	 */
 	protected function getNameFromData() {
 
-		$data = $this->request()::match( '<span class="h1-title">(.*?)</span>' );
+		$data = $this->request()::match( '<h1 class="title-name[^"]*">(.*?)</h1>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -344,7 +344,7 @@ class People extends AbstractPage {
 		return
 		$this->request()::matchTable(
 		$this->config(),
-		'voice acting roles</div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
+		'voice acting roles</h2></div><table.*?>(.+?)</table>', '<tr>(.*?)</tr>',
 		[
 		'<a href="[^"]+anime/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+anime/\d+[^"]+">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/anime/\d+/\d+\.jpg[^"]+)"',
 		'<a href="[^"]+character/(\d+)[^"]+">[^<]+</a>', '<a href="[^"]+character/\d+[^"]+">([^<]+)</a>', 'data-src="([^"]+myanimelist.net/r/[\dx]+/images/characters/\d+/\d+\.jpg[^"]+)"'

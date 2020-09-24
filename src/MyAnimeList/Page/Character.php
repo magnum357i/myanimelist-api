@@ -27,7 +27,7 @@ class Character extends AbstractPage {
 	 */
 	protected function getSelfWithTitleFromData() {
 
-		$data = $this->request()::match( '<span class="h1-title">(.*?)</span>' );
+		$data = $this->request()::match( '<h1 class="title-name[^"]*">(.*?)</h1>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -44,7 +44,7 @@ class Character extends AbstractPage {
 	 */
 	protected function getNicknameWithTitleFromData() {
 
-		$data = $this->request()::match( '<span class="h1-title">(.*?)</span>' );
+		$data = $this->request()::match( '<h1 class="title-name[^"]*">(.*?)</h1>' );
 
 		if ( $data == FALSE ) return FALSE;
 
@@ -93,7 +93,7 @@ class Character extends AbstractPage {
 
 		if ( $this->fullDescription != '' ) return $this->fullDescription;
 
-		$this->fullDescription = $this->request()::match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?<div.*?>.*?</div>(.*?)<div[^>]*>voice actors</div>', "<br><span><input>" );
+		$this->fullDescription = $this->request()::match( '<div class="breadcrumb ?"[^>]*>.*?</div></div>.*?</h2>(.*?)<div[^>]*>voice actors</div>', "<br><span><input>" );
 
 		return $this->fullDescription;
 	}
